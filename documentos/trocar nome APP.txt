@@ -1,0 +1,117 @@
+
+---------------------------------------------------------
+const CLIENTE_KEY = 'cliente-access-key';
+const TOKEN_KEY   = 'cliente-access-token';
+
+auth.service.ts
+voucher.service.ts
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+    IonicStorageModule.forRoot({
+      name: '__Vexor43Voucher',
+      driverOrder: ['indexeddb', 'sqlite', 'websql']
+    }),
+
+app.module.ts
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+define('KEY_SECRET', 'vexor43_2019_bellopastel');  token App
+define('PASSWORD_KEY', 'vexor43_cityinbag_elemento_2019'); senha app
+
+access_token.php
+---------------------------------------------------------
+
+
+FullName                                                                                                                 LastWriteTime        Length
+--------                                                                                                                 -------------        ------
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\.firebase\hosting.d3d3.cache                                 08/12/2019 19:08:30   98722
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\.gradle\4.10.3\taskHistory\taskHistory.bin 09/12/2019 06:15:21 1527388
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\generated\not_namespaced_r_class 09/12/2019 00:40:00     708
+_sources\debug\processDebugResources\r\com\ionictheme\foodionic\v2\R.java                                                                           
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\generated\source\buildConfig\deb 09/12/2019 00:39:53     467
+ug\com\ionictheme\foodionic\v2\BuildConfig.java                                                                                                     
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\bundle_manifest\de 09/12/2019 00:40:00    1645
+bug\processDebugManifest\bundle-manifest\AndroidManifest.xml                                                                                        
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\bundle_manifest\de 09/12/2019 00:40:00     323
+bug\processDebugManifest\bundle-manifest\output.json                                                                                                
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 06:15:16  203490
+Voucher\BelloPastel\platforms\android\app\build\intermediates\incremental\mergeDebugAssets\merger.xml                                               
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\incremental\packag 09/12/2019 00:40:15  291311
+eDebug\tmp\debug\file-input-save-data.txt                                                                                                           
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\instant_app_manife 09/12/2019 00:40:00    1683
+st\debug\processDebugManifest\instant-app-manifest\AndroidManifest.xml                                                                              
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\instant_app_manife 09/12/2019 00:40:00     328
+st\debug\processDebugManifest\instant-app-manifest\output.json                                                                                      
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\instant_run_merged 09/12/2019 00:40:00     336
+_manifests\debug\processDebugManifest\instant-run\output.json                                                                                       
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:01     740
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\BuildConfig.class                                                                           
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:00     947
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\MainActivity.class                                                                          
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:01     429
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\R$drawable.class                                                                            
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:01     428
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\R$mipmap.class                                                                              
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:01     499
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\R$string.class                                                                              
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:01     414
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\R$xml.class                                                                                 
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\javac\debug\compil 09/12/2019 00:40:01     541
+eDebugJavaWithJavac\classes\com\ionictheme\foodionic\v2\R.class                                                                                     
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\merged_assets\debu 09/12/2019 00:38:02    5010
+g\mergeDebugAssets\out\www\assets\i18n\en.json                                                                                                      
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:38:44    1494
+Voucher\BelloPastel\platforms\android\app\build\intermediates\merged_assets\debug\mergeDebugAssets\out\www\index.html                               
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:00    1645
+Voucher\BelloPastel\platforms\android\app\build\intermediates\merged_manifests\debug\AndroidManifest.xml                                            
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:00     324
+Voucher\BelloPastel\platforms\android\app\build\intermediates\merged_manifests\debug\output.json                                                    
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:00     321
+Voucher\BelloPastel\platforms\android\app\build\intermediates\processed_res\debug\processDebugResources\out\output.json                             
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:00    7728
+Voucher\BelloPastel\platforms\android\app\build\intermediates\res\merged\debug\xml_config.xml.flat                                                  
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:00     132
+Voucher\BelloPastel\platforms\android\app\build\intermediates\res\symbol-table-with-package\debug\package-aware-r.txt                               
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07     944
+der\debug\8\com\ionictheme\foodionic\v2\BuildConfig.dex                                                                                             
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07    1088
+der\debug\8\com\ionictheme\foodionic\v2\MainActivity.dex                                                                                            
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07     780
+der\debug\8\com\ionictheme\foodionic\v2\R$drawable.dex                                                                                              
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07     780
+der\debug\8\com\ionictheme\foodionic\v2\R$mipmap.dex                                                                                                
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07     844
+der\debug\8\com\ionictheme\foodionic\v2\R$string.dex                                                                                                
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07     768
+der\debug\8\com\ionictheme\foodionic\v2\R$xml.dex                                                                                                   
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexBuil 09/12/2019 00:40:07     772
+der\debug\8\com\ionictheme\foodionic\v2\R.dex                                                                                                       
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:07  200784
+Voucher\BelloPastel\platforms\android\app\build\intermediates\transforms\dexMerger\debug\0\classes.dex                                              
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\build\outputs\apk\debug\app-debug.apk  09/12/2019 06:15:20 1572767
+                                                                                                                                                   4
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 00:40:00    8800
+Voucher\BelloPastel\platforms\android\app\build\outputs\logs\manifest-merger-debug-report.txt                                                       
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 06:13:24    5010
+Voucher\BelloPastel\platforms\android\app\src\main\assets\www\assets\i18n\en.json                                                                   
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\src\main\assets\www\index.html         09/12/2019 06:14:14    1494
+C:\5. Cityinbag\Projetos Mobile\Projeto                                                                                  09/12/2019 06:14:32    1460
+Voucher\BelloPastel\platforms\android\app\src\main\java\com\ionictheme\foodionic\v2\MainActivity.java                                               
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\src\main\res\xml\config.xml            09/12/2019 06:14:29    4327
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\app\src\main\AndroidManifest.xml           09/12/2019 06:14:32    1275
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\platforms\android\android.json                               09/12/2019 06:14:36    4901
+
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\plugins\android.json                                         09/12/2019 00:37:26     880
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\src\assets\i18n\en.json                                      08/12/2019 19:08:30    5010
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\src\global.scss                                              08/12/2019 19:08:30    4766
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\www\assets\i18n\en.json                                      09/12/2019 06:13:24    5010
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\www\index.html                                               09/12/2019 06:14:14    1494
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\.firebaserc                                                  08/12/2019 19:08:30      57
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\config.xml                                                   09/12/2019 06:11:11    8088
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\documentation.md                                             08/12/2019 19:08:30    9709
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\ngsw-config.json                                             08/12/2019 19:08:30     845
+C:\5. Cityinbag\Projetos Mobile\Projeto Voucher\BelloPastel\package.json                                                 09/12/2019 06:14:26    3070

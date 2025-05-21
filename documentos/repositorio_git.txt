@@ -1,0 +1,29 @@
+Criação de repositório do projeto e compilação para Android
+============================================================
+
+Passos para criação de Novo Repositório - Após criação no GitHub
+
+Entrar na pasta do projeto e:
+git init
+git remote add origin https://github.com/betinho-cidade/BelloPastel_SITE.git
+git status
+git add .
+git commit -m "Primeiro Commit do projeto web"
+git push --force origin master
+
+
+reinstalação do projeto clonado
+==================================
+npm install -g ionic (ionic)
+npm install (ionic / laravel)
+composer install (laravel)
+
+
+compilação
+==================
+ionic cordova build --debug android (testes)
+ionic cordova build --release android (produção)
+ionic cordova build ios --prod (copiar a pasta platform/ios e abrir no xcode/mac)
+
+ionic cordova resources (gerar os icons/splah novamente)
+

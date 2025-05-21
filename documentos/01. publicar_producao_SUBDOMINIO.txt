@@ -1,0 +1,53 @@
+Publicar em Produção - Laravel
+
+    0) No servidor hostgator, nas definições do subdominio, ajustar a pasta raiz para:
+	
+		a. subdominio.com.br/public_html
+
+	1) Baixar todo o projeto, com exceção da pasta NODE_MODULES e GIT para o subdominio.
+	
+	2) Alterar o diretório PUBLIC para PUBLIC_HTML
+	
+	3) Alterar o arquivo SERVER.PHP na raiz:
+	
+		a. Alterar o arquivo SERVER.PHP que está na raiz dessa pasta conforme modelo abaixo
+			if ($uri !== '/' && file_exists(__DIR__.'/public_html'.$uri)) {
+				return false;
+			}
+
+			require_once __DIR__.'/public_html/index.php';
+			
+			
+	3) Ajustar no arquivo em App/Providers/AppServiceProvider
+		a. Adicionar em provider AppServiceProvider
+		  
+		  public function register()
+		  {
+			  $this->app->bind('path.public',function(){
+			  return base_path().'/public_html';
+			  });
+		  }
+
+			
+	4) Ajustar arquivo de propriedades - ENV
+			
+		a. Na aplicação, dentro do diretório  da raiz do servidor BelloPastel
+			i. Ajustar o arquivo .ENV com as seguintes propriedades
+				APP_NAME=BelloPastel
+				APP_ENV=production
+				APP_DEBUG=false
+				APP_URL=http://bellopastel.vexor43.com.br/
+				
+				DB_CONNECTION=mysql
+				DB_HOST=127.0.0.1
+				DB_PORT=3306
+				DB_DATABASE=vexor430_bellopastel
+				DB_USERNAME=vexor430_bpastel
+				DB_PASSWORD=204Spt6uxZbNjkCQU19
+
+				MAIL_DRIVER=SMTP
+				MAIL_HOST=vexor43.com.br
+				MAIL_PORT=25
+				MAIL_USERNAME=contato@vexor43.com.br
+				MAIL_PASSWORD=vexor@2019
+				MAIL_ENCRYPTION=null

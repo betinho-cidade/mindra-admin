@@ -1,0 +1,49 @@
+-- https://medium.com/@techsolutionstuff/how-to-install-laravel-breeze-in-laravel-11-cbd605907782
+
+composer create-project laravel/laravel novo_admin
+
+composer require laravel/breeze  -- implementar segurança
+
+php artisan breeze:install  -- publicando as views e rotas de autenticação
+
+
+
+https://packagist.org/packages/intervention/image-laravel
+
+composer require intervention/image-laravel
+
+php artisan vendor:publish --provider="Intervention\Image\Laravel\ServiceProvider"
+
+Class Controller
+=================
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+
+$manager = new ImageManager(new Driver());
+
+$img = $manager->read($request->path_banner);
+                    
+$img->save($path_banner.'/'.$img_banner, 50);
+
+## Ajustar path para salvar images
+no arquivo index.html gerado na pasta public alterar para.. 
+
+// Bootstrap Laravel and handle the request...
+(require_once __DIR__.'/../bootstrap/app.php')
+    ->usePublicPath('/home/u506444302/domains/pulse.com.br/public_html/admin/public_html')
+    ->handleRequest(Request::capture());
+
+
+
+https://dev.to/snehalkadwe/use-of-dompdf-in-laravel-10-opn
+
+composer require barryvdh/laravel-dompdf
+
+php artisan vendor:publish --provider="Barryvdh\DomPDF\ServiceProvider"
+
+app/config/dompdf.php
+'enable_remote' => true
+
+vendor/barryvdh/laravel-dompdf/src/ServiceProvider.php
+de: $path = realpath($app['config']->get('dompdf.public_path') ?: base_path('public'));
+para: $path = realpath($app['config']->get('dompdf.public_path') ?: base_path('public_html'));

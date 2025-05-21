@@ -1,0 +1,134 @@
+
+/* CORES */
+body[data-sidebar=dark] .vertical-menu {    background: #123332;}
+body[data-sidebar=dark] .navbar-brand-box {    background: #123332;}
+:root {    --primary: #000 !important;}
+.btn-primary { color: #fff; background-color: #000; border-color: #000;    box-shadow: none !important; }
+a, .auth-form-group-custom .auti-custom-input-icon{ color: #000;}
+a:hover { color: #313131;}
+.btn-primary:hover, .btn-primary:active {color: #fff;background-color: #313131 !important ;border-color: #313131 !important;}
+.btn-primary:focus, .btn-primary.focus {color: #fff;background-color: #313131 !important;border-color: #313131 !important;}
+.btn-primary:onclick {color: #fff;background-color: #927878 !important;border-color: #313131 !important;}
+.bg-soft-primary { background-color: rgb(0 0 0 / 10%) !important; }
+.text-primary {    color: #313131!important;}
+.page-item.active .page-link { z-index: 3; color: #fff; background-color: #000; border-color: #000; }
+.page-link:hover{color: #000;}
+.badge-soft-primary { color: #313131; background-color: #31313138; }
+.topnav .navbar-nav .nav-item .nav-link.active, .topnav .navbar-nav .nav-link:hover{ color: #000;}
+
+body[data-sidebar=dark].vertical-collpsed .vertical-menu #sidebar-menu ul li.mm-active .active i {color: #ffffff!important;opacity: 1;}
+
+/* CORES */
+
+/* TÍTULO E PREÇO PÁGINA DO CURSO*/
+.titulo-e-preco-produto{width:100%;display: flex;}
+.titulo-curso, .preco-curso{width:50%; float:left;}
+.titulo-curso span{font-weight: 600; font-size: 12px; color: #ff5252 !important;}
+.preco-curso .preco-antigo {text-align:right;margin-bottom:9px;font-size: 12px;}
+.preco-curso del {background: #ff5252; color: #fff !important; padding: 2px 8px; border-radius: 8px; font-size: 12px;}
+.preco-curso .preco-promo {text-align:right;margin-top:0;font-size: 12px;}
+.preco-promo span{background: #1cbb8c; color: #fff !important; padding: 2px 8px; border-radius: 8px; font-size: 19px;}
+/* TÍTULO E PREÇO PÁGINA DO CURSO*/
+
+/* TÍTULO E PREÇO LISTAGEM DE CURSOS*/
+.titulo-e-preco-produto-lista{width:100%;display: flex;}
+.preco-curso-lista, .bt-comprar-lista{width:50%; float:left;}
+.bt-comprar-lista{text-align: right;}
+.preco-antigo-lista{font-size: 10px;margin-bottom: 1px;}
+.preco-antigo-lista del{color:#ff5252 !important;}
+.preco-promo-lista{font-size: 14px;margin-bottom:0;}
+.preco-promo-lista span{font-size: 20px;color:#1cbb8c;}
+/* TÍTULO E PREÇO LISTAGEM DE CURSOS*/
+
+/* LISTAGEM DE CURSOS NO PACOTE*/
+.lista-cursos-do-pacote{margin:10px 0;height: 75px; overflow-y: auto;}
+.lista-cursos-do-pacote .badge{font-size: 13px!important;line-height: 16px;margin-bottom:5px;}
+.lista-cursos-do-pacote::-webkit-scrollbar { width: 4px;}
+.lista-cursos-do-pacote::-webkit-scrollbar-track { background: #e2e2e2}
+.lista-cursos-do-pacote::-webkit-scrollbar-thumb { background-color: #4a4a4a;   border-radius: 0px;}
+/* LISTAGEM DE CURSOS NO PACOTE*/
+
+/* SCROLL BAR PÁGINA DO CURSO E RELATÓRIOS*/
+.conteudo::-webkit-scrollbar { width: 4px;}
+.conteudo::-webkit-scrollbar-track { background: #e2e2e2}
+.conteudo::-webkit-scrollbar-thumb { background-color: #4a4a4a;   border-radius: 0px;}
+
+.list-unstyled::-webkit-scrollbar { width: 4px;}
+.list-unstyled::-webkit-scrollbar-track { background: #e2e2e2}
+.list-unstyled::-webkit-scrollbar-thumb { background-color: #4a4a4a;   border-radius: 0px;}
+
+.table-responsive::-webkit-scrollbar { width: 4px;}
+.table-responsive::-webkit-scrollbar-track { background: #e2e2e2}
+.table-responsive::-webkit-scrollbar-thumb { background-color: #4a4a4a;   border-radius: 0px;}
+
+.scroll-relatorios::-webkit-scrollbar { height: 6px;}
+.scroll-relatorios::-webkit-scrollbar-track { background: #e2e2e2}
+.scroll-relatorios::-webkit-scrollbar-thumb { background-color: #4a4a4a;   border-radius: 0px;}
+/* SCROLL BAR PÁGINA DO CURSO*/
+
+
+/* GRAFICO VENDAS */
+#relatorio_venda .data-range{width:60%; }
+#relatorio_venda .data-range input {width: 40%;float: left;margin-right:10px;}
+#relatorio_venda .data-range button{padding: 6px 9px; background: #fff; color: #000; font-weight: 900;}
+#relatorio_venda .data-range button:hover{color: #fff;}
+#relatorio_venda .card-title{padding-top: 6px;}
+#relatorio_venda .card-title span{top: 3px;position: relative;margin-left: 5px;}
+#relatorio_venda .card-title i{font-size:18px;}
+
+#relatorio_venda .list-unstyled{max-height: 200px; overflow-y: auto;  padding-left: 16px;}
+#relatorio_venda .list-unstyled{min-height:200px;}
+#relatorio_venda #columnchart_values{margin-left: -18px;}
+/* GRAFICO VENDAS */
+
+
+/* GRAFICO PAGAMENTOS */
+#relatorio_pagamento .data-range{width:60%; }
+#relatorio_pagamento .data-range input {width: 43%;float: left;margin-right:10px;}
+#relatorio_pagamento .data-range button{padding: 6px 9px; background: #fff; color: #000; font-weight: 900;}
+#relatorio_pagamento .data-range button:hover{color: #fff;}
+#relatorio_pagamento .card-title{padding-top: 6px;}
+#relatorio_pagamento .card-title span{top: 3px;position: relative;margin-left: 5px;}
+#relatorio_pagamento .card-title i{font-size:18px;}
+
+#relatorio_pagamento .table-responsive{max-height: 722px; overflow-y: auto;min-height: 722px;}
+/* GRAFICO PAGAMENTOS */
+
+/* PAGINAÇÃO */
+.pagination li a { display: block; font-size: 11px; padding: 4px 8px; margin: 0 2px;}
+/* PAGINAÇÃO */
+
+/* USUARIO ATIVACAO E UPLOAD */
+.icone_ativacao{display: flex;    flex-direction: row;    align-items: center;}
+.instrucao_upload {padding-left: 18px;}
+.instrucao_upload li{    font-size: 13px;    color: #232323;}
+.resultado_importacao{    margin: -30px 15px 0 0;}
+.resultado_importacao .sucesso{    margin: 0 3px;color: #f7f7f7; background: #d2f1e8; color:#1cbb8c; font-weight: 800; font-size: 13px; padding: 3px 10px; border-radius: 5px;}
+.resultado_importacao .erro{    margin: 0 3px;color: #f7f7f7; background: #fed4d4;     color: #ff00007a !important; font-weight: 800; font-size: 13px; padding: 3px 10px; border-radius: 5px;}
+.resultado_importacao .log a{ margin: 0 0 0 3px; border: 1px solid #989898; padding: 1px 15px; border-radius: 5px; display: flex ;}
+/* USUARIO ATIVACAO E UPLOAD */
+
+
+
+
+
+
+@media only screen and (max-width:767px){
+	/* TÍTULO E PREÇO PÁGINA DO CURSO*/
+	.titulo-e-preco-produto{display: block !important;padding: 15px 0;}
+	.titulo-curso, .preco-curso{width: 100% !important; float: initial !important;text-align:center !important;}
+	.titulo-curso{margin-bottom:20px;}
+	.preco-curso .preco-antigo, .preco-curso .preco-promo{text-align: center; font-size:0;}
+	.badges-curso{text-align: center;}
+	.conteudo{margin-top: 15px; text-align:center;    max-height: 200px !important;}
+	.bt-comprar-curso{width:100%;     margin-bottom: 10px; }
+	/* TÍTULO E PREÇO PÁGINA DO CURSO*/
+
+
+}
+
+@media only screen and (min-width: 1200px) and (max-width:1650px){
+
+.card-curso-geral{-webkit-box-flex: 0; -ms-flex: 0 0 33%;  flex: 0 0 33%;   max-width: 33%;}
+
+}

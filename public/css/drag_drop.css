@@ -1,0 +1,18 @@
+.itens-drag-drog{padding: 15px 30px 15px 30px !important;}
+.list-group-item .row{padding: 5px 10px;}
+.itens-drag-drog .btn-info{margin-right: 5px;}
+.itens-drag-drog .flex-center{     border-radius: 5px;   background: #efefef;width: 5%;height:5%;float: left;text-align: center;cursor: move;padding: 9px 0;}
+.itens-drag-drog .flex-center.ordenar-perguntas{margin-top: 15px;}
+.itens-drag-drog .form-group{padding-top: 0px; margin-bottom: 0;  width: 89%;float: left;margin-left: 10px;margin-right: 10px;}
+.itens-drag-drog .list-group-item{padding-bottom: 5px !important;  padding-top: 5px;}
+.itens-drag-drog .btn-info {background-color: #5664d2;border-color: #5664d2;}
+.itens-drag-drog .titulo-add-questao{margin-bottom: 15px;}
+.itens-drag-drog .btn-danger{height: 5%;}
+.titulo-add-questao{margin-bottom: 15px;}
+
+@media only screen and (max-width:767px){
+    .itens-drag-drog .flex-center{width: 15%;margin-right: 5px;    margin-bottom: 10px;}
+    #removeRow{width: 13%;}
+    .itens-drag-drog .form-group {  width: 100%;    margin-left: 0 !important;    margin-right: 0 !important;}
+    .itens-drag-drog .form-group textarea{min-height: 85px;}
+}

@@ -1,0 +1,162 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class PermissionSeeder extends Seeder
+{
+
+    public function run()
+    {
+        if(DB::table('permissions')->get()->count() == 0){
+
+            DB::table('permissions')->insert([
+                [
+                    'id' => 1,
+                    'name' => 'view_usuario',
+                    'description' => 'Visualizar as informações do usuário do sistema',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'edit_usuario',
+                    'description' => 'Editar as informações do usuário do sistema',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'create_usuario',
+                    'description' => 'Criar um novo usuário do sistema',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 4,
+                    'name' => 'delete_usuario',
+                    'description' => 'Excluir o usuário do sistema',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 5,
+                    'name' => 'view_painel',
+                    'description' => 'Visualizar as informações do Painel',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 6,
+                    'name' => 'view_usuario_logado',
+                    'description' => 'Acessar a informação do usuário logado do sistema ',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 7,
+                    'name' => 'edit_usuario_logado',
+                    'description' => 'Editar a informação do usuário logado do sistema ',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 8,
+                    'name' => 'view_empresa',
+                    'description' => 'Visualizar as informações da empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 9,
+                    'name' => 'edit_empresa',
+                    'description' => 'Editar as informações da empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 10,
+                    'name' => 'create_empresa',
+                    'description' => 'Criar uma nova empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 11,
+                    'name' => 'delete_empresa',
+                    'description' => 'Excluir a empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 12,
+                    'name' => 'view_empresa_consultor',
+                    'description' => 'Visualizar as empresas vinculadas ao consultor',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 13,
+                    'name' => 'create_empresa_consultor',
+                    'description' => 'Criar um novo vínculo entre a empresa e o consultor',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 14,
+                    'name' => 'delete_empresa_consultor',
+                    'description' => 'Excluir o vínculo da empresa e o consultor',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 15,
+                    'name' => 'view_empresa_funcionario',
+                    'description' => 'Visualizar as informações da empresa x funcionários',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 16,
+                    'name' => 'create_empresa_funcionario',
+                    'description' => 'Criar um novo funcionário da empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 17,
+                    'name' => 'edit_empresa_funcionario',
+                    'description' => 'Editar um funcionário da empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 18,
+                    'name' => 'delete_empresa_funcionario',
+                    'description' => 'Excluir um funcionário da empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 19,
+                    'name' => 'import_empresa_funcionario',
+                    'description' => 'Importar uma lista de funcionários da empresa',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 20,
+                    'name' => 'invite_empresa_funcionario',
+                    'description' => 'Enviar e-mail em lote para ativação do funcionário',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+            ]);
+
+        } else { echo "\e[31mTabela Permissions não está vazia. "; }
+
+    }
+
+}
