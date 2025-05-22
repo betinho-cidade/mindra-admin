@@ -16,7 +16,12 @@ class CreateCampanhasTable extends Migration
             $table->longtext('descricao')->nullable();
             $table->datetime('data_inicio');
             $table->datetime('data_fim');
+            $table->enum('status', ['A', 'I'])->default('A');  //A->Ativo  I->Inativo
+            $table->unsignedBigInteger('campanha_created');
+            $table->unsignedBigInteger('campanha_updated');
             $table->timestamps();
+            $table->foreign('campanha_created')->references('id')->on('users');
+            $table->foreign('campanha_updated')->references('id')->on('users');
             $table->foreign('formulario_id')->references('id')->on('formularios');
         });
     }

@@ -55,8 +55,6 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
 
                 Route::group(['namespace' => 'Empresa'], function(){
                     Route::get('/gestao/empresa', 'EmpresaController@index')->name('empresa_funcionario.index');
-
-                    Route::get('/gestao/empresa', 'EmpresaController@index')->name('empresa_funcionario.index');
                     Route::get('/gestao/empresa/{empresa}', 'EmpresaController@show')->name('empresa_funcionario.show');
                     Route::get('/gestao/empresa/{empresa}/create', 'EmpresaController@create')->name('empresa_funcionario.create');
                     Route::post('/gestao/empresa/{empresa}/store', 'EmpresaController@store')->name('empresa_funcionario.store');
@@ -67,6 +65,19 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                     Route::get('/gestao/empresa/empresa_funcionario/{empresa_funcionario}', 'EmpresaController@show_funcionario')->name('empresa_funcionario.show_funcionario');
                     Route::put('/gestao/empresa/empresa_funcionario/{empresa_funcionario}/update', 'EmpresaController@update_funcionario')->name('empresa_funcionario.update_funcionario');
                     Route::delete('/gestao/empresa/empresa_funcionario/{empresa_funcionario}/destroy', 'EmpresaController@destroy_funcionario')->name('empresa_funcionario.destroy_funcionario');
+                });
+
+                Route::group(['namespace' => 'Campanha'], function(){
+                    Route::get('/campanha', 'CampanhaController@index')->name('campanha.index');
+                    Route::post('/campanha/preview_formulario/{formulario}', 'CampanhaController@preview_formulario')->name('campanha.preview_formulario');
+                    Route::get('/campanha/create', 'CampanhaController@create')->name('campanha.create');
+                    Route::post('/campanha/store', 'CampanhaController@store')->name('campanha.store');
+                    Route::get('/campanha/{campanha}', 'CampanhaController@show')->name('campanha.show');
+                    Route::put('/campanha/{campanha}/update', 'CampanhaController@update')->name('campanha.update');
+                    Route::delete('/campanha/{campanha}/destroy', 'CampanhaController@destroy')->name('campanha.destroy');
+                    Route::get('/campanha/{campanha}/empresa_create', 'CampanhaController@empresa_create')->name('campanha.empresa_create');
+                    Route::put('/campanha/{campanha}/empresa_store', 'CampanhaController@empresa_store')->name('campanha.empresa_store');
+                    Route::delete('/campanha/{campanha}/empresa_destroy/{campanha_empresa}', 'CampanhaController@empresa_destroy')->name('campanha.empresa_destroy');
                 });
             });
 

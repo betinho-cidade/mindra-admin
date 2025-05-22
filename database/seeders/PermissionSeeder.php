@@ -153,6 +153,42 @@ class PermissionSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'id' => 21,
+                    'name' => 'view_campanha',
+                    'description' => 'Visualizar as informações da campanha',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 22,
+                    'name' => 'create_campanha',
+                    'description' => 'Criar uma nova campanha',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 23,
+                    'name' => 'edit_campanha',
+                    'description' => 'Editar uma campanha',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 24,
+                    'name' => 'delete_campanha',
+                    'description' => 'Excluir uma campanha',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 25,
+                    'name' => 'join_campanha_empresa',
+                    'description' => 'Vincular empresas às campanhas',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+
             ]);
 
         } else { echo "\e[31mTabela Permissions não está vazia. "; }

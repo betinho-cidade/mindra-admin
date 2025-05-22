@@ -37,7 +37,12 @@
                                     <span>Empresas</span>
                                 </a>
                             </li>
-
+                            <li>
+                                <a href="{{route('campanha.index')}}" class="waves-effect">
+                                    <i class="ri-file-user-line"></i>
+                                    <span>Campanhas</span>
+                                </a>
+                            </li>
                             <!-- Menus Relacioandos a administração - Acesso somente para GESTOR - FIM-->
                             @endif
 
@@ -50,6 +55,12 @@
                                 <a href="{{route('empresa_funcionario.index')}}" class="waves-effect">
                                     <i class="ri-file-user-line"></i>
                                     <span>Empresas</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{route('campanha.index')}}" class="waves-effect">
+                                    <i class="ri-file-user-line"></i>
+                                    <span>Campanhas</span>
                                 </a>
                             </li>
 

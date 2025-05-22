@@ -14,6 +14,7 @@ class CreateFormulariosTable extends Migration
             $table->unsignedBigInteger('resposta_id');
             $table->string('titulo', 255);
             $table->longtext('descricao')->nullable();
+            $table->enum('status', ['A', 'I'])->default('A');  //A->Ativo  I->Inativo
             $table->timestamps();
             $table->foreign('resposta_id')->references('id')->on('respostas');
         });
