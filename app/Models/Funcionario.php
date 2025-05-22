@@ -17,4 +17,8 @@ class Funcionario extends Model
         return $this->hasMany('App\Models\EmpresaFuncionario');
     }
 
+    public function campanha_funcionarios(){
+        return $this->hasMany('App\Models\CampanhaFuncionario');
+    }
+
 }

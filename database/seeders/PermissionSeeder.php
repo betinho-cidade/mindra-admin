@@ -188,6 +188,13 @@ class PermissionSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'id' => 26,
+                    'name' => 'release_campanha_funcionario',
+                    'description' => 'Liberar funcionários para realizar a avaliação da campanha',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
 
             ]);
 

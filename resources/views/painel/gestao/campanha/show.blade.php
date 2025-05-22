@@ -139,6 +139,8 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Empresa</th>
+                                <th style="text-align:center;">Funcionários Ativos</th>
+                                <th style="text-align:center;">Liberados</th>
                                 <th style="text-align:center;">Ações</th>
                             </tr>
                         </thead>
@@ -148,7 +150,17 @@
                                 <tr>
                                     <td>{{ $campanha_empresa->id }}</td>
                                     <td>{{ $campanha_empresa->empresa->nome }}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->campanha->campanha_funcionarios->count()}}</td>
                                     <td style="text-align:center;">
+
+                                        @can('release_campanha_funcionario')
+                                            <a href="javascript:;" data-toggle="modal"
+                                            onclick="releaseData('{{$campanha_empresa->campanha->id}}', '{{$campanha_empresa->id}}');"
+                                                data-target="#modal-release"><i class="fas fa-book-reader"
+                                                    style="color: goldenrod" title="Liberar a avaliação da Campanha"></i></a>
+                                        @endcan
+
                                         @can('join_campanha_empresa')
                                             <a href="javascript:;" data-toggle="modal"
                                             onclick="deleteData('empresa', '{{$campanha_empresa->campanha->id}}', '{{$campanha_empresa->id}}');"
@@ -159,7 +171,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5">Nenhum registro encontrado</td>
+                                    <td colspan="4">Nenhum registro encontrado</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -190,6 +202,31 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-release" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Deseja liberar para os funcionários ativos a Avaliação da Campanha ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>O funcionário terá seu acesso liberado para a realização da avaliação da campanha. </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Fechar </button>
+                <button type="button" onclick="releaseFormSubmit();" class="btn btn-primary waves-effect waves-light">Liberar Avaliação </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form action="" id="releaseForm" method="post">
+    @csrf
+    @method('PUT')
+</form>
+
 @endsection
 
 
@@ -205,18 +242,32 @@
             $("#deleteForm").submit();
         }
 
-        function deleteData(origem, campanha, origem_campanha) {
+        function deleteData(origem, campanha, campanha_empresa) {
             var origem = origem;
             var campanha = campanha;
 
             if(origem == 'empresa'){
-                var campanha_empresa = origem_campanha;
+                var campanha_empresa = campanha_empresa;
                 var url = '{{ route('campanha.empresa_destroy', [':campanha', ':campanha_empresa']) }}';
                 url = url.replace(':campanha', campanha);
                 url = url.replace(':campanha_empresa', campanha_empresa);
                 $("#deleteForm").attr('action', url);
             }
         }
+
+        function releaseData(campanha, campanha_empresa) {
+            var campanha = campanha;
+            var campanha_empresa = campanha_empresa;
+            var url = '{{ route('campanha.empresa_funcionario', [':campanha', ':campanha_empresa']) }}';
+            url = url.replace(':campanha', campanha);
+            url = url.replace(':campanha_empresa', campanha_empresa);
+            $("#releaseForm").attr('action', url);
+        }
+
+        function releaseFormSubmit() {
+            $("#releaseForm").submit();
+        }
+
     </script>
 
     @if ($campanha_empresas->count() > 0)

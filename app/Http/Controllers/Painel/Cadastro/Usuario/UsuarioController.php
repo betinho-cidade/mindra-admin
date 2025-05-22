@@ -38,7 +38,7 @@ class UsuarioController extends Controller
 
         $user = Auth()->User();
 
-        $usuarios = null;
+        $usuarios = User::paginate(300);
         $excel_params = [];
 
 

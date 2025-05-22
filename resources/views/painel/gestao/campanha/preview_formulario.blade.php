@@ -44,7 +44,6 @@
                 </div>
             @endforeach
 
-            <button type="submit" class="btn btn-submit">Enviar</button>
         </form>
 
     </div>
@@ -136,7 +135,7 @@
             background-color: #e9ecef;
             border-radius: 3px;
             margin-bottom: 15px;
-            text-align: center;
+            text-align: left;
         }
         .btn-submit {
             background-color: #f5a623;

@@ -40,6 +40,10 @@ class Campanha extends Model
         return $this->hasMany('App\Models\CampanhaEmpresa');
     }
 
+    public function campanha_funcionarios(){
+        return $this->hasMany('App\Models\CampanhaFuncionario');
+    }
+
     public function getDataInicioAjustadaAttribute()
     {
         return ($this->data_inicio) ? date('Y-m-d', strtotime($this->data_inicio)): '';
