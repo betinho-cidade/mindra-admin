@@ -27,16 +27,7 @@ class PainelController extends Controller
 
         $user = Auth()->User();
 
-        $roles = $user->roles;
-
-        $role = $roles->first()->name;
-
-        if($role == 'Gestor' || $role == 'Consultor') {
-            return redirect()->route('dashboard.index');
-        }else{
-            return redirect()->route('logout');
-        }
-
+        return redirect()->route('dashboard.index');
     }
 
     public function preview_formulario(Formulario $formulario, Request $request)
@@ -124,6 +115,5 @@ class PainelController extends Controller
 
         echo json_encode($mensagem);
     }
-
 
 }

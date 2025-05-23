@@ -19,7 +19,7 @@ class EmpresaFuncionario extends Model
     }
 
     public function campanha_funcionarios(){
-        return $this->hasMany('App\Models\CampanhaFuncionarios');
+        return $this->hasMany('App\Models\CampanhaFuncionario');
     }
 
     public function empresa_funcionario_created()

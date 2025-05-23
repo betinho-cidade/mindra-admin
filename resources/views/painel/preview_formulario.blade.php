@@ -3,147 +3,161 @@
 
 @section('content')
 
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-flex align-items-center justify-content-between"  style="margin-bottom: -20px;">
-            <h4 class="mb-0">Preview Formulário - {{ $formulario->titulo }}</h4>
-        </div>
-        <div><code>{{ $formulario->descricao ?? '' }}</code></div>
-    </div>
-</div>
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg" style="margin-bottom: 30px;">
+        <h1 class="main-title">{{ $formulario->titulo }}</h1>
+        <p class="description">
+            {{ $formulario->descricao ?? 'Prévia das questões que serão exibidas para os funcionários no prenchimento do formulário!' }}
+        </p>
 
-<div class="row">
-    <div class="col-12">
+        <form id="assessmentForm">
+            @foreach($formulario->formulario_etapas->sortBy('ordem') as $formulario_etapa)
 
-        <form id="disc-form">
+                <h2 class="topic-header">{{ $formulario_etapa->titulo ?? 'Responda as questões abaixo' }}</h2>
 
-            <div class="header-row">
-                <div class="header-col"></div>
-                @foreach($formulario->resposta->resposta_indicadors as $resposta_indicador)
-                    <div class="header-col">{{ $resposta_indicador->titulo }}</div>
-                @endforeach
-            </div>
-
-            @foreach($formulario->formulario_etapas as $formulario_etapa)
-                <div class="highlighted-card">
-                    @if($formulario_etapa->titulo)
-                        <h5 class="card-title">{{ $formulario_etapa->titulo }}</h5>
-                    @endif
-                    @foreach($formulario_etapa->formulario_perguntas as $formulario_pergunta)
-                        <div class="radio-row">
-                            <label class="label-col">{{ $formulario_pergunta->titulo }}</label>
-                            @foreach($formulario->resposta->resposta_indicadors as $resposta_indicador)
-                                <div class="radio-col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="pergunta_{{ $formulario_pergunta->id }}" id="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" value="{{ $resposta_indicador->id }}" required>
-                                    </div>
-                                </div>
+                <table class="w-full border-collapse mt-4">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-3 text-left">Pergunta</th>
+                            @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
+                                <th class="p-3">{{ $resposta_indicador->titulo }}</th>
                             @endforeach
-                        </div>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($formulario_etapa->formulario_perguntas->sortBy('ordem') as $formulario_pergunta)
+                        <tr class="border-b">
+                            <td class="p-3 text-left">{{ $formulario_pergunta->titulo }}</td>
+                            @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
+                                <td class="p-3 radio-group">
+                                    <input type="radio" id="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" name="pergunta_{{ $formulario_pergunta->id }}" value="{{ $resposta_indicador->id }}" required class="hidden">
+                                    <label for="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" class="block">✔</label>
+                                </td>
+                            @endforeach
+                        </tr>
                     @endforeach
-                </div>
+                    </tbody>
+                </table>
             @endforeach
+{{--
+            <div class="mt-6 text-center">
+                <button type="submit" id="submitButton" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 opacity-50 cursor-not-allowed" disabled>Enviar Avaliação</button>
+            </div>  --}}
 
         </form>
-
     </div>
-</div>
+
+
+@endsection
+
+@section('script-js')
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {{--  <script type='text/javascript'>
+        // Função para validar se todas as perguntas foram respondidas
+        function validateForm() {
+            const form = document.getElementById('assessmentForm');
+            const radioGroups = form.querySelectorAll('input[type="radio"][name]');
+            const uniqueGroups = [...new Set(Array.from(radioGroups).map(input => input.name))]; // Lista de nomes únicos (q1, q2, ...)
+            const submitButton = document.getElementById('submitButton');
+
+            console.log(uniqueGroups);
+
+            // Verifica se cada grupo de radio buttons tem uma opção selecionada
+            const allAnswered = uniqueGroups.every(name => {
+                return form.querySelector(`input[name="${name}"]:checked`);
+            });
+
+            // Habilita ou desabilita o botão de submit
+            if (allAnswered) {
+                submitButton.removeAttribute('disabled');
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.add('hover:bg-blue-600');
+            } else {
+                submitButton.setAttribute('disabled', 'true');
+                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.remove('hover:bg-blue-600');
+            }
+        }
+
+        // Adiciona evento de change a todos os radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', validateForm);
+        });
+
+        // Valida o formulário na inicialização
+        validateForm();
+    </script>  --}}
 
 @endsection
 
 @section('head-css')
-<style>
-        body {
-            background-color: #e9ecef;
-            font-family: 'Arial', sans-serif;
-            // padding: 20px;
-        }
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #004aad;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .section-title {
-            color: #004aad;
-            font-size: 18px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        .header-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .header-col {
-            flex: 1;
+
+    <style>
+        /* Estilização adicional para personalização */
+        .radio-group input:checked + label {
+            background-color: #3b82f6;
+            color: white;
             font-weight: bold;
-            min-height: 40px; /* Garante altura mínima para alinhamento */
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .radio-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
+        .radio-group label {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
         }
-        .label-col {
-            flex: 0 0 200px;
-            text-align: left;
-            display: flex;
-            align-items: center;
+        .radio-group label:hover {
+            background-color: #e5e7eb;
         }
-        .radio-col {
-            flex: 1;
+        th, td {
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 40px; /* Alinha com a altura do header */
+            vertical-align: middle;
         }
-        .form-check-input {
-            margin: 0;
+        .topic-header {
+            background-color: #1f2937;
+            color: white;
+            font-size: 1.25rem;
+            padding: 1rem;
+            margin-top: 2rem;
+            border-radius: 0.375rem;
         }
-        .form-check {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100%; /* Garante que o input fique centralizado verticalmente */
-        }
-        .highlighted-card {
-            border-left: 5px solid #004aad;
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        .card-title {
-            color: #004aad;
+        .main-title {
+            background-color: #1e40af;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 2rem;
             font-weight: bold;
-            font-size: 18px;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 3px;
-            margin-bottom: 15px;
-            text-align: left;
+            text-align: center;
         }
-        .btn-submit {
-            background-color: #f5a623;
-            color: #fff;
-            border: none;
+        .description {
+            color: #4b5563;
+            font-size: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
         }
-        .btn-submit:hover {
-            background-color: #004aad;
+        tbody tr:nth-child(odd) {
+            background-color: #f9fafb; /* Cinza bem claro */
+        }
+        tbody tr:nth-child(even) {
+            background-color: #ffffff; /* Branco */
+        }
+        #submitButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        @media (max-width: 640px) {
+            table {
+                font-size: 0.875rem;
+            }
+            th, td {
+                padding: 0.5rem;
+            }
+            .main-title {
+                font-size: 1.5rem;
+                padding: 1rem;
+            }
         }
     </style>
 @endsection

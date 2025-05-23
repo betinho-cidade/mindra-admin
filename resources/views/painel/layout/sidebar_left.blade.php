@@ -66,6 +66,21 @@
 
                             <!-- Menus Relacioandos a administração - Acesso somente para CONSULTOR - FIM-->
                             @endif
+
+
+                            @if($user->roles->contains('name', 'Funcionario'))
+                            <!-- Menus Relacioandos a administração - Acesso somente para FUNCINARIO - INICIO-->
+
+                            <li class="menu-title">MINDRA</li>
+                            <li>
+                                <a href="" class="waves-effect">
+                                    <i class="ri-file-user-line"></i>
+                                    <span>Avaliações</span>
+                                </a>
+                            </li>
+
+                            <!-- Menus Relacioandos a administração - Acesso somente para CONSULTOR - FIM-->
+                            @endif
                         </ul>
 
                     </div>

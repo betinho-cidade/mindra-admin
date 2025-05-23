@@ -3,25 +3,14 @@
 namespace App\Http\Controllers\Painel\Relatorio\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\AulaAvaliacao;
-use App\Models\MepaTransacao;
-use App\Models\MepaSituacao;
-use App\Models\User;
-use App\Models\Categoria;
-use App\Models\Curso;
-use App\Models\CursoRealizado;
-use App\Models\CursoRealizadoMedalha;
+use App\Models\EmpresaFuncionario;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Excel;
-use App\Exports\RelatorioPagamentoExport;
-use App\Exports\RelatorioAlunoExport;
-use App\Exports\RelatorioAlunoAndamentoExport;
-use App\Exports\RelatorioVendaExport;
 
 
 class DashboardController extends Controller
@@ -42,7 +31,20 @@ class DashboardController extends Controller
 
         $user = Auth()->User();
 
-        return view('painel.relatorio.dashboard.index', compact('user'));
+        $roles = $user->roles;
+
+        $role = $roles->first()->name;
+
+        $empresa_funcionarios = [];
+        if($role == 'Funcionario') {
+            $empresa_funcionarios = EmpresaFuncionario::join('funcionarios', 'empresa_funcionarios.funcionario_id', '=', 'funcionarios.id')
+                                                    ->join('users', 'funcionarios.user_id', '=', 'users.id')
+                                                    ->where('users.id', $user->id)
+                                                    ->select('empresa_funcionarios.*')
+                                                    ->get();
+        }
+
+        return view('painel.relatorio.dashboard.index', compact('user','empresa_funcionarios'));
     }
 
 }
