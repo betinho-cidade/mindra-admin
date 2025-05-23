@@ -14,4 +14,8 @@ class FormularioPergunta extends Model
         return $this->belongsTo('App\Models\FormularioEtapa');
     }
 
+    public function campanha_respostas(){
+        return $this->hasMany('App\Models\CampanhaResposta');
+    }
+
 }

@@ -10,7 +10,7 @@ use App\Models\Empresa;
 use App\Models\CampanhaEmpresa;
 use App\Models\ConsultorEmpresa;
 use App\Models\Formulario;
-use App\Models\Funcionario;
+use App\Models\EmpresaFuncionario;
 use App\Models\CampanhaFuncionario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Gestao\Campanha\CreateRequest;
 use App\Http\Requests\Gestao\Campanha\UpdateRequest;
 use Carbon\Carbon;
+use App\Services\Mail\FuncionarioAvaliacaoService;
+use Illuminate\Support\Facades\Storage;
 
 
 
@@ -140,7 +142,9 @@ class CampanhaController extends Controller
             abort('403', 'Página não disponível');
         }
 
-        return view('painel.gestao.campanha.show', compact('user', 'campanha', 'campanha_empresas'));
+        $resultado_invite = ($request->has('resultado_invite')) ? $request->resultado_invite : [];
+
+        return view('painel.gestao.campanha.show', compact('user', 'campanha', 'campanha_empresas', 'resultado_invite'));
     }
 
     public function update(UpdateRequest $request, Campanha $campanha)
@@ -295,6 +299,7 @@ class CampanhaController extends Controller
                 $empresa = Empresa::where('id', $new_empresa)->first();
 
                 if(!$empresa || !$this->valida_consultor($empresa)){
+                    DB::rollBack();
                     abort('403', 'Página não disponível');
                 }
 
@@ -361,7 +366,12 @@ class CampanhaController extends Controller
             } catch (Exception $ex){
 
                 DB::rollBack();
-                $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
+
+                if(strpos($ex->getMessage(), 'Integrity constraint violation') !== false){
+                    $message = "Não foi possível excluir o registro, pois existem referências ao mesmo em outros processos.";
+                } else{
+                    $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
+                }
             }
 
         } else {
@@ -379,7 +389,6 @@ class CampanhaController extends Controller
         return redirect()->route('campanha.show', compact('campanha'));
     }
 
-
     public function preview_formulario(Formulario $formulario, Request $request)
     {
         if(Gate::denies('view_campanha')){
@@ -389,6 +398,136 @@ class CampanhaController extends Controller
         $user = Auth()->User();
 
         return view('painel.gestao.campanha.preview_formulario', compact('user', 'formulario'));
+    }
+
+    public function empresa_funcionario(Campanha $campanha, CampanhaEmpresa $campanha_empresa, Request $request)
+    {
+        if(Gate::denies('release_campanha_funcionario')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        $message = '';
+        $resultado_invite = [];
+
+        if(!$this->valida_consultor($campanha_empresa->empresa)){
+            abort('403', 'Página não disponível');
+        }
+
+        if(($campanha->id == $campanha_empresa->campanha->id)) {
+
+            $empresa_funcionarios = EmpresaFuncionario::join('empresas', 'empresa_funcionarios.empresa_id', '=', 'empresas.id')
+                                                    ->whereIn('empresa_funcionarios.status', ['A'])
+                                                    ->whereIn('empresas.status', ['A'])
+                                                    ->where('empresas.id', $campanha_empresa->empresa->id)
+                                                    ->join('campanha_empresas', 'campanha_empresas.empresa_id', '=', 'empresas.id')
+                                                    ->where('campanha_empresas.campanha_id', $campanha->id)
+                                                    ->whereNotExists(function($query) // use ($campanha)
+                                                                        {
+                                                                            $query->select(DB::raw(1))
+                                                                                ->from('campanha_funcionarios')
+                                                                                ->whereRaw('campanha_funcionarios.empresa_funcionario_id = empresa_funcionarios.id')
+                                                                                ->whereColumn('campanha_funcionarios.campanha_empresa_id','=','campanha_empresas.id');
+                                                                            })
+
+                                                    ->select('empresa_funcionarios.*')
+                                                    ->get();
+
+            if(count($empresa_funcionarios) == 0){
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', 'Nenhum funcionário disponível para liberação');
+                return redirect()->route('campanha.show', compact('campanha'));
+            }
+
+            try {
+
+                DB::beginTransaction();
+
+                foreach($empresa_funcionarios as $empresa_funcionario){
+                    $newCampanhaFuncionario = new CampanhaFuncionario();
+                    $newCampanhaFuncionario->campanha_empresa_id = $campanha_empresa->id;
+                    $newCampanhaFuncionario->empresa_funcionario_id  = $empresa_funcionario->id;
+                    $newCampanhaFuncionario->data_liberacao = Carbon::now();
+                    $newCampanhaFuncionario->save();
+                }
+
+                DB::commit();
+
+            } catch (Exception $ex){
+
+                DB::rollBack();
+
+                if(strpos($ex->getMessage(), 'campanha_funcionario_uk') !== false){
+                    $message = "Não é possível incluir o funcionário duas vezes na mesma campanha.";
+                } else{
+                    $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
+                }
+            }
+
+
+            try {
+                $service = new FuncionarioAvaliacaoService($empresa_funcionarios->toArray(), $campanha_empresa);
+                $results = $service->sendInvites();
+
+                $resultado_invite = [
+                    'success_count' => count($results['success']),
+                    'errors_count' => count($results['failed']),
+                    'log_file' => ($results['log_file']) ? $service->getLogAvaliacaoDownloadLink($results['log_file']) : ''
+                ];
+
+            } catch (\Exception $e) {
+
+                if($e->getMessage()){
+                    $request->session()->flash('message.level', 'danger');
+                    $request->session()->flash('message.content', $e->getMessage());
+                }
+
+                $resultado_invite = [
+                    'success_count' => 0,
+                    'errors_count' => 0,
+                    'log_file' => ''
+                ];
+            }
+
+        } else {
+            $message = "Não foi possível liberar a avaliação para os funcionários - informações inconsistentes.";
+        }
+
+        if ($message && $message !='') {
+            $request->session()->flash('message.level', 'danger');
+            $request->session()->flash('message.content', $message);
+        } else {
+            $request->session()->flash('message.level', 'success');
+            $request->session()->flash('message.content', 'Processo de liberação executado com sucesso');
+        }
+
+        return redirect()->route('campanha.show', compact('campanha', 'resultado_invite'));
+    }
+
+    public function logAvaliacao(Campanha $campanha, Empresa $empresa, Request $request)
+    {
+        if(Gate::denies('release_campanha_funcionario')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        if(!$this->valida_consultor($empresa)){
+            abort('403', 'Página não disponível');
+        }
+
+        $filename = $request->filename;
+
+        $filePath = 'logs/invite/' . $empresa->id . '/' . $filename;
+
+        if (!Storage::exists($filePath)) {
+            abort(404, 'Arquivo de log não encontrado.');
+        }
+
+        return Storage::download($filePath, $filename, [
+            'Content-Type' => 'text/plain',
+        ]);
     }
 
     private function valida_consultor(Empresa $empresa){
@@ -411,80 +550,4 @@ class CampanhaController extends Controller
 
         return true;
     }
-
-    public function empresa_funcionario(Campanha $campanha, CampanhaEmpresa $campanha_empresa, Request $request)
-    {
-        if(Gate::denies('release_campanha_funcionario')){
-            abort('403', 'Página não disponível');
-        }
-
-        $user = Auth()->User();
-
-        $message = '';
-
-        if(!$this->valida_consultor($campanha_empresa->empresa)){
-            abort('403', 'Página não disponível');
-        }
-
-        if(($campanha->id == $campanha_empresa->campanha->id)) {
-
-            $funcionarios = Funcionario::join('empresa_funcionarios', 'empresa_funcionarios.funcionario_id', '=', 'funcionarios.id')
-                                   ->join('empresas', 'empresa_funcionarios.empresa_id', '=', 'empresas.id')
-                                   ->whereIn('empresa_funcionarios.status', ['A'])
-                                   ->whereIn('empresas.status', ['A'])
-                                   ->where('empresas.id', $campanha_empresa->empresa->id)
-                                   ->whereNotExists(function($query) use ($campanha)
-                                                    {
-                                                        $query->select(DB::raw(1))
-                                                            ->from('campanha_funcionarios')
-                                                            ->whereRaw('campanha_funcionarios.funcionario_id = funcionarios.id')
-                                                            ->where('campanha_funcionarios.campanha_id', $campanha->id);
-                                                        })
-
-                                   ->select('funcionarios.*')
-                                   ->get();
-
-            if(count($funcionarios) == 0){
-                $request->session()->flash('message.level', 'danger');
-                $request->session()->flash('message.content', 'Nenhum funcionário disponível para liberação');
-                return redirect()->route('campanha.show', compact('campanha'));
-            }
-
-
-            try {
-
-                DB::beginTransaction();
-
-                foreach($funcionarios as $funcionario){
-                    $newCampanhaFuncionario = new CampanhaFuncionario();
-                    $newCampanhaFuncionario->campanha_id = $campanha->id;
-                    $newCampanhaFuncionario->funcionario_id = $funcionario->id;
-                    $newCampanhaFuncionario->data_liberacao = Carbon::now();
-                    $newCampanhaFuncionario->save();
-                }
-
-                DB::commit();
-
-            } catch (Exception $ex){
-
-                DB::rollBack();
-                $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
-            }
-
-        } else {
-            $message = "Não foi possível liberar a avaliação para os funcionários - informações inconsistentes.";
-        }
-
-        if ($message && $message !='') {
-            $request->session()->flash('message.level', 'danger');
-            $request->session()->flash('message.content', $message);
-        } else {
-            $request->session()->flash('message.level', 'success');
-            $request->session()->flash('message.content', 'Processo de liberação executado com sucesso');
-        }
-
-        return redirect()->route('campanha.show', compact('campanha'));
-    }
-
-
 }

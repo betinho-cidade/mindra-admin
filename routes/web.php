@@ -79,6 +79,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                     Route::put('/campanha/{campanha}/empresa_store', 'CampanhaController@empresa_store')->name('campanha.empresa_store');
                     Route::delete('/campanha/{campanha}/empresa_destroy/{campanha_empresa}', 'CampanhaController@empresa_destroy')->name('campanha.empresa_destroy');
                     Route::put('/campanha/{campanha}/empresa_funcionario/{campanha_empresa}', 'CampanhaController@empresa_funcionario')->name('campanha.empresa_funcionario');
+                    Route::get('/campanha/{campanha}/empresa/{empresa}/logAvaliacao', 'CampanhaController@logAvaliacao')->name('campanha.logAvaliacao');
                 });
             });
 

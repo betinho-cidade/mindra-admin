@@ -8,14 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class CampanhaFuncionario extends Model
 {
     use HasFactory;
-    public function campanha()
+    public function campanha_empresa()
     {
-        return $this->belongsTo('App\Models\Campanha');
+        return $this->belongsTo('App\Models\CampanhaEmpresa');
     }
 
-    public function funcionario()
+    public function empresa_funcionario()
     {
-        return $this->belongsTo('App\Models\Funcionario');
+        return $this->belongsTo('App\Models\EmpresaFuncionario');
+    }
+
+    public function campanha_respostas(){
+        return $this->hasMany('App\Models\CampanhaResposta');
     }
 
 }

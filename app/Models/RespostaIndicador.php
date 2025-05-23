@@ -14,4 +14,8 @@ class RespostaIndicador extends Model
         return $this->belongsTo('App\Models\Resposta');
     }
 
+    public function campanha_respostas(){
+        return $this->hasMany('App\Models\CampanhaResposta');
+    }
+
 }

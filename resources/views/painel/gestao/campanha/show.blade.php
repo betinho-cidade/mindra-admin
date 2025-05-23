@@ -127,6 +127,15 @@
                     </a>
                 </li>
            </ul>
+           @if($resultado_invite && $resultado_invite['log_file'])
+           <span class="float-right resultado_importacao">
+                <div class="row">
+                    <div class="sucesso">Emails Sucesso: {{ $resultado_invite['success_count'] }}</div>
+                    <div class="erro">Emails Erro: {{ $resultado_invite['errors_count'] }}</div>
+                    <div class="log"><a href="{{ $resultado_invite['log_file'] }}"><i class="ri-download-2-line"></i></a></div>
+                </div>
+           </span>
+           @endif
             <!-- Nav tabs - LISTA AULA/BANNER/AVALIAÇÃO - FIM -->
 
             <!-- Tab panes - INI -->
@@ -139,8 +148,9 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Empresa</th>
-                                <th style="text-align:center;">Funcionários Ativos</th>
-                                <th style="text-align:center;">Liberados</th>
+                                <th style="text-align:center;">Qtd. Ativos</th>
+                                <th style="text-align:center;">Qtd. Liberados</th>
+                                <th style="text-align:center;">Qtd. Avaliados</th>
                                 <th style="text-align:center;">Ações</th>
                             </tr>
                         </thead>
@@ -151,7 +161,8 @@
                                     <td>{{ $campanha_empresa->id }}</td>
                                     <td>{{ $campanha_empresa->empresa->nome }}</td>
                                     <td style="text-align:center;">{{$campanha_empresa->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
-                                    <td style="text-align:center;">{{$campanha_empresa->campanha->campanha_funcionarios->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->whereNotNull('data_realizacao')->count()}}</td>
                                     <td style="text-align:center;">
 
                                         @can('release_campanha_funcionario')

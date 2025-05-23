@@ -18,4 +18,8 @@ class CampanhaEmpresa extends Model
         return $this->belongsTo('App\Models\Empresa');
     }
 
+    public function campanha_funcionarios(){
+        return $this->hasMany('App\Models\CampanhaFuncionario');
+    }
+
 }
