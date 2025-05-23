@@ -22,4 +22,14 @@ class CampanhaFuncionario extends Model
         return $this->hasMany('App\Models\CampanhaResposta');
     }
 
+    public function getDataLiberacaoFormatadaAttribute()
+    {
+        return ($this->data_liberacao) ? date('d.m.Y H:i', strtotime($this->data_liberacao)) : ' - ';
+    }
+
+    public function getDataRealizacaoFormatadaAttribute()
+    {
+        return ($this->data_realizacao) ? date('d.m.Y H:i', strtotime($this->data_realizacao)) : ' - ';
+    }
+
 }

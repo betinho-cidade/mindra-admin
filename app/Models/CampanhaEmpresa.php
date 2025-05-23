@@ -21,5 +21,4 @@ class CampanhaEmpresa extends Model
     public function campanha_funcionarios(){
         return $this->hasMany('App\Models\CampanhaFuncionario');
     }
-
 }

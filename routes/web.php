@@ -13,6 +13,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
         Route::group(['namespace' => 'Painel'], function(){
 
             Route::get('/', 'PainelController@index')->name('painel');
+            Route::post('/preview_formulario/{formulario}', 'PainelController@preview_formulario')->name('painel.preview_formulario');
             Route::post('/js_viacep', 'PainelController@js_viacep')->name('painel.js_viacep');
             Route::post('/js_cnpj', 'PainelController@js_cnpj')->name('painel.js_cnpj');
             Route::post('/js_menu_aberto', 'PainelController@js_menu_aberto')->name('painel.js_menu_aberto');
@@ -48,6 +49,16 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                         Route::delete('/empresa/{empresa}/consultor_destroy/{consultor_empresa}', 'EmpresaController@consultor_destroy')->name('empresa.consultor_destroy');
                         Route::put('/empresa/{empresa}/consultor_status/{consultor_empresa}', 'EmpresaController@consultor_status')->name('empresa.consultor_status');
                     });
+
+                    Route::group(['namespace' => 'Campanha'], function(){
+                        Route::get('/campanha', 'CampanhaController@index')->name('campanha.index');
+                        Route::get('/campanha/create', 'CampanhaController@create')->name('campanha.create');
+                        Route::post('/campanha/store', 'CampanhaController@store')->name('campanha.store');
+                        Route::get('/campanha/{campanha}', 'CampanhaController@show')->name('campanha.show');
+                        Route::put('/campanha/{campanha}/update', 'CampanhaController@update')->name('campanha.update');
+                        Route::delete('/campanha/{campanha}/destroy', 'CampanhaController@destroy')->name('campanha.destroy');
+                    });
+
                 });
             });
 
@@ -67,20 +78,16 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                     Route::delete('/gestao/empresa/empresa_funcionario/{empresa_funcionario}/destroy', 'EmpresaController@destroy_funcionario')->name('empresa_funcionario.destroy_funcionario');
                 });
 
-                Route::group(['namespace' => 'Campanha'], function(){
-                    Route::get('/campanha', 'CampanhaController@index')->name('campanha.index');
-                    Route::post('/campanha/preview_formulario/{formulario}', 'CampanhaController@preview_formulario')->name('campanha.preview_formulario');
-                    Route::get('/campanha/create', 'CampanhaController@create')->name('campanha.create');
-                    Route::post('/campanha/store', 'CampanhaController@store')->name('campanha.store');
-                    Route::get('/campanha/{campanha}', 'CampanhaController@show')->name('campanha.show');
-                    Route::put('/campanha/{campanha}/update', 'CampanhaController@update')->name('campanha.update');
-                    Route::delete('/campanha/{campanha}/destroy', 'CampanhaController@destroy')->name('campanha.destroy');
-                    Route::get('/campanha/{campanha}/empresa_create', 'CampanhaController@empresa_create')->name('campanha.empresa_create');
-                    Route::put('/campanha/{campanha}/empresa_store', 'CampanhaController@empresa_store')->name('campanha.empresa_store');
-                    Route::delete('/campanha/{campanha}/empresa_destroy/{campanha_empresa}', 'CampanhaController@empresa_destroy')->name('campanha.empresa_destroy');
-                    Route::put('/campanha/{campanha}/empresa_funcionario/{campanha_empresa}', 'CampanhaController@empresa_funcionario')->name('campanha.empresa_funcionario');
-                    Route::get('/campanha/{campanha}/empresa/{empresa}/logAvaliacao', 'CampanhaController@logAvaliacao')->name('campanha.logAvaliacao');
+                Route::group(['namespace' => 'CampanhaEmpresa'], function(){
+                    Route::get('/campanha_empresa/create/{empresa}', 'CampanhaEmpresaController@create')->name('campanha_empresa.create');
+                    Route::put('/campanha_empresa/store/{empresa}', 'CampanhaEmpresaController@store')->name('campanha_empresa.store');
+                    Route::get('/campanha_empresa/logAvaliacao/{campanha_empresa}', 'CampanhaEmpresaController@logAvaliacao')->name('campanha_empresa.logAvaliacao');
+                    Route::get('/campanha_empresa/avaliacaos/{campanha_empresa}', 'CampanhaEmpresaController@avaliacaos')->name('campanha_empresa.avaliacaos');
+                    Route::delete('/campanha_empresa/campanha_funcionario/{campanha_funcionario}/destroy_funcionario', 'CampanhaEmpresaController@destroy_funcionario')->name('campanha_empresa.destroy_funcionario');
+                    Route::delete('/campanha_empresa/{campanha}/destroy/{campanha_empresa}', 'CampanhaEmpresaController@destroy')->name('campanha_empresa.destroy');
+                    Route::put('/campanha_empresa/{campanha}/libera_funcionario/{campanha_empresa}', 'CampanhaEmpresaController@libera_funcionario')->name('campanha_empresa.libera_funcionario');
                 });
+
             });
 
 

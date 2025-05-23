@@ -217,7 +217,7 @@
 
         function preview_formulario(formulario){
             if(formulario){
-                var url = '{{ route('campanha.preview_formulario', [':formulario']) }}';
+                var url = '{{ route('painel.preview_formulario', [':formulario']) }}';
                 url = url.replace(':formulario', formulario);
                 $("#previewForm").attr('action', url);
                 $("#previewForm").submit();

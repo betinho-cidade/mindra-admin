@@ -27,6 +27,7 @@
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="{{route('empresa.index')}}">Empresas</a></li>
+                                    <li><a href="{{route('campanha.index')}}">Campanhas</a></li>
                                 </ul>
                             </li>
 
@@ -37,12 +38,6 @@
                                     <span>Empresas</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{route('campanha.index')}}" class="waves-effect">
-                                    <i class="ri-file-user-line"></i>
-                                    <span>Campanhas</span>
-                                </a>
-                            </li>
                             <!-- Menus Relacioandos a administração - Acesso somente para GESTOR - FIM-->
                             @endif
 
@@ -50,17 +45,22 @@
                             @if($user->roles->contains('name', 'Consultor'))
                             <!-- Menus Relacioandos a administração - Acesso somente para CONSULTOR - INICIO-->
 
+                            <li class="menu-title">CADASTROS</li>
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-store-2-line"></i>
+                                    <span>Home</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{route('campanha.index')}}">Campanhas</a></li>
+                                </ul>
+                            </li>
+
                             <li class="menu-title">GESTÃO</li>
                             <li>
                                 <a href="{{route('empresa_funcionario.index')}}" class="waves-effect">
                                     <i class="ri-file-user-line"></i>
                                     <span>Empresas</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{route('campanha.index')}}" class="waves-effect">
-                                    <i class="ri-file-user-line"></i>
-                                    <span>Campanhas</span>
                                 </a>
                             </li>
 

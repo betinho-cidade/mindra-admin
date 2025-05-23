@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Gestao\Campanha;
+namespace App\Http\Requests\Cadastro\Home\Campanha;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;

@@ -97,7 +97,7 @@ class FuncionarioAvaliacaoService
         // Salva o log no diretório storage/logs
         if (!empty($logEntries)) {
             $logContent = implode("\n", $logEntries);
-            Storage::put('logs/invite/' . $this->campanha_empresa->empresa->id . '/' . $logFileName, $logContent);
+            Storage::put('logs/invite/' . $this->campanha_empresa->empresa->id . '/campanha_empresa/' . $this->campanha_empresa->id . '/'  . $logFileName, $logContent);
             $results['log_file'] = $logFileName;
         }
 
@@ -112,8 +112,8 @@ class FuncionarioAvaliacaoService
      */
     public function getLogAvaliacaoDownloadLink(string $logFileName): ?string
     {
-        if (Storage::exists('logs/invite/' . $this->campanha_empresa->empresa->id  . '/' . $logFileName)) {
-            return route('campanha.logAvaliacao', ['campanha' => $this->campanha_empresa->campanha, 'empresa' => $this->campanha_empresa->empresa, 'filename' => $logFileName]);
+        if (Storage::exists('logs/invite/' . $this->campanha_empresa->empresa->id  . '/campanha_empresa/' . $this->campanha_empresa->id . '/' . $logFileName)) {
+            return route('campanha_empresa.logAvaliacao', ['campanha_empresa' => $this->campanha_empresa, 'filename' => $logFileName]);
         }
         return null;
     }

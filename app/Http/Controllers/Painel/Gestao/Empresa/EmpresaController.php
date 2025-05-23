@@ -9,6 +9,7 @@ use App\Models\Empresa;
 use App\Models\EmpresaFuncionario;
 use App\Models\ConsultorEmpresa;
 use App\Models\Funcionario;
+use App\Models\CampanhaEmpresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Exception;
@@ -97,11 +98,28 @@ class EmpresaController extends Controller
             abort('403', 'Página não disponível');
         }
 
+        $campanha_empresas = [];
+        if ($roles->contains('name', 'Gestor')) {
+            $campanha_empresas = CampanhaEmpresa::where('empresa_id', $empresa->id)->get();
+        }
+        else if ($roles->contains('name', 'Consultor')) {
+            $campanha_empresas = CampanhaEmpresa::join('empresas', 'campanha_empresas.empresa_id', '=', 'empresas.id')
+                                              ->where('empresas.id', $empresa->id)
+                                              ->join('consultor_empresas', 'consultor_empresas.empresa_id', '=', 'empresas.id')
+                                              ->where('consultor_empresas.consultor_id', $user->consultor->id)
+                                              ->where('consultor_empresas.status','A')
+                                              ->orderBy('empresas.nome')
+                                              ->select('campanha_empresas.*')
+                                              ->get();
+        } else{
+            abort('403', 'Página não disponível');
+        }
+
         $resultado_import = ($request->has('resultado_import')) ? $request->resultado_import : [];
         $resultado_invite = ($request->has('resultado_invite')) ? $request->resultado_invite : [];
         $aba = ($request->has('aba') ? $request->aba : '');
 
-        return view('painel.gestao.empresa.show', compact('user', 'empresa','empresa_funcionarios', 'resultado_import', 'resultado_invite', 'aba'));
+        return view('painel.gestao.empresa.show', compact('user', 'empresa','empresa_funcionarios', 'campanha_empresas', 'resultado_import', 'resultado_invite', 'aba'));
     }
 
     public function create(Empresa $empresa)
@@ -335,7 +353,7 @@ class EmpresaController extends Controller
         }
 
         $aba = '';
-        return redirect()->route('empresa_funcionario.show', compact('empresa'. 'aba'));
+        return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba'));
 
     }
     //public function import(Empresa $empresa, ImportFuncionarioRequest $request): JsonResponse

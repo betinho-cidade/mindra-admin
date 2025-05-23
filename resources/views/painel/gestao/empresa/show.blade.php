@@ -197,6 +197,17 @@
                         </span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link @if($aba == 'Campanhas') active @endif" data-toggle="tab" href="#campanhas" role="tab">
+                        <span class="d-block d-sm-none"><i class="ri-checkbox-circle-line"></i></span>
+                        <span class="d-none d-sm-block">
+                            @can('join_campanha_empresa')
+                                <i onClick="location.href='{{ route('campanha_empresa.create', compact('empresa')) }}';" class="fa fa-plus-square" style="color: goldenrod; margin-right:5px;" title="Adicionar Campanha"></i>
+                            @endcan
+                            Campanhas ( <code class="highlighter-rouge">{{ $campanha_empresas->count() }}</code> )
+                        </span>
+                    </a>
+                </li>
            </ul>
            @if($resultado_import && $resultado_import['log_file'])
            <span class="float-right resultado_importacao">
@@ -257,8 +268,8 @@
 
                                         @can('delete_empresa_funcionario')
                                             <a href="javascript:;" data-toggle="modal"
-                                            onclick="deleteData('funcionario', '{{$empresa_funcionario->id}}');"
-                                                data-target="#modal-delete"><i class="fa fa-minus-circle"
+                                            onclick="deleteFuncionario('{{$empresa_funcionario->id}}');"
+                                                data-target="#modal-delete-funcionario"><i class="fa fa-minus-circle"
                                                     style="color: crimson" title="Excluir o Funcionário da Empresa"></i></a>
                                         @endcan
                                     </td>
@@ -298,17 +309,75 @@
                     </span>
                 </div>
 
+                <div class="tab-pane @if($aba == 'Campanhas') active @endif" id="campanhas" role="tabpanel">
+                    <table id="dt_campanhas" class="table table-striped table-bordered dt-responsive nowrap"
+                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Campanha</th>
+                                <th>Formulário</th>
+                                <th style="text-align:center;">Período</th>
+                                <th style="text-align:center;">Qtd. Ativos</th>
+                                <th style="text-align:center;">Qtd. Liberados</th>
+                                <th style="text-align:center;">Qtd. Avaliados</th>
+                                <th style="text-align:center;">Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse($campanha_empresas as $campanha_empresa)
+                                <tr>
+                                    <td>{{ $campanha_empresa->id }}</td>
+                                    <td>{{ $campanha_empresa->campanha->titulo }}</td>
+                                    <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha_empresa->campanha->formulario->id }}')">{{$campanha_empresa->campanha->formulario->titulo}}</a></td>
+                                    <td style="text-align:center;">{{ $campanha_empresa->campanha->periodo }}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->whereNotNull('data_realizacao')->count()}}</td>
+                                    <td style="text-align:center;">
+
+                                        @can('release_campanha_funcionario')
+                                            <a href="javascript:;" data-toggle="modal"
+                                            onclick="releaseData('{{$campanha_empresa->campanha->id}}', '{{$campanha_empresa->id}}');"
+                                                data-target="#modal-release"><i class="fas fa-mail-bulk"
+                                                    style="color: goldenrod" title="Liberar a avaliação da Campanha"></i></a>
+                                        @endcan
+
+                                        @can('view_empresa_funcionario')
+                                            <a href="{{ route('campanha_empresa.avaliacaos', compact('campanha_empresa')) }}"><i class="fas fa-users"
+                                                    style="color: goldenrod" title="Visualizar as avaliações"></i></a>
+                                        @endcan
+
+                                        @can('join_campanha_empresa')
+                                            <a href="javascript:;" data-toggle="modal"
+                                            onclick="deleteCampanha('{{$campanha_empresa->campanha->id}}', '{{$campanha_empresa->id}}');"
+                                                data-target="#modal-delete-campanha"><i class="fa fa-minus-circle"
+                                                    style="color: crimson" title="Excluir a Campanha Vinculada"></i></a>
+                                        @endcan
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8">Nenhum registro encontrado</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    <!-- Nav tabs - LISTA AULA - FIM -->
+                </div>
+
             <!-- FORMULÁRIO - FIM -->
 
-            @section('modal_target')"formSubmit();"@endsection
+            @section('modal_target')"deleteFuncionarioSubmit();"@endsection
             @section('modal_type')@endsection
-            @section('modal_name')"modal-delete"@endsection
-            @section('modal_msg_title')Deseja excluir o registro ? @endsection
-            @section('modal_msg_description')O funcionário será excluído da empresa e também da sua conta de usuário. @endsection
+            @section('modal_name')"modal-delete-funcionario"@endsection
+            @section('modal_msg_title')Deseja excluir o Funcionário ? @endsection
+            @section('modal_msg_description')O funcionário será excluído da empresa e também da sua conta de usuário. <p>Caso ele esteje vinculado em outra empresa e não puder ser excluído, ele pode ser inativado nessa empresa.</p>@endsection
             @section('modal_close')Fechar @endsection
             @section('modal_save')Excluir @endsection
 
-            <form action="" id="deleteForm" method="post">
+            <form action="" id="deleteFuncionarioForm" method="post">
                 @csrf
                 @method('DELETE')
             </form>
@@ -339,6 +408,60 @@
                 @method('PUT')
             </form>
 
+            <div class="modal fade" id="modal-delete-campanha" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog " role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Deseja remover a Campanha Vinculada ?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>A Campanha será desvinculada da Empresa.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Fechar </button>
+                            <button type="button" onclick="deleteCampanhaFormSubmit();" class="btn btn-primary waves-effect waves-light">Excluir Campanha </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form action="" id="deleteCampanhaForm" method="post">
+                @csrf
+                @method('DELETE')
+            </form>
+
+            <div class="modal fade" id="modal-release" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog " role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Deseja liberar para os funcionários ativos a Avaliação da Campanha ?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>O funcionário terá seu acesso liberado para a realização da avaliação da campanha. </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Fechar </button>
+                            <button type="button" onclick="releaseFormSubmit();" class="btn btn-primary waves-effect waves-light">Liberar Avaliação </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form action="" id="releaseForm" method="post">
+                @csrf
+                @method('PUT')
+            </form>
+
+            <form action="" id="previewForm" method="post" target="_blank">
+                @csrf
+            </form>
+
             <!-- FORMULÁRIO - FIM -->
             </div>
         </div>
@@ -366,20 +489,31 @@
 	</script>
 
     <script>
-        function formSubmit() {
-            $("#deleteForm").submit();
+
+        function deleteFuncionario(empresa_funcionario) {
+            var empresa_funcionario = empresa_funcionario;
+            var url = '{{ route('empresa_funcionario.destroy_funcionario', [':empresa_funcionario']) }}';
+            url = url.replace(':empresa_funcionario', empresa_funcionario);
+            $("#deleteFuncionarioForm").attr('action', url);
         }
 
-        function deleteData(origem, empresa_funcionario) {
-            var origem = origem;
-
-            if(origem == 'funcionario'){
-                var empresa_funcionario = empresa_funcionario;
-                var url = '{{ route('empresa_funcionario.destroy_funcionario', [':empresa_funcionario']) }}';
-                url = url.replace(':empresa_funcionario', empresa_funcionario);
-                $("#deleteForm").attr('action', url);
-            }
+        function deleteFuncionarioSubmit() {
+            $("#deleteFuncionarioForm").submit();
         }
+
+        function deleteCampanha(campanha, campanha_empresa) {
+            var campanha = campanha;
+            var campanha_empresa = campanha_empresa;
+            var url = '{{ route('campanha_empresa.destroy', [':campanha', ':campanha_empresa']) }}';
+            url = url.replace(':campanha', campanha);
+            url = url.replace(':campanha_empresa', campanha_empresa);
+            $("#deleteCampanhaForm").attr('action', url);
+        }
+
+        function deleteCampanhaFormSubmit() {
+            $("#deleteCampanhaForm").submit();
+        }
+
 
         function inviteData(origem, empresa) {
             var empresa = empresa;
@@ -388,15 +522,50 @@
             $("#inviteForm").attr('action', url);
         }
 
-
         function inviteFormSubmit() {
             $("#inviteForm").submit();
         }
+
+        function releaseData(campanha, campanha_empresa) {
+            var campanha = campanha;
+            var campanha_empresa = campanha_empresa;
+            var url = '{{ route('campanha_empresa.libera_funcionario', [':campanha', ':campanha_empresa']) }}';
+            url = url.replace(':campanha', campanha);
+            url = url.replace(':campanha_empresa', campanha_empresa);
+            $("#releaseForm").attr('action', url);
+        }
+
+        function releaseFormSubmit() {
+            $("#releaseForm").submit();
+        }
+
+        function preview_formulario(formulario){
+            if(formulario){
+                var url = '{{ route('painel.preview_formulario', [':formulario']) }}';
+                url = url.replace(':formulario', formulario);
+                $("#previewForm").attr('action', url);
+                $("#previewForm").submit();
+            }
+        }
+
     </script>
 
     @if ($empresa_funcionarios->count() > 0)
         <script>
             var table = $('#dt_funcionarios').DataTable({
+                language: {
+                    url: '{{ asset('nazox/assets/localisation/pt_br.json') }}'
+                },
+                "order": [
+                    [1, "asc"]
+                ]
+            });
+        </script>
+    @endif
+
+    @if ($campanha_empresas->count() > 0)
+        <script>
+            var table = $('#dt_campanhas').DataTable({
                 language: {
                     url: '{{ asset('nazox/assets/localisation/pt_br.json') }}'
                 },

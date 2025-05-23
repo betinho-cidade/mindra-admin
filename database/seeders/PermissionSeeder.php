@@ -191,7 +191,14 @@ class PermissionSeeder extends Seeder
                 [
                     'id' => 26,
                     'name' => 'release_campanha_funcionario',
-                    'description' => 'Liberar funcionários para realizar a avaliação da campanha',
+                    'description' => 'Liberar funcionários para realizar a avaliação da campanha e envia notificação por email',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 27,
+                    'name' => 'view_preview_formulario',
+                    'description' => 'Visualizar o preview do Formulário',
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],

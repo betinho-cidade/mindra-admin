@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-flex align-items-center justify-content-between">
-            <h4 class="mb-0">Novas Empresas para serem vinculados à Campanha</h4>
+            <h4 class="mb-0">Novas Campanhas para serem vinculadas à Empresa</h4>
         </div>
     </div>
 </div>
@@ -35,7 +35,7 @@
     </div>
 @endif
 
-<small style="color: mediumpurple">{!! $campanha->breadcrumb !!}</small>
+<small style="color: mediumpurple">{!! $empresa->breadcrumb_gestao !!}</small>
 
 <div class="row">
     <div class="col-12">
@@ -43,25 +43,25 @@
             <div class="card-body">
             <!-- FORMULÁRIO - INICIO -->
 
-            <h4 class="card-title">Formulário de Vínculo de Empresas à Campanha</h4>
-            <p class="card-title-desc">As empresas relacionadas farão parte da Campanha.</p>
-            <form name="create_campanha_empresa" method="POST" action="{{route('campanha.empresa_store', compact('campanha'))}}"  class="needs-validation" novalidate>
+            <h4 class="card-title">Formulário de Vínculo da Campanha à Empresa</h4>
+            <p class="card-title-desc">As campanhas relacionadas serão vinculadas à Empresa.</p>
+            <form name="create_campanha_empresa" method="POST" action="{{route('campanha_empresa.store', compact('empresa'))}}"  class="needs-validation" novalidate>
                 @csrf
                 @method('put')
 
                 <div class="bg-soft-primary p-3 rounded" style="margin-bottom:10px;">
-                    <h5 class="text-primary font-size-14" style="margin-bottom: 0px;">Lista de Empresas</h5>
+                    <h5 class="text-primary font-size-14" style="margin-bottom: 0px;">Lista de Campanhas</h5>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="empresas">Empresas Disponíveis (*somente ativas)</label>
-                            <select id="empresas[]" name="empresas[]" class="form-control select2" multiple required>
+                            <label for="campanhas">Campanhas Disponíveis (*somente ativas)</label>
+                            <select id="campanhas[]" name="campanhas[]" class="form-control select2" multiple required>
                                 <option value="">---</option>
-                                @foreach ($empresas as $empresa)
-                                    <option value="{{ $empresa->id }}"
-                                        {{ $empresa->id == old('empresas[]') ? 'selected' : '' }}>{{ $empresa->nome }}
+                                @foreach ($campanhas as $campanha)
+                                    <option value="{{ $campanha->id }}"
+                                        {{ $campanha->id == old('campanhas[]') ? 'selected' : '' }}>{{ $campanha->titulo }}
                                     </option>
                                 @endforeach
                             </select>

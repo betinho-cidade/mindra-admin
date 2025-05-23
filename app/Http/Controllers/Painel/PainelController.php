@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use App\Models\Formulario;
 
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -36,6 +37,17 @@ class PainelController extends Controller
             return redirect()->route('logout');
         }
 
+    }
+
+    public function preview_formulario(Formulario $formulario, Request $request)
+    {
+        if(Gate::denies('view_preview_formulario')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        return view('painel.preview_formulario', compact('user', 'formulario'));
     }
 
     public function js_viacep(Request $request)
