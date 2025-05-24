@@ -70,6 +70,7 @@
                                                         <tr>
                                                             <th>Nome</th>
                                                             <th style="text-align:center;">Liberado</th>
+                                                            <th style="text-align:center;">Iniciado</th>
                                                             <th style="text-align:center;">Realizado</th>
                                                             <th style="text-align:center;">Ações</th>
                                                         </tr>
@@ -84,8 +85,9 @@
                                                                         <i class="fas fa-user-times" style="font-size:10px;color: rgb(218, 53, 53)" title="Inativo na Empresa"></i>&nbsp;
                                                                     @endif
                                                                     {{$campanha_funcionario->empresa_funcionario->funcionario->user->nome}}</td>
-                                                                <td style="text-align:center;">{{$campanha_funcionario->data_liberacao_formatada}}</td>
-                                                                <td style="text-align:center;">{{$campanha_funcionario->data_realizacao_formatada}}</td>
+                                                                <td style="text-align:center;">{{$campanha_funcionario->data_liberado_formatada}}</td>
+                                                                <td style="text-align:center;">{{$campanha_funcionario->data_iniciado_formatada}}</td>
+                                                                <td style="text-align:center;">{{$campanha_funcionario->data_realizado_formatada}}</td>
                                                                 <td style="text-align:center;">
 
                                                                     @can('release_campanha_funcionario')
@@ -98,7 +100,7 @@
                                                                 </td>
                                                             </tr>
                                                         @empty
-                                                            <td colspan="4">Nenhum registro encontrado</td>
+                                                            <td colspan="5">Nenhum registro encontrado</td>
                                                         @endforelse
                                                         </tbody>
                                                     </table>

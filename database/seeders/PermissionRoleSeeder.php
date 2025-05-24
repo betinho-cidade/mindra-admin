@@ -276,7 +276,6 @@ class PermissionRoleSeeder extends Seeder
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
 
-
                 //FUNCIONARIO
 
                 [
@@ -293,6 +292,18 @@ class PermissionRoleSeeder extends Seeder
                 ],
                 [
                     'permission_id' => 7,
+                    'role_id' => 3,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'permission_id' => 28,
+                    'role_id' => 3,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'permission_id' => 29,
                     'role_id' => 3,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),

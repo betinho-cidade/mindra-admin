@@ -202,6 +202,21 @@ class PermissionSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'id' => 28,
+                    'name' => 'view_avaliacao',
+                    'description' => 'Visualizar as avaliações',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 29,
+                    'name' => 'populate_avaliacao',
+                    'description' => 'Realizar a avaliação',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+
 
             ]);
 

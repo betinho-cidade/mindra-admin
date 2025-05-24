@@ -334,7 +334,7 @@
                                     <td style="text-align:center;">{{ $campanha_empresa->campanha->periodo }}</td>
                                     <td style="text-align:center;">{{$campanha_empresa->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
                                     <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->count()}}</td>
-                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->whereNotNull('data_realizacao')->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->whereNotNull('data_realizado')->count()}}</td>
                                     <td style="text-align:center;">
 
                                         @can('release_campanha_funcionario')

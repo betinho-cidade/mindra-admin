@@ -73,7 +73,7 @@
 
                             <li class="menu-title">MINDRA</li>
                             <li>
-                                <a href="" class="waves-effect">
+                                <a href="{{ route('avaliacao.index') }}" class="waves-effect">
                                     <i class="ri-file-user-line"></i>
                                     <span>Avaliações</span>
                                 </a>

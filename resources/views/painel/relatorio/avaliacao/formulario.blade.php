@@ -3,13 +3,39 @@
 
 @section('content')
 
+    @if(session()->has('message.level'))
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-{{ session('message.level') }}">
+            {!! session('message.content') !!}
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @php $formulario = $campanha_funcionario->campanha_empresa->campanha->formulario;  @endphp
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg" style="margin-bottom: 30px;">
         <h1 class="main-title">{{ $formulario->titulo }}</h1>
         <p class="description">
             {{ $formulario->descricao ?? 'Prévia das questões que serão exibidas para os funcionários no prenchimento do formulário!' }}
         </p>
 
-        <form id="assessmentForm">
+        <form id="assessmentForm" name="assessmentForm" method="POST" action="{{route('avaliacao.store', compact('campanha_funcionario'))}}"  class="needs-validation"  accept-charset="utf-8" enctype="multipart/form-data" novalidate>
+        @csrf
             @foreach($formulario->formulario_etapas->sortBy('ordem') as $formulario_etapa)
 
                 <h2 class="topic-header">{{ $formulario_etapa->titulo ?? 'Responda as questões abaixo' }}</h2>
@@ -39,6 +65,10 @@
                 </table>
             @endforeach
 
+            <div class="mt-6 text-center">
+                <button type="submit" id="submitButton" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 opacity-50 cursor-not-allowed" disabled>Enviar Avaliação</button>
+            </div>
+
         </form>
     </div>
 
@@ -47,6 +77,43 @@
 
 @section('script-js')
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type='text/javascript'>
+        // Função para validar se todas as perguntas foram respondidas
+        function validateForm() {
+            const form = document.getElementById('assessmentForm');
+            const radioGroups = form.querySelectorAll('input[type="radio"][name]');
+            const uniqueGroups = [...new Set(Array.from(radioGroups).map(input => input.name))]; // Lista de nomes únicos (q1, q2, ...)
+            const submitButton = document.getElementById('submitButton');
+
+            console.log(uniqueGroups);
+
+            // Verifica se cada grupo de radio buttons tem uma opção selecionada
+            const allAnswered = uniqueGroups.every(name => {
+                return form.querySelector(`input[name="${name}"]:checked`);
+            });
+
+            // Habilita ou desabilita o botão de submit
+            if (allAnswered) {
+                submitButton.removeAttribute('disabled');
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.add('hover:bg-blue-600');
+            } else {
+                submitButton.setAttribute('disabled', 'true');
+                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.remove('hover:bg-blue-600');
+            }
+        }
+
+        // Adiciona evento de change a todos os radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', validateForm);
+        });
+
+        // Valida o formulário na inicialização
+        validateForm();
+    </script>
+
 @endsection
 
 @section('head-css')

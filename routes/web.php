@@ -91,16 +91,16 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
             });
 
 
-
             Route::group(['namespace' => 'Relatorio'], function(){
 
                 Route::group(['namespace' => 'Dashboard'], function(){
                     Route::get('/relatorio/dashboard', 'DashboardController@index')->name('dashboard.index');
-                    Route::get('/relatorio/compras', 'DashboardController@compras')->name('dashboard.compras');
-                    Route::get('/relatorio/download', 'DashboardController@download')->name('dashboard.download');
-                    Route::get('/relatorio/download_pg', 'DashboardController@download_pg')->name('dashboard.download_pg');
-                    Route::get('/relatorio/download_aa', 'DashboardController@download_aa')->name('dashboard.download_aa');
-                    Route::get('/relatorio/download_vd', 'DashboardController@download_vd')->name('dashboard.download_vd');
+                });
+
+                Route::group(['namespace' => 'Avaliacao'], function(){
+                    Route::get('/relatorio/avaliacao', 'AvaliacaoController@index')->name('avaliacao.index');
+                    Route::post('/relatorio/avaliacao/{campanha_funcionario}/start', 'AvaliacaoController@start')->name('avaliacao.start');
+                    Route::post('/relatorio/avaliacao/{campanha_funcionario}/store', 'AvaliacaoController@store')->name('avaliacao.store');
                 });
 
             });

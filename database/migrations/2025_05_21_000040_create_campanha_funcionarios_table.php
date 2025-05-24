@@ -13,8 +13,9 @@ class CreateCampanhaFuncionariosTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('campanha_empresa_id');
             $table->unsignedBigInteger('empresa_funcionario_id');
-            $table->datetime('data_liberacao');
-            $table->datetime('data_realizacao')->nullable();
+            $table->datetime('data_liberado');
+            $table->datetime('data_iniciado')->nullable();
+            $table->datetime('data_realizado')->nullable();
             $table->timestamps();
             $table->unique(['campanha_empresa_id', 'empresa_funcionario_id'], 'campanha_funcionario_uk');
             $table->foreign('campanha_empresa_id')->references('id')->on('campanha_empresas');

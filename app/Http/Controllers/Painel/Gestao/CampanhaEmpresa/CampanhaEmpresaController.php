@@ -219,7 +219,7 @@ class CampanhaEmpresaController extends Controller
                     $newCampanhaFuncionario = new CampanhaFuncionario();
                     $newCampanhaFuncionario->campanha_empresa_id = $campanha_empresa->id;
                     $newCampanhaFuncionario->empresa_funcionario_id  = $empresa_funcionario->id;
-                    $newCampanhaFuncionario->data_liberacao = Carbon::now();
+                    $newCampanhaFuncionario->data_liberado = Carbon::now();
                     $newCampanhaFuncionario->save();
                 }
 

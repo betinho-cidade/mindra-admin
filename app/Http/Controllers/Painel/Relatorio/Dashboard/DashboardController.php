@@ -30,21 +30,10 @@ class DashboardController extends Controller
         }
 
         $user = Auth()->User();
-
         $roles = $user->roles;
-
         $role = $roles->first()->name;
 
-        $empresa_funcionarios = [];
-        if($role == 'Funcionario') {
-            $empresa_funcionarios = EmpresaFuncionario::join('funcionarios', 'empresa_funcionarios.funcionario_id', '=', 'funcionarios.id')
-                                                    ->join('users', 'funcionarios.user_id', '=', 'users.id')
-                                                    ->where('users.id', $user->id)
-                                                    ->select('empresa_funcionarios.*')
-                                                    ->get();
-        }
-
-        return view('painel.relatorio.dashboard.index', compact('user','empresa_funcionarios'));
+        return view('painel.relatorio.dashboard.index', compact('user'));
     }
 
 }
