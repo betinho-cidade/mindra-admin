@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Painel\Relatorio\Avaliacao;
 
 use App\Http\Controllers\Controller;
-use App\Models\CampanhaEmpresa;
 use App\Models\CampanhaFuncionario;
+use App\Models\CampanhaResposta;
 use App\Models\FormularioPergunta;
+use App\Models\RespostaIndicador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Exception;
@@ -33,10 +34,13 @@ class AvaliacaoController extends Controller
 
         $campanha_funcionarios = CampanhaFuncionario::join('empresa_funcionarios', 'campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                                     ->whereIn('empresa_funcionarios.status', ['A'])
+                                                    ->join('campanha_empresas', 'campanha_funcionarios.campanha_empresa_id', '=', 'campanha_empresas.id')
+                                                    ->join('campanhas', 'campanha_empresas.campanha_id', '=', 'campanhas.id')
                                                     ->join('funcionarios', 'empresa_funcionarios.funcionario_id', '=', 'funcionarios.id')
                                                     ->join('users', 'funcionarios.user_id', '=', 'users.id')
                                                     ->where('users.id', $user->id)
                                                     ->select('campanha_funcionarios.*')
+                                                    ->orderBy('campanhas.data_inicio')
                                                     ->get();
 
         return view('painel.relatorio.avaliacao.index', compact('user', 'campanha_funcionarios'));
@@ -126,6 +130,7 @@ class AvaliacaoController extends Controller
             $newKey = str_replace($prefix, '', $key); // Remove o prefixo da chave
             $cleanedData[$newKey] = $value;
         }
+
         $keys_request = array_keys($cleanedData);
 
         $keys_pergunta = FormularioPergunta::join('formulario_etapas', 'formulario_perguntas.formulario_etapa_id', '=', 'formulario_etapas.id')
@@ -137,13 +142,13 @@ class AvaliacaoController extends Controller
                                             ->toArray();
 
         $differences = array_diff($keys_pergunta, $keys_request);
-        $isEqualDiff = empty($differences);
 
-        if(!$isEqualDiff){
+        if(!empty($differences) && (count($differences)!=0)){
             $request->session()->flash('message.level', 'danger');
             $request->session()->flash('message.content', 'Necessário que todas as perguntas sejam respondidas!');
-            redirect()->route('avaliacao.start', compact('user', 'campanha_funcionario'));
+            return redirect()->route('avaliacao.index');
         }
+
 
         try {
             DB::beginTransaction();
@@ -152,6 +157,32 @@ class AvaliacaoController extends Controller
 
             $campanha_funcionario->data_realizado = Carbon::now();
             $campanha_funcionario->save();
+
+            foreach($keys_request as $pergunta){
+                $resposta = 'pergunta_' . $pergunta;
+
+                $newFormularioPergunta = FormularioPergunta::where('id', $pergunta)->first();
+                $newRespostaIndicador = RespostaIndicador::where('id', $request->input($resposta))->first();
+
+                if($newFormularioPergunta && $newRespostaIndicador){
+                    $newCampanhaResposta = new CampanhaResposta();
+                    $newCampanhaResposta->campanha_funcionario_id = $campanha_funcionario->id;
+                    $newCampanhaResposta->formulario_pergunta_id = $newFormularioPergunta->id;
+                    $newCampanhaResposta->resposta_indicador_id = $newRespostaIndicador->id;
+                    $newCampanhaResposta->save();
+                }
+            }
+
+            $keys_resposta = $campanha_funcionario->campanha_respostas->pluck('formulario_pergunta_id')->toArray();
+
+            $newDifferences = array_diff($keys_pergunta, $keys_resposta);
+
+            if(!empty($newDifferences)){
+                DB::rollBack();
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', 'Necessário que todas as perguntas sejam respondidas!');
+                return redirect()->route('avaliacao.index');
+            }
 
             DB::commit();
 
@@ -166,10 +197,10 @@ class AvaliacaoController extends Controller
         }
         else {
             $request->session()->flash('message.level', 'success');
-            $request->session()->flash('message.content', 'Campanha finalizada com suscesso');
+            $request->session()->flash('message.content', 'Campanha finalizada com suscesso!');
         }
 
-        redirect()->route('avaliacao.index');
+        return redirect()->route('avaliacao.index');
     }
 
 }

@@ -34,7 +34,7 @@ class CampanhaFuncionario extends Model
 
     public function getDataIniciadoFormatadaAttribute()
     {
-        return ($this->data_inciado) ? date('d.m.Y H:i', strtotime($this->data_inciado)) : ' - ';
+        return ($this->data_iniciado) ? date('d.m.Y H:i', strtotime($this->data_iniciado)) : ' - ';
     }
 
 }
