@@ -76,6 +76,7 @@
                                                         <thead>
                                                         <tr>
                                                             <th>Título</th>
+                                                            <th>Empresa</th>
                                                             <th>Formulário</th>
                                                             <th>Início</th>
                                                             <th>Fim</th>
@@ -87,6 +88,7 @@
                                                         @forelse($campanhas_AT as $campanha)
                                                             <tr>
                                                                 <td>{{$campanha->titulo}}</td>
+                                                                <td>{{$campanha->empresa->nome}}</td>
                                                                 <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo}}</a></td>
                                                                 <td>{{$campanha->data_inicio_formatada}}</td>
                                                                 <td>{{$campanha->data_fim_formatada}}</td>
@@ -102,7 +104,7 @@
                                                                 </td>
                                                             </tr>
                                                         @empty
-                                                            <td colspan="5">Nenhum registro encontrado</td>
+                                                            <td colspan="6">Nenhum registro encontrado</td>
                                                         @endforelse
                                                         </tbody>
                                                     </table>
@@ -117,6 +119,7 @@
                                                         <thead>
                                                         <tr>
                                                             <th>Título</th>
+                                                            <th>Empresa</th>
                                                             <th>Formulário</th>
                                                             <th>Início</th>
                                                             <th>Fim</th>
@@ -128,6 +131,7 @@
                                                         @forelse($campanhas_IN as $campanha)
                                                             <tr>
                                                                 <td>{{$campanha->titulo}}</td>
+                                                                <td>{{$campanha->empresa->nome}}</td>
                                                                 <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo}}</a></td>
                                                                 <td>{{$campanha->data_inicio_formatada}}</td>
                                                                 <td>{{$campanha->data_fim_formatada}}</td>
@@ -144,7 +148,7 @@
                                                                     </td>
                                                             </tr>
                                                         @empty
-                                                            <td colspan="5">Nenhum registro encontrado</td>
+                                                            <td colspan="6">Nenhum registro encontrado</td>
                                                         @endforelse
                                                         </tbody>
                                                     </table>

@@ -36,8 +36,13 @@ class Campanha extends Model
         return $this->belongsTo('App\Models\Formulario');
     }
 
-    public function campanha_empresas(){
-        return $this->hasMany('App\Models\CampanhaEmpresa');
+    public function empresa()
+    {
+        return $this->belongsTo('App\Models\Empresa');
+    }
+
+    public function campanha_funcionarios(){
+        return $this->hasMany('App\Models\CampanhaFuncionario');
     }
 
     public function getDataInicioAjustadaAttribute()

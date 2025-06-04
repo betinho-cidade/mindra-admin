@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class CampanhaFuncionario extends Model
 {
     use HasFactory;
-    public function campanha_empresa()
+    public function campanha()
     {
-        return $this->belongsTo('App\Models\CampanhaEmpresa');
+        return $this->belongsTo('App\Models\Campanha');
     }
 
     public function empresa_funcionario()

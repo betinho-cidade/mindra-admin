@@ -9,7 +9,7 @@ use App\Models\Empresa;
 use App\Models\EmpresaFuncionario;
 use App\Models\ConsultorEmpresa;
 use App\Models\Funcionario;
-use App\Models\CampanhaEmpresa;
+use App\Models\Campanha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Exception;
@@ -98,18 +98,18 @@ class EmpresaController extends Controller
             abort('403', 'Página não disponível');
         }
 
-        $campanha_empresas = [];
+        $campanhas = [];
         if ($roles->contains('name', 'Gestor')) {
-            $campanha_empresas = CampanhaEmpresa::where('empresa_id', $empresa->id)->get();
+            $campanhas = Campanha::where('empresa_id', $empresa->id)->get();
         }
         else if ($roles->contains('name', 'Consultor')) {
-            $campanha_empresas = CampanhaEmpresa::join('empresas', 'campanha_empresas.empresa_id', '=', 'empresas.id')
+            $campanhas = Campanha::join('empresas', 'campanhas.empresa_id', '=', 'empresas.id')
                                               ->where('empresas.id', $empresa->id)
                                               ->join('consultor_empresas', 'consultor_empresas.empresa_id', '=', 'empresas.id')
                                               ->where('consultor_empresas.consultor_id', $user->consultor->id)
                                               ->where('consultor_empresas.status','A')
                                               ->orderBy('empresas.nome')
-                                              ->select('campanha_empresas.*')
+                                              ->select('campanhas.*')
                                               ->get();
         } else{
             abort('403', 'Página não disponível');
@@ -119,7 +119,7 @@ class EmpresaController extends Controller
         $resultado_invite = ($request->has('resultado_invite')) ? $request->resultado_invite : [];
         $aba = ($request->has('aba') ? $request->aba : '');
 
-        return view('painel.gestao.empresa.show', compact('user', 'empresa','empresa_funcionarios', 'campanha_empresas', 'resultado_import', 'resultado_invite', 'aba'));
+        return view('painel.gestao.empresa.show', compact('user', 'empresa','empresa_funcionarios', 'campanhas', 'resultado_import', 'resultado_invite', 'aba'));
     }
 
     public function create(Empresa $empresa)
@@ -505,10 +505,7 @@ class EmpresaController extends Controller
         }
         else if($roles->contains('name', 'Consultor')) {
 
-            $consultor_empresa = ConsultorEmpresa::where('consultor_id', $user->consultor->id)
-                                                  ->where('empresa_id', $empresa->id)
-                                                  ->first();
-            if(!$consultor_empresa){
+            if(!in_array($empresa->id, $user->consultor->consultor_empresas->pluck('empresa_id')->toArray(), TRUE)){
                 return false;
             }
         }

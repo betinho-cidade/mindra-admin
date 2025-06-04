@@ -79,13 +79,10 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                 });
 
                 Route::group(['namespace' => 'CampanhaEmpresa'], function(){
-                    Route::get('/campanha_empresa/create/{empresa}', 'CampanhaEmpresaController@create')->name('campanha_empresa.create');
-                    Route::put('/campanha_empresa/store/{empresa}', 'CampanhaEmpresaController@store')->name('campanha_empresa.store');
-                    Route::get('/campanha_empresa/logAvaliacao/{campanha_empresa}', 'CampanhaEmpresaController@logAvaliacao')->name('campanha_empresa.logAvaliacao');
-                    Route::get('/campanha_empresa/avaliacaos/{campanha_empresa}', 'CampanhaEmpresaController@avaliacaos')->name('campanha_empresa.avaliacaos');
-                    Route::delete('/campanha_empresa/campanha_funcionario/{campanha_funcionario}/destroy_funcionario', 'CampanhaEmpresaController@destroy_funcionario')->name('campanha_empresa.destroy_funcionario');
-                    Route::delete('/campanha_empresa/{campanha}/destroy/{campanha_empresa}', 'CampanhaEmpresaController@destroy')->name('campanha_empresa.destroy');
-                    Route::put('/campanha_empresa/{campanha}/libera_funcionario/{campanha_empresa}', 'CampanhaEmpresaController@libera_funcionario')->name('campanha_empresa.libera_funcionario');
+                    Route::get('/campanha_empresa/{campanha}/logAvaliacao', 'CampanhaEmpresaController@logAvaliacao')->name('campanha_empresa.logAvaliacao');
+                    Route::get('/campanha_empresa/{campanha}/avaliacaos', 'CampanhaEmpresaController@avaliacaos')->name('campanha_empresa.avaliacaos');
+                    Route::put('/campanha_empresa/{campanha}/libera_funcionario', 'CampanhaEmpresaController@libera_funcionario')->name('campanha_empresa.libera_funcionario');
+                    Route::delete('/campanha_empresa/{campanha}/campanha_funcionario/{campanha_funcionario}/destroy_funcionario', 'CampanhaEmpresaController@destroy_funcionario')->name('campanha_empresa.destroy_funcionario');
                 });
 
             });

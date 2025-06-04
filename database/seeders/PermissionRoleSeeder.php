@@ -170,12 +170,6 @@ class PermissionRoleSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
-                [
-                    'permission_id' => 27,
-                    'role_id' => 1,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ],
 
                 //CONSULTOR
 
@@ -269,12 +263,6 @@ class PermissionRoleSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
-                [
-                    'permission_id' => 27,
-                    'role_id' => 2,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ],
 
                 //FUNCIONARIO
 
@@ -297,13 +285,13 @@ class PermissionRoleSeeder extends Seeder
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
                 [
-                    'permission_id' => 28,
+                    'permission_id' => 27,
                     'role_id' => 3,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
                 [
-                    'permission_id' => 29,
+                    'permission_id' => 28,
                     'role_id' => 3,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),

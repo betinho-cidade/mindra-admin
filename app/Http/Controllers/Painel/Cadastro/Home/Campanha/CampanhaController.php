@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Campanha;
+use App\Models\Empresa;
 use App\Models\Formulario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -36,9 +37,23 @@ class CampanhaController extends Controller
 
         $roles = $user->roles;
 
-        $campanhas_AT = Campanha::where('status','A')->orderBy('titulo')->get();
+        $campanhas_AT = Campanha::where('status','A')
+                            ->where(function($query) use ($user)
+                            {
+                                if($user->roles->first()->name == 'Consultor'){
+                                    $query->whereIn('campanhas.empresa_id', $user->consultor->consultor_empresas->pluck('empresa_id'));
+                                }
+                            })
+                            ->orderBy('titulo')->get();
 
-        $campanhas_IN = Campanha::where('status','I')->orderBy('titulo')->get();
+        $campanhas_IN = Campanha::where('status','I')
+                            ->where(function($query) use ($user)
+                            {
+                                if($user->roles->first()->name == 'Consultor'){
+                                    $query->whereIn('campanhas.empresa_id', $user->consultor->consultor_empresas->pluck('empresa_id'));
+                                }
+                            })
+                            ->orderBy('titulo')->get();
 
         return view('painel.cadastro.home.campanha.index', compact('user', 'campanhas_AT', 'campanhas_IN'));
     }
@@ -54,7 +69,16 @@ class CampanhaController extends Controller
 
         $formularios = Formulario::whereIn('status', ['A'])->get();
 
-        return view('painel.cadastro.home.campanha.create', compact('user', 'formularios'));
+        $empresas = Empresa::whereIn('status', ['A'])
+                                    ->where(function($query) use ($user)
+                                    {
+                                        if($user->roles->first()->name == 'Consultor'){
+                                            $query->whereIn('empresas.id', $user->consultor->consultor_empresas->pluck('empresa_id'));
+                                        }
+                                    })
+                                    ->get();
+
+        return view('painel.cadastro.home.campanha.create', compact('user', 'formularios', 'empresas'));
     }
 
     public function store(CreateRequest $request)
@@ -67,12 +91,22 @@ class CampanhaController extends Controller
 
         $message = '';
 
+        if($user->roles->first()->name != 'Gestor'){
+            if(!in_array(intval($request->empresa), $user->consultor->consultor_empresas->pluck('empresa_id')->toArray(), TRUE)){
+                $message = 'Somente é possível criar campanhas para as Empresas liberadas ao Consultor.';
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', $message);
+                return redirect()->route('campanha.index');
+            }
+        }
+
         try {
 
             DB::beginTransaction();
 
             $campanha = new Campanha();
 
+            $campanha->empresa_id = $request->empresa;
             $campanha->formulario_id = $request->formulario;
             $campanha->titulo = $request->titulo;
             $campanha->descricao = $request->descricao;
@@ -114,7 +148,14 @@ class CampanhaController extends Controller
 
         $user = Auth()->User();
 
-        $roles = $user->roles;
+        if($user->roles->first()->name != 'Gestor'){
+            if(!in_array($campanha->empresa->id, $user->consultor->consultor_empresas->pluck('empresa_id')->toArray(), TRUE)){
+                $message = 'Somente é possível visualizar campanhas liberadas para as Empresas atendidas pelo Consultor.';
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', $message);
+                return redirect()->route('campanha.index');
+            }
+        }
 
         return view('painel.cadastro.home.campanha.show', compact('user', 'campanha'));
     }
@@ -127,13 +168,13 @@ class CampanhaController extends Controller
 
         $user = Auth()->User();
 
-        $roles = $user->roles;
-
-        if ($user->id != $campanha->campanha_created) {
-            $message = 'Somente o usuário que criou a campanha pode alterá-la.';
-            $request->session()->flash('message.level', 'danger');
-            $request->session()->flash('message.content', $message);
-            return redirect()->route('campanha.show', compact('campanha'));
+        if($user->roles->first()->name != 'Gestor'){
+            if(!in_array($campanha->empresa->id, $user->consultor->consultor_empresas->pluck('empresa_id')->toArray(), TRUE)){
+                $message = 'Somente é possível alterar campanhas liberadas para as Empresas atendidas pelo Consultor.';
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', $message);
+                return redirect()->route('campanha.index');
+            }
         }
 
         $message = '';
@@ -180,11 +221,13 @@ class CampanhaController extends Controller
 
         $user = Auth()->User();
 
-        if ($user->id != $campanha->campanha_created) {
-            $message = 'Somente o usuário que criou a campanha pode excluí-la.';
-            $request->session()->flash('message.level', 'danger');
-            $request->session()->flash('message.content', $message);
-            return redirect()->route('campanha.index');
+        if($user->roles->first()->name != 'Gestor'){
+            if(!in_array($campanha->empresa->id, $user->consultor->consultor_empresas->pluck('empresa_id')->toArray(), TRUE)){
+                $message = 'Somente é possível excluir campanhas liberadas para as Empresas atendidas pelo Consultor.';
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', $message);
+                return redirect()->route('campanha.index');
+            }
         }
 
         $message = '';

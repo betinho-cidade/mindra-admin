@@ -51,7 +51,7 @@ class Empresa extends Model
         return $this->hasMany('App\Models\EmpresaFuncionario');
     }
 
-    public function campanha_empresas(){
-        return $this->hasMany('App\Models\CampanhaEmpresa');
+    public function campanhas(){
+        return $this->hasMany('App\Models\Campanha');
     }
 }

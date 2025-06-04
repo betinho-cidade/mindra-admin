@@ -55,7 +55,13 @@
                 </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="empresa">Empresa</label>
+                                <input type="text" class="form-control"value="{{$campanha->empresa->nome}}" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="titulo">Título</label>
                                 <input type="text" class="form-control" id="titulo" name="titulo" value="{{$campanha->titulo}}" placeholder="Título" required>
@@ -63,7 +69,7 @@
                                 <div class="invalid-feedback">Inválido!</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="descricao">Descrição</label>
                                 <textarea rows="2" class="form-control" id="descricao" name="descricao" placeholder="Descrição">{{$campanha->descricao}}</textarea>

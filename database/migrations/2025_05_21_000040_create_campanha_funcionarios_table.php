@@ -11,14 +11,15 @@ class CreateCampanhaFuncionariosTable extends Migration
     {
         Schema::create('campanha_funcionarios', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('campanha_empresa_id');
+            $table->unsignedBigInteger('campanha_id');
             $table->unsignedBigInteger('empresa_funcionario_id');
             $table->datetime('data_liberado');
             $table->datetime('data_iniciado')->nullable();
             $table->datetime('data_realizado')->nullable();
+            $table->longtext('observacao')->nullable();
             $table->timestamps();
-            $table->unique(['campanha_empresa_id', 'empresa_funcionario_id'], 'campanha_funcionario_uk');
-            $table->foreign('campanha_empresa_id')->references('id')->on('campanha_empresas');
+            $table->unique(['campanha_id', 'empresa_funcionario_id'], 'campanha_funcionario_uk');
+            $table->foreign('campanha_id')->references('id')->on('campanhas');
             $table->foreign('empresa_funcionario_id')->references('id')->on('empresa_funcionarios');
         });
     }

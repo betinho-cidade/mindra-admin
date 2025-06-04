@@ -75,6 +75,16 @@
                                                                     <input type="text" class="form-control mask_cpf" id="cpf" name="cpf" placeholder="CPF" style="height: 30px;">
                                                                 </div>
                                                             </div>
+                                                            <div class="col-md-3" style="padding-right: 0;">
+                                                                <div class="form-group">
+                                                                    <select id="perfil" name="perfil" class="form-control" placeholder="Perfil Acesso">
+                                                                        <option value="">---</option>
+                                                                        @foreach($perfis as $perfil)
+                                                                            <option value="{{$perfil->id}}">{{$perfil->name}}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
 
                                                             <div class="col-md-3">
                                                                 <button style="font-size: 14px; line-height: 14px; width: 100%; margin-bottom: 10px;" type="submit" class="btn btn-primary waves-effect waves-light">Filtrar</button>
@@ -95,6 +105,7 @@
                                                     <code style="font-size:14px;">[{{ $excel_params_translate[$param] }}:
                                                         @switch($param)
                                                             @case("nome") {{ $value }} @break
+                                                            @case("perfil") {{ $perfis->where('id', $value)->pluck('name')[0] }} @break
                                                             @default {{ $value }}
                                                         @endswitch
                                                     ]&nbsp;</code>

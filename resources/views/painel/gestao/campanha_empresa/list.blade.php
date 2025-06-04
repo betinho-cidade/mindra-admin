@@ -35,7 +35,7 @@
     </div>
 @endif
 
-<small style="color: mediumpurple">{!! $campanha_empresa->empresa->breadcrumb_gestao !!}</small>
+<small style="color: mediumpurple">{!! $campanha->empresa->breadcrumb_gestao !!}</small>
 
     <div class="col-md-12" style="padding:0;">
         <div class="card" style="margin-bottom: 0;">
@@ -47,14 +47,14 @@
                             <div class="tab-content py-4">
                                 <div class="tab-pane show active" id="ativas">
                                     <div>
-                                        <h5 class="px-3 mb-3" style="text-align: left; margin-top: -15px; padding-left: 0 !important; margin-bottom: 0px !important;">{{ strtoupper($campanha_empresa->campanha->titulo) }}</h5>
-                                        <p style="margin-top: 5px;"><a href="javascript:;" onclick="preview_formulario('{{ $campanha_empresa->campanha->formulario->id }}')">{{ $campanha_empresa->campanha->formulario->titulo }}</a></p>
-                                        <p style="margin-top: -10px;">Período {{ $campanha_empresa->campanha->periodo }}</p>
+                                        <h5 class="px-3 mb-3" style="text-align: left; margin-top: -15px; padding-left: 0 !important; margin-bottom: 0px !important;">{{ strtoupper($campanha->titulo) }}</h5>
+                                        <p style="margin-top: 5px;"><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{ $campanha->formulario->titulo }}</a></p>
+                                        <p style="margin-top: -10px;">Período {{ $campanha->periodo }}</p>
 
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item" title="Lista de Empresas Ativas">
                                                 <a class="nav-link active" data-toggle="tab" href="#ativas" role="tab">
-                                                    <span class="d-sm-block">Funcionários ( <code class="highlighter-rouge">{{$campanha_empresa->campanha_funcionarios->count()}}</code> )</span>
+                                                    <span class="d-sm-block">Funcionários ( <code class="highlighter-rouge">{{$campanha->campanha_funcionarios->count()}}</code> )</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -77,7 +77,7 @@
                                                         </thead>
 
                                                         <tbody>
-                                                        @forelse($campanha_empresa->campanha_funcionarios as $campanha_funcionario)
+                                                        @forelse($campanha->campanha_funcionarios as $campanha_funcionario)
                                                             <tr>
                                                                 <td>@if($campanha_funcionario->empresa_funcionario->status == 'A')
                                                                         <i class="fas fa-user" style="font-size:10px; color: rgb(8, 179, 16)" title="Ativo na Empresa"></i>&nbsp;
@@ -92,7 +92,7 @@
 
                                                                     @can('release_campanha_funcionario')
                                                                         <a href="javascript:;" data-toggle="modal"
-                                                                        onclick="deleteFuncionario('{{$campanha_funcionario->id}}');"
+                                                                        onclick="deleteFuncionario('{{$campanha->id}}', '{{$campanha_funcionario->id}}');"
                                                                             data-target="#modal-delete-funcionario"><i class="fa fa-minus-circle"
                                                                                 style="color: crimson" title="Excluir o Funcionário da Avaliação na Empresa"></i></a>
                                                                     @endcan
@@ -167,9 +167,11 @@
             }
         }
 
-        function deleteFuncionario(campanha_funcionario) {
+        function deleteFuncionario(campanha, campanha_funcionario) {
+            var campanha = campanha;
             var campanha_funcionario = campanha_funcionario;
-            var url = '{{ route('campanha_empresa.destroy_funcionario', [':campanha_funcionario']) }}';
+            var url = '{{ route('campanha_empresa.destroy_funcionario', [':campanha', ':campanha_funcionario']) }}';
+            url = url.replace(':campanha', campanha);
             url = url.replace(':campanha_funcionario', campanha_funcionario);
             $("#deleteFuncionarioForm").attr('action', url);
         }
@@ -181,7 +183,7 @@
 
     </script>
 
-    @if($campanha_empresa->campanha_funcionarios->count() > 0)
+    @if($campanha->campanha_funcionarios->count() > 0)
         <script>
             var table_AT = $('#dt_ativas').DataTable({
                 language: {

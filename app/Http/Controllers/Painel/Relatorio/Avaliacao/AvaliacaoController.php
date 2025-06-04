@@ -34,8 +34,7 @@ class AvaliacaoController extends Controller
 
         $campanha_funcionarios = CampanhaFuncionario::join('empresa_funcionarios', 'campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                                     ->whereIn('empresa_funcionarios.status', ['A'])
-                                                    ->join('campanha_empresas', 'campanha_funcionarios.campanha_empresa_id', '=', 'campanha_empresas.id')
-                                                    ->join('campanhas', 'campanha_empresas.campanha_id', '=', 'campanhas.id')
+                                                    ->join('campanhas', 'campanha_funcionarios.campanha_id', '=', 'campanhas.id')
                                                     ->join('funcionarios', 'empresa_funcionarios.funcionario_id', '=', 'funcionarios.id')
                                                     ->join('users', 'funcionarios.user_id', '=', 'users.id')
                                                     ->where('users.id', $user->id)
@@ -63,8 +62,8 @@ class AvaliacaoController extends Controller
             return redirect()->route('avaliacao.index');
         }
 
-        if($campanha_funcionario->campanha_empresa->campanha->data_finalizada ||
-           $campanha_funcionario->campanha_empresa->campanha->data_fim < Carbon::now()){
+        if($campanha_funcionario->campanha->data_finalizada ||
+           $campanha_funcionario->campanha->data_fim < Carbon::now()){
             $request->session()->flash('message.level', 'danger');
             $request->session()->flash('message.content', 'A Avaliação dessa campanha já foi realizada!');
             return redirect()->route('avaliacao.index');
@@ -111,8 +110,8 @@ class AvaliacaoController extends Controller
             return redirect()->route('avaliacao.index');
         }
 
-        if($campanha_funcionario->campanha_empresa->campanha->data_finalizada ||
-           $campanha_funcionario->campanha_empresa->campanha->data_fim < Carbon::now()){
+        if($campanha_funcionario->campanha->data_finalizada ||
+           $campanha_funcionario->campanha->data_fim < Carbon::now()){
             $request->session()->flash('message.level', 'danger');
             $request->session()->flash('message.content', 'A Avaliação dessa campanha já foi realizada!');
             return redirect()->route('avaliacao.index');
@@ -136,7 +135,7 @@ class AvaliacaoController extends Controller
         $keys_pergunta = FormularioPergunta::join('formulario_etapas', 'formulario_perguntas.formulario_etapa_id', '=', 'formulario_etapas.id')
                                             ->join('formularios', 'formulario_etapas.formulario_id', '=', 'formularios.id')
                                             ->whereIn('formularios.status', ['A'])
-                                            ->where('formularios.id', $campanha_funcionario->campanha_empresa->campanha->formulario->id)
+                                            ->where('formularios.id', $campanha_funcionario->campanha->formulario->id)
                                             ->select('formulario_perguntas.id')
                                             ->pluck('formulario_perguntas.id')
                                             ->toArray();
@@ -156,6 +155,7 @@ class AvaliacaoController extends Controller
             //gravar forulario e atualizar dta finalizado em campanha_funcionario
 
             $campanha_funcionario->data_realizado = Carbon::now();
+            $campanha_funcionario->observacao = $request->observacao;
             $campanha_funcionario->save();
 
             foreach($keys_request as $pergunta){

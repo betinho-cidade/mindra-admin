@@ -27,11 +27,11 @@
         </div>
     @endif
 
-    @php $formulario = $campanha_funcionario->campanha_empresa->campanha->formulario;  @endphp
+    @php $formulario = $campanha_funcionario->campanha->formulario;  @endphp
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg" style="margin-bottom: 30px;">
         <h1 class="main-title">{{ $formulario->titulo }}</h1>
         <p class="description">
-            {{ $formulario->descricao ?? 'Prévia das questões que serão exibidas para os funcionários no prenchimento do formulário!' }}
+            {{ $formulario->descricao ?? 'Questões para serem respondidas!' }}
         </p>
 
         <form id="assessmentForm" name="assessmentForm" method="POST" action="{{route('avaliacao.store', compact('campanha_funcionario'))}}"  class="needs-validation"  accept-charset="utf-8" enctype="multipart/form-data" novalidate>
@@ -64,6 +64,13 @@
                     </tbody>
                 </table>
             @endforeach
+
+            <p class="description">
+                <div class="form-group">
+                    <label for="resumo">Observações</label>
+                    <textarea class="form-control" name="observacao" id="observacao" rows="3" placeholder="Escreva aqui suas observações">{{old('observacao')}}</textarea>
+                </div>
+            </p>
 
             <div class="mt-6 text-center">
                 <button type="submit" id="submitButton" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 opacity-50 cursor-not-allowed" disabled>Enviar Avaliação</button>

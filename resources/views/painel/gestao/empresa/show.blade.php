@@ -200,12 +200,7 @@
                 <li class="nav-item">
                     <a class="nav-link @if($aba == 'Campanhas') active @endif" data-toggle="tab" href="#campanhas" role="tab">
                         <span class="d-block d-sm-none"><i class="ri-checkbox-circle-line"></i></span>
-                        <span class="d-none d-sm-block">
-                            @can('join_campanha_empresa')
-                                <i onClick="location.href='{{ route('campanha_empresa.create', compact('empresa')) }}';" class="fa fa-plus-square" style="color: goldenrod; margin-right:5px;" title="Adicionar Campanha"></i>
-                            @endcan
-                            Campanhas ( <code class="highlighter-rouge">{{ $campanha_empresas->count() }}</code> )
-                        </span>
+                        <span class="d-none d-sm-block">Campanhas ( <code class="highlighter-rouge">{{ $campanhas->count() }}</code> )</span>
                     </a>
                 </li>
            </ul>
@@ -326,35 +321,29 @@
                         </thead>
 
                         <tbody>
-                            @forelse($campanha_empresas as $campanha_empresa)
+                            @forelse($campanhas as $campanha)
                                 <tr>
-                                    <td>{{ $campanha_empresa->id }}</td>
-                                    <td>{{ $campanha_empresa->campanha->titulo }}</td>
-                                    <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha_empresa->campanha->formulario->id }}')">{{$campanha_empresa->campanha->formulario->titulo}}</a></td>
-                                    <td style="text-align:center;">{{ $campanha_empresa->campanha->periodo }}</td>
-                                    <td style="text-align:center;">{{$campanha_empresa->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
-                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->count()}}</td>
-                                    <td style="text-align:center;">{{$campanha_empresa->campanha_funcionarios->whereNotNull('data_realizado')->count()}}</td>
+                                    <td>{{ $campanha->id }}</td>
+                                    <td>{{ $campanha->titulo }}</td>
+                                    <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo}}</a></td>
+                                    <td style="text-align:center;">{{ $campanha->periodo }}</td>
+                                    <td style="text-align:center;">{{$campanha->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha->campanha_funcionarios->count()}}</td>
+                                    <td style="text-align:center;">{{$campanha->campanha_funcionarios->whereNotNull('data_realizado')->count()}}</td>
                                     <td style="text-align:center;">
 
                                         @can('release_campanha_funcionario')
                                             <a href="javascript:;" data-toggle="modal"
-                                            onclick="releaseData('{{$campanha_empresa->campanha->id}}', '{{$campanha_empresa->id}}');"
+                                            onclick="releaseData('{{$campanha->id}}');"
                                                 data-target="#modal-release"><i class="fas fa-mail-bulk"
                                                     style="color: goldenrod" title="Liberar a avaliação da Campanha"></i></a>
                                         @endcan
 
                                         @can('view_empresa_funcionario')
-                                            <a href="{{ route('campanha_empresa.avaliacaos', compact('campanha_empresa')) }}"><i class="fas fa-users"
+                                            <a href="{{ route('campanha_empresa.avaliacaos', compact('campanha')) }}"><i class="fas fa-users"
                                                     style="color: goldenrod" title="Visualizar as avaliações"></i></a>
                                         @endcan
 
-                                        @can('join_campanha_empresa')
-                                            <a href="javascript:;" data-toggle="modal"
-                                            onclick="deleteCampanha('{{$campanha_empresa->campanha->id}}', '{{$campanha_empresa->id}}');"
-                                                data-target="#modal-delete-campanha"><i class="fa fa-minus-circle"
-                                                    style="color: crimson" title="Excluir a Campanha Vinculada"></i></a>
-                                        @endcan
                                     </td>
                                 </tr>
                             @empty
@@ -406,31 +395,6 @@
             <form action="" id="inviteForm" method="post">
                 @csrf
                 @method('PUT')
-            </form>
-
-            <div class="modal fade" id="modal-delete-campanha" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog " role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Deseja remover a Campanha Vinculada ?</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>A Campanha será desvinculada da Empresa.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Fechar </button>
-                            <button type="button" onclick="deleteCampanhaFormSubmit();" class="btn btn-primary waves-effect waves-light">Excluir Campanha </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <form action="" id="deleteCampanhaForm" method="post">
-                @csrf
-                @method('DELETE')
             </form>
 
             <div class="modal fade" id="modal-release" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
@@ -501,19 +465,6 @@
             $("#deleteFuncionarioForm").submit();
         }
 
-        function deleteCampanha(campanha, campanha_empresa) {
-            var campanha = campanha;
-            var campanha_empresa = campanha_empresa;
-            var url = '{{ route('campanha_empresa.destroy', [':campanha', ':campanha_empresa']) }}';
-            url = url.replace(':campanha', campanha);
-            url = url.replace(':campanha_empresa', campanha_empresa);
-            $("#deleteCampanhaForm").attr('action', url);
-        }
-
-        function deleteCampanhaFormSubmit() {
-            $("#deleteCampanhaForm").submit();
-        }
-
 
         function inviteData(origem, empresa) {
             var empresa = empresa;
@@ -526,12 +477,10 @@
             $("#inviteForm").submit();
         }
 
-        function releaseData(campanha, campanha_empresa) {
+        function releaseData(campanha) {
             var campanha = campanha;
-            var campanha_empresa = campanha_empresa;
-            var url = '{{ route('campanha_empresa.libera_funcionario', [':campanha', ':campanha_empresa']) }}';
+            var url = '{{ route('campanha_empresa.libera_funcionario', [':campanha']) }}';
             url = url.replace(':campanha', campanha);
-            url = url.replace(':campanha_empresa', campanha_empresa);
             $("#releaseForm").attr('action', url);
         }
 
@@ -563,7 +512,7 @@
         </script>
     @endif
 
-    @if ($campanha_empresas->count() > 0)
+    @if ($campanhas->count() > 0)
         <script>
             var table = $('#dt_campanhas').DataTable({
                 language: {

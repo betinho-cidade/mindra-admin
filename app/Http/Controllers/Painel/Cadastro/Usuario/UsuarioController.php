@@ -41,8 +41,10 @@ class UsuarioController extends Controller
         $usuarios = User::paginate(300);
         $excel_params = [];
 
+        $perfis = Role::all();
 
-        return view('painel.cadastro.usuario.index', compact('user', 'usuarios', 'excel_params'));
+
+        return view('painel.cadastro.usuario.index', compact('user', 'usuarios', 'excel_params', 'perfis'));
     }
 
     public function search(SearchRequest $request)
@@ -63,6 +65,7 @@ class UsuarioController extends Controller
                     'cpf' => isset($excel_params_set->cpf) ?$excel_params_set->cpf : '',
                     'email' => isset($excel_params_set->email) ? $excel_params_set->email : '',
                     'situacao' => isset($excel_params_set->situacao) ? $excel_params_set->situacao : '',
+                    'perfil' => isset($excel_params_set->perfil) ? $excel_params_set->perfil : '',
                 ];
             } else{
                 $excel_params = [
@@ -70,6 +73,7 @@ class UsuarioController extends Controller
                     'cpf' => isset($request->excel_params['cpf']) ? $request->excel_params['cpf'] : '',
                     'email' => isset($request->excel_params['email']) ? $request->excel_params['email'] : '',
                     'situacao' => isset($request->excel_params['situacao']) ? $request->excel_params['situacao'] : '',
+                    'perfil' => isset($request->excel_params['perfil']) ? $request->excel_params['perfil'] : '',
                 ];
             }
         } else {
@@ -78,6 +82,7 @@ class UsuarioController extends Controller
                 'cpf' => isset($request->cpf) ? $request->cpf : '',
                 'email' => isset($request->email) ? $request->email : '',
                 'situacao' => isset($request->situacao) ? $request->situacao : '',
+                'perfil' => isset($request->perfil) ? $request->perfil : '',
             ];
         }
 
@@ -86,10 +91,12 @@ class UsuarioController extends Controller
             'cpf' => 'CPF',
             'email' => 'e-mail',
             'situacao' => 'Situação',
+            'perfil' => 'Perfil',
         ];
 
 
         $usuarios = User::join('role_user', 'role_user.user_id', 'users.id')
+                    ->join('roles', 'role_user.role_id', 'roles.id')
                     ->where(function($query) use ($excel_params){
                         if($excel_params['situacao']){
                             if ($excel_params['situacao'] == 'A') {
@@ -107,11 +114,16 @@ class UsuarioController extends Controller
                         if ($excel_params['email']) {
                             $query->where('email', 'like', '%' . $excel_params['email'] . '%');
                         }
+                        if ($excel_params['perfil']) {
+                            $query->where('roles.id', $excel_params['perfil']);
+                        }
                     })
                     ->select('users.*')
                     ->paginate(300);
 
-        return view('painel.cadastro.usuario.index', compact('user', 'usuarios', 'excel_params', 'excel_params_translate'));
+        $perfis = Role::all();
+
+        return view('painel.cadastro.usuario.index', compact('user', 'usuarios', 'excel_params', 'excel_params_translate', 'perfis'));
     }
 
     public function create()

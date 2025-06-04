@@ -31,145 +31,7 @@ class CampanhaEmpresaController extends Controller
         $this->middleware('auth');
     }
 
-    public function create(Empresa $empresa)
-    {
-
-        if(Gate::denies('join_campanha_empresa')){
-            abort('403', 'Página não disponível');
-            //return redirect()->back();
-        }
-
-        $user = Auth()->User();
-
-        $campanhas = Campanha::whereIn('campanhas.status', ['A'])
-                            ->whereNotExists(function($query) use ($empresa)
-                            {
-                                $query->select(DB::raw(1))
-                                    ->from('campanha_empresas')
-                                    ->whereRaw('campanha_empresas.campanha_id = campanhas.id')
-                                    ->where('campanha_empresas.empresa_id', $empresa->id);
-                            })
-                            ->select('campanhas.*')
-                            ->get();
-
-        return view('painel.gestao.campanha_empresa.create', compact('user', 'empresa', 'campanhas'));
-    }
-
-    public function store(Request $request, Empresa $empresa)
-    {
-
-        if(Gate::denies('join_campanha_empresa')){
-            abort('403', 'Página não disponível');
-            //return redirect()->back();
-        }
-
-        $user = Auth()->User();
-
-        $message = '';
-
-        try {
-            DB::beginTransaction();
-
-            foreach($request->campanhas as $new_campanha)
-            {
-                $new_campanha = Campanha::where('id', $new_campanha)->first();
-
-                if(!$empresa || !$this->valida_consultor($empresa)){
-                    DB::rollBack();
-                    abort('403', 'Página não disponível');
-                }
-
-                $newCampanhaEmpresa = new CampanhaEmpresa();
-                $newCampanhaEmpresa->campanha_id = $new_campanha->id;
-                $newCampanhaEmpresa->empresa_id = $empresa->id;
-                $newCampanhaEmpresa->save();
-            }
-
-            DB::commit();
-
-        } catch (Exception $ex){
-
-            DB::rollBack();
-            if(strpos($ex->getMessage(), 'campanha_empresa_uk') !== false){
-                $message = "Uma das campanhas informadas já está registrada nessa empresa.";
-
-                $request->session()->flash('message.level', 'warning');
-                $request->session()->flash('message.content', $message);
-
-                return redirect()->back()->withInput();
-
-            } else{
-                $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
-            }
-        }
-
-        if ($message && $message !='') {
-            $request->session()->flash('message.level', 'danger');
-            $request->session()->flash('message.content', $message);
-        } else {
-            $request->session()->flash('message.level', 'success');
-            $request->session()->flash('message.content', 'As campanhas foram vinculados com sucesso');
-        }
-
-        $aba = 'Campanhas';
-        return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba'));
-    }
-
-    public function destroy(Campanha $campanha, CampanhaEmpresa $campanha_empresa, Request $request)
-    {
-        if(Gate::denies('join_campanha_empresa')){
-            abort('403', 'Página não disponível');
-        }
-
-        $user = Auth()->User();
-
-        $message = '';
-
-        $empresa = $campanha_empresa->empresa;
-
-        if(!$this->valida_consultor($campanha_empresa->empresa)){
-            abort('403', 'Página não disponível');
-        }
-
-        if(($campanha->id == $campanha_empresa->campanha->id)) {
-
-            try {
-                DB::beginTransaction();
-
-                CampanhaEmpresa::where('id', $campanha_empresa->id)
-                                ->where('campanha_id', $campanha->id)
-                                ->delete();
-
-                DB::commit();
-
-            } catch (Exception $ex){
-
-                DB::rollBack();
-
-                if(strpos($ex->getMessage(), 'Integrity constraint violation') !== false){
-                    $message = "Não foi possível excluir o registro, pois existem referências ao mesmo em outros processos.";
-                } else{
-                    $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
-                }
-            }
-
-        } else {
-            $message = "Não foi possível excluir a empresa da campanha - informações inconsistentes.";
-        }
-
-        if ($message && $message !='') {
-            $request->session()->flash('message.level', 'danger');
-            $request->session()->flash('message.content', $message);
-        } else {
-            $request->session()->flash('message.level', 'success');
-            $request->session()->flash('message.content', 'A Campanha foi desvinculada da Empresa com sucesso');
-        }
-
-        $aba = 'Campanhas';
-        return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba'));
-    }
-
-    public function libera_funcionario(Campanha $campanha, CampanhaEmpresa $campanha_empresa, Request $request)
+    public function libera_funcionario(Campanha $campanha, Request $request)
     {
         if(Gate::denies('release_campanha_funcionario')){
             abort('403', 'Página não disponível');
@@ -179,27 +41,25 @@ class CampanhaEmpresaController extends Controller
 
         $message = '';
         $aba = 'Campanhas';
-        $empresa = $campanha_empresa->empresa;
+        $empresa = $campanha->empresa;
         $resultado_invite = [];
 
-        if(!$this->valida_consultor($campanha_empresa->empresa)){
+        if(!$this->valida_consultor($campanha->empresa)){
             abort('403', 'Página não disponível');
         }
-
-        if(($campanha->id == $campanha_empresa->campanha->id)) {
 
             $empresa_funcionarios = EmpresaFuncionario::join('empresas', 'empresa_funcionarios.empresa_id', '=', 'empresas.id')
                                                     ->whereIn('empresa_funcionarios.status', ['A'])
                                                     ->whereIn('empresas.status', ['A'])
-                                                    ->where('empresas.id', $campanha_empresa->empresa->id)
-                                                    ->join('campanha_empresas', 'campanha_empresas.empresa_id', '=', 'empresas.id')
-                                                    ->where('campanha_empresas.campanha_id', $campanha->id)
-                                                    ->whereNotExists(function($query) // use ($campanha)
+                                                    ->where('empresas.id', $campanha->empresa->id)
+                                                    ->join('campanhas', 'campanhas.empresa_id', '=', 'empresas.id')
+                                                    ->where('campanhas.id', $campanha->id)
+                                                    ->whereNotExists(function($query)
                                                                         {
                                                                             $query->select(DB::raw(1))
                                                                                 ->from('campanha_funcionarios')
                                                                                 ->whereRaw('campanha_funcionarios.empresa_funcionario_id = empresa_funcionarios.id')
-                                                                                ->whereColumn('campanha_funcionarios.campanha_empresa_id','=','campanha_empresas.id');
+                                                                                ->whereColumn('campanha_funcionarios.campanha_id','=','campanhas.id');
                                                                             })
 
                                                     ->select('empresa_funcionarios.*')
@@ -217,7 +77,7 @@ class CampanhaEmpresaController extends Controller
 
                 foreach($empresa_funcionarios as $empresa_funcionario){
                     $newCampanhaFuncionario = new CampanhaFuncionario();
-                    $newCampanhaFuncionario->campanha_empresa_id = $campanha_empresa->id;
+                    $newCampanhaFuncionario->campanha_id = $campanha->id;
                     $newCampanhaFuncionario->empresa_funcionario_id  = $empresa_funcionario->id;
                     $newCampanhaFuncionario->data_liberado = Carbon::now();
                     $newCampanhaFuncionario->save();
@@ -238,7 +98,7 @@ class CampanhaEmpresaController extends Controller
 
 
             try {
-                $service = new FuncionarioAvaliacaoService($empresa_funcionarios->toArray(), $campanha_empresa);
+                $service = new FuncionarioAvaliacaoService($empresa_funcionarios->toArray(), $campanha);
                 $results = $service->sendInvites();
 
                 $resultado_invite = [
@@ -261,9 +121,6 @@ class CampanhaEmpresaController extends Controller
                 ];
             }
 
-        } else {
-            $message = "Não foi possível liberar a avaliação para os funcionários - informações inconsistentes.";
-        }
 
         if ($message && $message !='') {
             $request->session()->flash('message.level', 'danger');
@@ -276,7 +133,7 @@ class CampanhaEmpresaController extends Controller
         return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba', 'resultado_invite'));
     }
 
-    public function logAvaliacao(CampanhaEmpresa $campanha_empresa, Request $request)
+    public function logAvaliacao(Campanha $campanha, Request $request)
     {
         if(Gate::denies('release_campanha_funcionario')){
             abort('403', 'Página não disponível');
@@ -284,13 +141,13 @@ class CampanhaEmpresaController extends Controller
 
         $user = Auth()->User();
 
-        if(!$this->valida_consultor($campanha_empresa->empresa)){
+        if(!$this->valida_consultor($campanha->empresa)){
             abort('403', 'Página não disponível');
         }
 
         $filename = $request->filename;
 
-        $filePath = 'logs/invite/' . $campanha_empresa->empresa->id . '/campanha_empresa/'  . $campanha_empresa->id . '/' . $filename;
+        $filePath = 'logs/invite/' . $campanha->empresa->id . '/campanha/'  . $campanha->id . '/' . $filename;
 
         if (!Storage::exists($filePath)) {
             abort(404, 'Arquivo de log não encontrado.');
@@ -301,7 +158,7 @@ class CampanhaEmpresaController extends Controller
         ]);
     }
 
-    public function avaliacaos(CampanhaEmpresa $campanha_empresa, Request $request)
+    public function avaliacaos(Campanha $campanha, Request $request)
     {
         if(Gate::denies('view_empresa_funcionario')){
             abort('403', 'Página não disponível');
@@ -309,15 +166,15 @@ class CampanhaEmpresaController extends Controller
 
         $user = Auth()->User();
 
-        if(!$this->valida_consultor($campanha_empresa->empresa)){
+        if(!$this->valida_consultor($campanha->empresa)){
             abort('403', 'Página não disponível');
         }
 
-        return view('painel.gestao.campanha_empresa.list', compact('user', 'campanha_empresa'));
+        return view('painel.gestao.campanha_empresa.list', compact('user', 'campanha'));
 
     }
 
-    public function destroy_funcionario(CampanhaFuncionario $campanha_funcionario, Request $request)
+    public function destroy_funcionario(Campanha $campanha, CampanhaFuncionario $campanha_funcionario, Request $request)
     {
         if(Gate::denies('release_campanha_funcionario')){
             abort('403', 'Página não disponível');
@@ -327,9 +184,7 @@ class CampanhaEmpresaController extends Controller
 
         $message = '';
 
-        $campanha_empresa = $campanha_funcionario->campanha_empresa;
-
-        if(!$this->valida_consultor($campanha_funcionario->campanha_empresa->empresa)){
+        if(!$this->valida_consultor($campanha->empresa)){
             abort('403', 'Página não disponível');
         }
 
@@ -360,7 +215,7 @@ class CampanhaEmpresaController extends Controller
             $request->session()->flash('message.content', 'O Funcionário foi desvinculada da Campanha com sucesso');
         }
 
-        return redirect()->route('campanha_empresa.avaliacaos', compact('campanha_empresa'));
+        return redirect()->route('campanha_empresa.avaliacaos', compact('campanha'));
     }
 
     private function valida_consultor(Empresa $empresa){

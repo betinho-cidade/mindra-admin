@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autorização para Realização de Avaliação - {{ $campanha_empresa->campanha->titulo }}</title>
+    <title>Autorização para Realização de Avaliação - {{ $campanha->titulo }}</title>
     <style>
         body {
             margin: 0;
@@ -78,21 +78,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Autorização para Avaliação - {{ $campanha_empresa->campanha->titulo }}</h1>
+            <h1>Autorização para Avaliação - {{ $campanha->titulo }}</h1>
         </div>
         <div class="content">
             <p>Prezado(a) <span class="highlight">{{ $funcionario->user->nome }}</span>,</p>
-            <p>Informamos que você foi autorizado(a) a realizar a avaliação referente à campanha <span class="highlight">{{ $campanha_empresa->campanha->titulo }}</span>.</p>
+            <p>Informamos que você foi autorizado(a) a realizar a avaliação referente à campanha <span class="highlight">{{ $campanha->titulo }}</span>.</p>
             <p><strong>Detalhes da Avaliação:</strong></p>
             <p>
-                - <strong>Período:</strong> De <span class="highlight">{{ $campanha_empresa->campanha->data_inicio_formatada }}</span> até <span class="highlight">{{ $campanha_empresa->campanha->data_fim_formatada }}</span><br>
-                - <strong>Empresa:</strong> {{ $campanha_empresa->empresa->nome }}<br>
+                - <strong>Período:</strong> De <span class="highlight">{{ $campanha->data_inicio_formatada }}</span> até <span class="highlight">{{ $campanha->data_fim_formatada }}</span><br>
+                - <strong>Empresa:</strong> {{ $campanha->empresa->nome }}<br>
             </p>
             <p>Para acessar a avaliação, clique no botão abaixo:</p>
             <a href="[Link para Avaliação]" class="button">Acessar Avaliação</a>
-            <p>Caso tenha dúvidas ou precise de suporte, entre em contato com a equipe de Recursos Humanos pelo e-mail <a href="mailto:{{ $campanha_empresa->empresa->email }}">{{ $campanha_empresa->empresa->email }}</a>.</p>
+            <p>Caso tenha dúvidas ou precise de suporte, entre em contato com a equipe de Recursos Humanos pelo e-mail <a href="mailto:{{ $campanha->empresa->email }}">{{ $campanha->empresa->email }}</a>.</p>
             <p>Atenciosamente,<br>
-            <span class="highlight">{{ $campanha_empresa->empresa->nome }}</span><br>
+            <span class="highlight">{{ $campanha->empresa->nome }}</span><br>
             Equipe de Recursos Humanos</p>
         </div>
         <div class="footer">

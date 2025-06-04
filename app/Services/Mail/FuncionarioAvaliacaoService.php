@@ -3,7 +3,7 @@
 namespace App\Services\Mail;
 
 use App\Mail\FuncionarioAvaliacaoMail;
-use App\Models\CampanhaEmpresa;
+use App\Models\Campanha;
 use App\Models\EmpresaFuncionario;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -15,17 +15,17 @@ class FuncionarioAvaliacaoService
 {
 
     protected $empresa_funcionarios;
-    protected $campanha_empresa;
+    protected $campanha;
 
     /**
      * Construtor que injeta o modelo Empresa.
      *
      * @param Empresa $empresa
      */
-    public function __construct(Array $empresa_funcionarios, CampanhaEmpresa $campanha_empresa)
+    public function __construct(Array $empresa_funcionarios, Campanha $campanha)
     {
         $this->empresa_funcionarios = $empresa_funcionarios;
-        $this->campanha_empresa = $campanha_empresa;
+        $this->campanha = $campanha;
     }
 
     /**
@@ -54,7 +54,7 @@ class FuncionarioAvaliacaoService
 
                 try {
                     // Enfileira o e-mail
-                    Mail::to($empresa_funcionario->funcionario->user->email)->queue(new FuncionarioAvaliacaoMail($empresa_funcionario->funcionario, $this->campanha_empresa));
+                    Mail::to($empresa_funcionario->funcionario->user->email)->queue(new FuncionarioAvaliacaoMail($empresa_funcionario->funcionario, $this->campanha));
 
                     $results['success'][] = [
                         'id' => $empresa_funcionario->funcionario->user->id,
@@ -97,7 +97,7 @@ class FuncionarioAvaliacaoService
         // Salva o log no diretório storage/logs
         if (!empty($logEntries)) {
             $logContent = implode("\n", $logEntries);
-            Storage::put('logs/invite/' . $this->campanha_empresa->empresa->id . '/campanha_empresa/' . $this->campanha_empresa->id . '/'  . $logFileName, $logContent);
+            Storage::put('logs/invite/' . $this->campanha->empresa->id . '/campanha/' . $this->campanha->id . '/'  . $logFileName, $logContent);
             $results['log_file'] = $logFileName;
         }
 
@@ -112,8 +112,8 @@ class FuncionarioAvaliacaoService
      */
     public function getLogAvaliacaoDownloadLink(string $logFileName): ?string
     {
-        if (Storage::exists('logs/invite/' . $this->campanha_empresa->empresa->id  . '/campanha_empresa/' . $this->campanha_empresa->id . '/' . $logFileName)) {
-            return route('campanha_empresa.logAvaliacao', ['campanha_empresa' => $this->campanha_empresa, 'filename' => $logFileName]);
+        if (Storage::exists('logs/invite/' . $this->campanha->empresa->id  . '/campanha/' . $this->campanha->id . '/' . $logFileName)) {
+            return route('campanha_empresa.logAvaliacao', ['campanha' => $this->campanha, 'filename' => $logFileName]);
         }
         return null;
     }

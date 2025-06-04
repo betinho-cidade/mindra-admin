@@ -17,6 +17,7 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
+            'empresa' => 'required',
             'formulario' => 'required',
             'titulo' => 'required|max:255',
             'data_inicio' => 'required|date|before:data_fim',
@@ -28,6 +29,7 @@ class CreateRequest extends FormRequest
     public function messages()
     {
         return [
+            'emoresa.required' => 'A empresa é requerida',
             'formulario.required' => 'O formulário é requerido',
             'titulo.required' => 'O título é requerido',
             'titulo.max' => 'O tamanho permitido para o título é de 255 caracteres',

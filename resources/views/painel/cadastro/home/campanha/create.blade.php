@@ -52,7 +52,21 @@
                 </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="empresa">Empresa</label>
+                                <select id="empresa" name="empresa" class="form-control" required>
+                                    <option value="">---</option>
+                                    @foreach ($empresas as $empresa)
+                                        <option value="{{ $empresa->id }}"
+                                            {{ $empresa->id == old('empresa') ? 'selected' : '' }}>{{ $empresa->nome }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="valid-feedback">ok!</div>
+                                <div class="invalid-feedback">Inválido!</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="titulo">Título</label>
                                 <input type="text" class="form-control" id="titulo" name="titulo" value="{{old('titulo')}}" placeholder="Título" required>
@@ -60,7 +74,7 @@
                                 <div class="invalid-feedback">Inválido!</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="descricao">Descrição</label>
                                 <textarea rows="2" class="form-control" id="descricao" name="descricao" placeholder="Descrição">{{old('descricao')}}</textarea>

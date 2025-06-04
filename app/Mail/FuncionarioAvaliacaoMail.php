@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Funcionario;
-use App\Models\CampanhaEmpresa;
+use App\Models\Campanha;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -14,7 +14,7 @@ class FuncionarioAvaliacaoMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $funcionario;
-    public $campanha_empresa;
+    public $campanha;
 
     /**
      * Create a new message instance.
@@ -22,10 +22,10 @@ class FuncionarioAvaliacaoMail extends Mailable implements ShouldQueue
      * @param Funcionario $funcionario
      * @param string $password
      */
-    public function __construct(Funcionario $funcionario, CampanhaEmpresa $campanha_empresa)
+    public function __construct(Funcionario $funcionario, Campanha $campanha)
     {
         $this->funcionario = $funcionario;
-        $this->campanha_empresa = $campanha_empresa;
+        $this->campanha = $campanha;
     }
 
     /**
