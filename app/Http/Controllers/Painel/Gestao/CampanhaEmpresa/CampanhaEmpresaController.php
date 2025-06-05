@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Campanha;
 use App\Models\Empresa;
-use App\Models\CampanhaEmpresa;
 use App\Models\ConsultorEmpresa;
 use App\Models\Formulario;
 use App\Models\EmpresaFuncionario;

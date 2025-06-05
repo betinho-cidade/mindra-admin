@@ -40,7 +40,7 @@
 
                 <h2 class="topic-header">{{ $formulario_etapa->titulo ?? 'Responda as questões abaixo' }}</h2>
 
-                <table class="w-full border-collapse mt-4">
+                <table class="w-full border-collapse mt-4 table-container">
                     <thead>
                         <tr class="bg-gray-200">
                             <th class="p-3 text-left">Pergunta</th>
@@ -56,7 +56,7 @@
                             @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
                                 <td class="p-3 radio-group">
                                     <input type="radio" id="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" name="pergunta_{{ $formulario_pergunta->id }}" value="{{ $resposta_indicador->id }}" required class="hidden">
-                                    <label for="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" class="block">✔</label>
+                                    <label for="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" class="block">◉</label>
                                 </td>
                             @endforeach
                         </tr>
@@ -141,9 +141,44 @@
         .radio-group label:hover {
             background-color: #e5e7eb;
         }
+        /* Container para a tabela */
+        .table-container {
+            max-height: 600px; /* Altura máxima para rolagem vertical */
+            overflow-y: auto; /* Habilita rolagem vertical */
+            overflow-x: auto; /* Habilita rolagem horizontal */
+            display: block; /* Necessário para rolagem */
+            width: 100%; /* Ocupa a largura disponível */
+        }
+        /* Estilo da tabela */
+        table {
+            width: 800px; /* Largura maior que a tela para rolagem horizontal */
+            border-collapse: collapse;
+        }
+        /* Estilo do thead */
+        thead {
+            position: sticky; /* Fixa o thead verticalmente */
+            top: 0; /* Cola no topo */
+            background-color: #f8f8f8; /* Cor de fundo */
+            z-index: 2; /* Fica acima do tbody e da primeira coluna */
+        }
+        /* Estilo da primeira coluna */
+        th:first-child, td:first-child {
+            position: sticky; /* Fixa a primeira coluna horizontalmente */
+            left: 0; /* Cola à esquerda */
+            /*background-color: #000;  Cor de fundo para destacar */
+            z-index: 1; /* Fica acima do tbody, mas abaixo do thead */
+        }
+        /* Estilo das células */
         th, td {
             text-align: center;
             vertical-align: middle;
+            padding: 8px;
+            font-size: 14px;
+            min-width: 150px; /* Largura mínima para colunas */
+        }
+        /* Ajuste específico para o canto superior esquerdo (thead da primeira coluna) */
+        thead th:first-child {
+            z-index: 3; /* Fica acima de tudo */
         }
         .topic-header {
             background-color: #1f2937;
@@ -180,18 +215,33 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        @media (max-width: 640px) {
-            table {
-                font-size: 0.875rem;
+
+        /* Media query para dispositivos móveis */
+        @media screen and (max-width: 600px) {
+
+            .table-container {
+                max-height: 300px; /* Altura menor no mobile */
+            }
+            th:first-child, td:first-child {
+             background-color: #f4f5f7;;/*  Cor de fundo para destacar */
             }
             th, td {
-                padding: 0.5rem;
+                font-size: 12px; /* Fonte menor no mobile */
+                padding: 6px; /* Menos padding no mobile */
+                min-width: 120px; /* Ajuste de largura mínima para colunas */
+            }
+            table {
+                width: 600px; /* Mantém largura maior que a tela para rolagem horizontal */
+            }
+            body[data-sidebar=dark] .navbar-brand-box {
+                max-width: 70px;
+            }
+            .logo span.logo-sm {
+                display: flex;
             }
             .main-title {
-                font-size: 1.5rem;
-                padding: 1rem;
+                font-size: 21px !important;
             }
-        }
     </style>
 @endsection
 

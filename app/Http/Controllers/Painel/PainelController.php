@@ -20,7 +20,6 @@ class PainelController extends Controller
 
     public function index()
     {
-
         if(Gate::denies('view_painel')){
             return redirect()->route('logout');
         }
@@ -43,6 +42,9 @@ class PainelController extends Controller
 
     public function js_viacep(Request $request)
     {
+        if(Gate::denies('view_painel')){
+            return redirect()->route('logout');
+        }
 
         $cep = Str::of($request->cep)->replaceMatches('/[^z0-9]++/', '')->__toString();
 

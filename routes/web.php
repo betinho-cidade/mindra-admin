@@ -5,9 +5,24 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['namespace' => 'App\Http\Controllers'], function(){
 
+    Route::group(['namespace' => 'Guest'], function(){
+
+        Route::group(['namespace' => 'ResetPassword'], function(){
+            Route::get('/forget-password', 'ForgotPasswordController@getEmail')->name('forgot.password');
+            Route::post('/forget-password', 'ForgotPasswordController@postEmail')->name('forgot.reset');
+            Route::get('/reset-password/{token}', 'ResetPasswordController@getPassword')->name('reset.password');
+            Route::post('/reset-password', 'ResetPasswordController@updatePassword')->name('reset');
+            Route::get('/relatorio/dashboard', 'DashboardController@index')->name('dashboard.index');
+            //Route::get('/create-password/{token}', 'ResetPasswordController@createPassword')->name('create.password');
+        });
+
+    });
+
+
     Route::middleware(['auth'])->group(function () {
 
         Route::get('/logout', 'HomeController@logout')->name('logout');
+
         Route::get('/home', 'HomeController@index')->name('home');
 
         Route::group(['namespace' => 'Painel'], function(){
