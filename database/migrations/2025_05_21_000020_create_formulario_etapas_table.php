@@ -13,7 +13,10 @@ class CreateFormularioEtapasTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('formulario_id');
             $table->string('titulo', 255)->nullable();
+            $table->string('descricao', 255)->nullable();
             $table->integer('ordem')->default(1);
+            $table->enum('visivel_formulario', ['S', 'N'])->default('S');  //S->Sim  N->Não
+            $table->enum('visivel_report', ['S', 'N'])->default('S');  //S->Sim  N->Não
             $table->timestamps();
             $table->foreign('formulario_id')->references('id')->on('formularios');
         });

@@ -10,34 +10,45 @@
         </p>
 
         <form id="assessmentForm">
+            @php $cont = -1 @endphp
             @foreach($formulario->formulario_etapas->sortBy('ordem') as $formulario_etapa)
+                @php $cont++; @endphp
+                @if($formulario->visivel_formulario == 'S' || $cont == 0)
+                    <h2 class="topic-header">{{ ($formulario->visivel_formulario == 'S' ) ? $formulario_etapa->titulo : 'Responda as questões abaixo' }}</h2>
 
-                <h2 class="topic-header">{{ $formulario_etapa->titulo ?? 'Responda as questões abaixo' }}</h2>
-
-                <table class="w-full border-collapse mt-4">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-3 text-left">Pergunta</th>
-                            @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
-                                <th class="p-3">{{ $resposta_indicador->titulo }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
+                    <table class="w-full border-collapse mt-4">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="p-3 text-left">Pergunta</th>
+                                @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
+                                    <th class="p-3">{{ $resposta_indicador->titulo }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
                     <tbody>
+                @endif
                     @foreach($formulario_etapa->formulario_perguntas->sortBy('ordem') as $formulario_pergunta)
                         <tr class="border-b">
                             <td class="p-3 text-left">{{ $formulario_pergunta->titulo }}</td>
                             @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
                                 <td class="p-3 radio-group">
                                     <input type="radio" id="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" name="pergunta_{{ $formulario_pergunta->id }}" value="{{ $resposta_indicador->id }}" required class="hidden">
-                                    <label for="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" class="block">✔</label>
+                                    <label for="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" class="block">◉</label>
                                 </td>
                             @endforeach
                         </tr>
                     @endforeach
+
+                    @if($formulario->visivel_formulario == 'S')
+                            </tbody>
+                        </table>
+                    @endif
+            @endforeach
+
+            @if($formulario->visivel_formulario == 'N')
                     </tbody>
                 </table>
-            @endforeach
+            @endif
 
         </form>
     </div>

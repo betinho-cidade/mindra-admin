@@ -36,9 +36,12 @@
 
         <form id="assessmentForm" name="assessmentForm" method="POST" action="{{route('avaliacao.store', compact('campanha_funcionario'))}}"  class="needs-validation"  accept-charset="utf-8" enctype="multipart/form-data" novalidate>
         @csrf
+            @php $cont = -1 @endphp
             @foreach($formulario->formulario_etapas->sortBy('ordem') as $formulario_etapa)
+                @php $cont++; @endphp
 
-                <h2 class="topic-header">{{ $formulario_etapa->titulo ?? 'Responda as questões abaixo' }}</h2>
+                @if($formulario->visivel_formulario == 'S' || $cont == 0)
+                <h2 class="topic-header">{{ ($formulario->visivel_formulario == 'S' ) ? $formulario_etapa->titulo : 'Responda as questões abaixo' }}</h2>
 
                 <table class="w-full border-collapse mt-4 table-container">
                     <thead>
@@ -50,6 +53,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                @endif
                     @foreach($formulario_etapa->formulario_perguntas->sortBy('ordem') as $formulario_pergunta)
                         <tr class="border-b">
                             <td class="p-3 text-left">{{ $formulario_pergunta->titulo }}</td>
@@ -61,9 +65,17 @@
                             @endforeach
                         </tr>
                     @endforeach
+
+                    @if($formulario->visivel_formulario == 'S')
+                            </tbody>
+                        </table>
+                    @endif
+            @endforeach
+
+            @if($formulario->visivel_formulario == 'N')
                     </tbody>
                 </table>
-            @endforeach
+            @endif
 
             <p class="description">
                 <div class="form-group">
@@ -100,6 +112,7 @@
                 return form.querySelector(`input[name="${name}"]:checked`);
             });
 
+            console.log(allAnswered);
             // Habilita ou desabilita o botão de submit
             if (allAnswered) {
                 submitButton.removeAttribute('disabled');
