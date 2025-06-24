@@ -200,7 +200,6 @@ class CampanhaEmpresaController extends Controller
         $etapa = 0;
         $pergunta = 0;
         foreach($results as $result){
-            //dd($result);
             $formulario_pergunta = FormularioPergunta::where('id', $result->formulario_pergunta_id)->first();
             $formulario_etapa = $formulario_pergunta->formulario_etapa;
 
@@ -245,17 +244,66 @@ class CampanhaEmpresaController extends Controller
        }
 
        $indicador_resposta = $campanha->formulario->resposta->resposta_indicadors()->orderBy('ordem')->pluck('indicador','id')->toArray();
+       $total_respondido = $campanha->campanha_funcionarios->whereNotNull('data_realizado')->count();
 
-       foreach($matrizes as &$array) {
+       $etapa = 0;
+       $total_perguntas = 0;
+       $newEtapa = [];
+       $analise_etapas = [];
+
+       foreach(collect($matrizes)->sortBy('etapa') as &$array) {
             $array['resposta_12'] = $array['resposta_12'] * $indicador_resposta['12'];
             $array['resposta_13'] = $array['resposta_13'] * $indicador_resposta['13'];
             $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
             $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
             $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
+            $array['prob_invertida'] = ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido;
+            $array['indice_risco'] = $array['prob_invertida'] * $array['consequencia'];
+
+            if($array['etapa'] != $etapa){
+                $etapa = $array['etapa'];
+                $total_perguntas = 0;
+                $newEtapa = [
+                    'etapa' => $array['etapa'],
+                    'soma_valores' => 0,
+                    'total_perguntas' => 0,
+                    'indice_risco_medio' => 0,
+                    'indice_risco_round' => 0,
+                ];
+                array_push($analise_etapas, $newEtapa);
+            }
+
+            $total_perguntas++;
+            foreach ($analise_etapas as &$newArray) {
+                if($newArray['etapa'] === $etapa) {
+                    $newArray['soma_valores'] = $newArray['soma_valores'] +  $array['indice_risco'];
+                    $newArray['total_perguntas'] = $total_perguntas;
+                    $newArray['indice_risco_medio'] = $newArray['soma_valores'] / $total_perguntas;
+                    $newArray['indice_risco_round'] = round($newArray['indice_risco_medio']);
+                }
+            }
        }
 
+       $indice_risco = [
+            ['indice' => 1,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
+            ['indice' => 2,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
+            ['indice' => 3,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
+            ['indice' => 4,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 5,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 6,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 7,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 8,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 9,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 10, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 11, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 12, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 13, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 14, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 15, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 16, 'classificacao' => 'Risco Muito Alto',  'diretriz' => 'Ação imediata. Pode demandar afastamentos, mudanças organizacionais ou suporte clínico.'],
+        ];
 
-        dd($results, $matriz, $matrizes);
+        dd($results, $analise_etapas, $matrizes, $indice_risco);
 
 
 
