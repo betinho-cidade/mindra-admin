@@ -344,6 +344,13 @@
                                                     style="color: goldenrod" title="Visualizar as avaliações"></i></a>
                                         @endcan
 
+                                        @can('analisa_campanha_funcionario')
+                                            <a href="javascript:;" data-toggle="modal"
+                                            onclick="analisaData('{{$campanha->id}}');"
+                                                data-target="#modal-analisa"><i class="fas fa-chart-pie"
+                                                    style="color: goldenrod" title="Analisar os formulários respondidos"></i></a>
+                                        @endcan
+
                                     </td>
                                 </tr>
                             @empty
@@ -417,6 +424,26 @@
                 </div>
             </div>
 
+            <div class="modal fade" id="modal-analisa" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog " role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Deseja realizar a análise dos formulários respondidos da campanha ?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Todos os formulários da campanha que foram respondidos serão utilizados para a análise. </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Fechar </button>
+                            <button type="button" onclick="analisaFormSubmit();" class="btn btn-primary waves-effect waves-light">Analisar Formulários Campanha </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <form action="" id="releaseForm" method="post">
                 @csrf
                 @method('PUT')
@@ -424,6 +451,11 @@
 
             <form action="" id="previewForm" method="post" target="_blank">
                 @csrf
+            </form>
+
+            <form action="" id="analisaForm" method="post">
+                @csrf
+                @method('PUT')
             </form>
 
             <!-- FORMULÁRIO - FIM -->
@@ -495,6 +527,17 @@
                 $("#previewForm").attr('action', url);
                 $("#previewForm").submit();
             }
+        }
+
+        function analisaData(campanha) {
+            var campanha = campanha;
+            var url = '{{ route('campanha_empresa.analisar_hse', [':campanha']) }}';
+            url = url.replace(':campanha', campanha);
+            $("#analisaForm").attr('action', url);
+        }
+
+        function analisaFormSubmit() {
+            $("#analisaForm").submit();
         }
 
     </script>

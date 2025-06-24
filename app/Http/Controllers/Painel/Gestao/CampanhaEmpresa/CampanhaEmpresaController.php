@@ -9,6 +9,8 @@ use App\Models\Campanha;
 use App\Models\Empresa;
 use App\Models\ConsultorEmpresa;
 use App\Models\Formulario;
+use App\Models\FormularioEtapa;
+use App\Models\FormularioPergunta;
 use App\Models\EmpresaFuncionario;
 use App\Models\CampanhaFuncionario;
 use Illuminate\Http\Request;
@@ -164,6 +166,113 @@ class CampanhaEmpresaController extends Controller
         }
 
         $user = Auth()->User();
+
+        if(!$this->valida_consultor($campanha->empresa)){
+            abort('403', 'Página não disponível');
+        }
+
+        return view('painel.gestao.campanha_empresa.list', compact('user', 'campanha'));
+
+    }
+
+    public function analisar_hse(Campanha $campanha, Request $request)
+    {
+        if(Gate::denies('analisa_campanha_funcionario')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        $results = DB::table('campanha_respostas')
+                            ->join('campanha_funcionarios', 'campanha_respostas.campanha_funcionario_id', '=', 'campanha_funcionarios.id')
+                            ->join('campanhas', 'campanha_funcionarios.campanha_id', '=', 'campanhas.id')
+                            ->where('campanhas.id', $campanha->id)
+                            ->join('formulario_perguntas', 'campanha_respostas.formulario_pergunta_id', '=', 'formulario_perguntas.id')
+                            ->join('formulario_etapas', 'formulario_perguntas.formulario_etapa_id', '=', 'formulario_etapas.id')
+                            ->select('campanha_respostas.formulario_pergunta_id', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
+                            ->groupBy('campanha_respostas.formulario_pergunta_id', 'campanha_respostas.resposta_indicador_id')
+                            ->orderBy('formulario_etapas.ordem')
+                            ->orderBy('formulario_perguntas.ordem')
+                            ->get();
+
+        $matriz = [];
+        $matrizes = [];
+        $etapa = 0;
+        $pergunta = 0;
+        foreach($results as $result){
+            //dd($result);
+            $formulario_pergunta = FormularioPergunta::where('id', $result->formulario_pergunta_id)->first();
+            $formulario_etapa = $formulario_pergunta->formulario_etapa;
+
+            if($formulario_etapa->id != $etapa){
+                $etapa = $formulario_etapa->id;
+                $pergunta = $formulario_pergunta->id;
+                $matriz = [
+                    'etapa' => $etapa,
+                    'pergunta' => $pergunta,
+                    'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
+                    'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
+                    'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
+                    'resposta_15' => ($result->resposta_indicador_id == 15) ? $result->count : 0,
+                    'resposta_16' => ($result->resposta_indicador_id == 16) ? $result->count : 0,
+                ];
+                array_push($matrizes, $matriz);
+            } elseif($formulario_pergunta->id != $pergunta){
+                $pergunta = $formulario_pergunta->id;
+                $matriz = [
+                    'etapa' => $etapa,
+                    'pergunta' => $pergunta,
+                    'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
+                    'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
+                    'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
+                    'resposta_15' => ($result->resposta_indicador_id == 15) ? $result->count : 0,
+                    'resposta_16' => ($result->resposta_indicador_id == 16) ? $result->count : 0,
+                ];
+                array_push($matrizes, $matriz);
+            } else {
+                foreach ($matrizes as &$array) {
+                    if($array['etapa'] === $etapa && $array['pergunta'] === $pergunta) {
+                        $array['resposta_12'] = ($result->resposta_indicador_id == 12) ? $result->count : $array['resposta_12'];
+                        $array['resposta_13'] = ($result->resposta_indicador_id == 13) ? $result->count : $array['resposta_13'];
+                        $array['resposta_14'] = ($result->resposta_indicador_id == 14) ? $result->count : $array['resposta_14'];
+                        $array['resposta_15'] = ($result->resposta_indicador_id == 15) ? $result->count : $array['resposta_15'];
+                        $array['resposta_16'] = ($result->resposta_indicador_id == 16) ? $result->count : $array['resposta_16'];
+                    }
+                }
+            }
+       }
+
+       $indicador_resposta = $campanha->formulario->resposta->resposta_indicadors()->orderBy('ordem')->pluck('indicador','id')->toArray();
+
+       foreach($matrizes as &$array) {
+            $array['resposta_12'] = $array['resposta_12'] * $indicador_resposta['12'];
+            $array['resposta_13'] = $array['resposta_13'] * $indicador_resposta['13'];
+            $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
+            $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
+            $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
+       }
+
+
+        dd($results, $matriz, $matrizes);
+
+
+
+        return view('painel.gestao.campanha_empresa.analisar', compact('user', 'campanha', 'pivoted','respostaIds'));
+
+
+
+
+
+        dd($campanha->campanha_funcionarios->whereNotNull('data_realizado'));
+
+        dd($campanha->formulario->formulario_etapas()->orderBy('ordem')->pluck('titulo','id')->toArray());
+        dd($campanha->formulario->resposta->resposta_indicadors()->orderBy('ordem')->pluck('titulo','id')->toArray());
+
+        dd($campanha->campanha_funcionarios->whereNotNull('data_realizado'));
+
+        dd('aqui');
 
         if(!$this->valida_consultor($campanha->empresa)){
             abort('403', 'Página não disponível');

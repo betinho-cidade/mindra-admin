@@ -96,6 +96,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                 Route::group(['namespace' => 'CampanhaEmpresa'], function(){
                     Route::get('/campanha_empresa/{campanha}/logAvaliacao', 'CampanhaEmpresaController@logAvaliacao')->name('campanha_empresa.logAvaliacao');
                     Route::get('/campanha_empresa/{campanha}/avaliacaos', 'CampanhaEmpresaController@avaliacaos')->name('campanha_empresa.avaliacaos');
+                    Route::put('/campanha_empresa/{campanha}/analisar_hse', 'CampanhaEmpresaController@analisar_hse')->name('campanha_empresa.analisar_hse');
                     Route::put('/campanha_empresa/{campanha}/libera_funcionario', 'CampanhaEmpresaController@libera_funcionario')->name('campanha_empresa.libera_funcionario');
                     Route::delete('/campanha_empresa/{campanha}/campanha_funcionario/{campanha_funcionario}/destroy_funcionario', 'CampanhaEmpresaController@destroy_funcionario')->name('campanha_empresa.destroy_funcionario');
                 });
