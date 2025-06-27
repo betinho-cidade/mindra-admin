@@ -18,11 +18,19 @@ use Illuminate\Support\Facades\Gate;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpWord\TemplateProcessor;
 use Carbon\Carbon;
 use App\Services\Mail\FuncionarioAvaliacaoService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
+use League\CommonMark\Extension\CommonMark\Node\Block\HtmlBlock;
+use Phplot\Phplot;
+use Phplot\Phplot\phplot as PhplotPhplot;
+use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Php;
 
-
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
+use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Html;
 
 class CampanhaEmpresaController extends Controller
 {
@@ -187,10 +195,13 @@ class CampanhaEmpresaController extends Controller
                             ->join('campanha_funcionarios', 'campanha_respostas.campanha_funcionario_id', '=', 'campanha_funcionarios.id')
                             ->join('campanhas', 'campanha_funcionarios.campanha_id', '=', 'campanhas.id')
                             ->where('campanhas.id', $campanha->id)
+                            ->whereIn('formularios.visivel_report', ['S'])
+                            ->whereIn('formularios.status', ['A'])
                             ->join('formulario_perguntas', 'campanha_respostas.formulario_pergunta_id', '=', 'formulario_perguntas.id')
                             ->join('formulario_etapas', 'formulario_perguntas.formulario_etapa_id', '=', 'formulario_etapas.id')
-                            ->select('campanha_respostas.formulario_pergunta_id', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
-                            ->groupBy('campanha_respostas.formulario_pergunta_id', 'campanha_respostas.resposta_indicador_id')
+                            ->join('formularios', 'formulario_etapas.formulario_id', '=', 'formularios.id')
+                            ->select('formulario_etapas.descricao as desc_etapa', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo as desc_pergunta', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
+                            ->groupBy('formulario_etapas.descricao', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo', 'campanha_respostas.resposta_indicador_id')
                             ->orderBy('formulario_etapas.ordem')
                             ->orderBy('formulario_perguntas.ordem')
                             ->get();
@@ -208,7 +219,9 @@ class CampanhaEmpresaController extends Controller
                 $pergunta = $formulario_pergunta->id;
                 $matriz = [
                     'etapa' => $etapa,
+                    'desc_etapa' => $result->desc_etapa,
                     'pergunta' => $pergunta,
+                    'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
@@ -221,7 +234,9 @@ class CampanhaEmpresaController extends Controller
                 $pergunta = $formulario_pergunta->id;
                 $matriz = [
                     'etapa' => $etapa,
+                    'desc_etapa' => $result->desc_etapa,
                     'pergunta' => $pergunta,
+                    'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
@@ -269,6 +284,8 @@ class CampanhaEmpresaController extends Controller
                     'total_perguntas' => 0,
                     'indice_risco_medio' => 0,
                     'indice_risco_round' => 0,
+                    'classificacao' => '',
+                    'diretriz' => '',
                 ];
                 array_push($analise_etapas, $newEtapa);
             }
@@ -284,50 +301,16 @@ class CampanhaEmpresaController extends Controller
             }
        }
 
-       $indice_risco = [
-            ['indice' => 1,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
-            ['indice' => 2,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
-            ['indice' => 3,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
-            ['indice' => 4,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 5,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 6,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 7,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 8,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 9,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 10, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 11, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 12, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 13, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 14, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 15, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 16, 'classificacao' => 'Risco Muito Alto',  'diretriz' => 'Ação imediata. Pode demandar afastamentos, mudanças organizacionais ou suporte clínico.'],
-        ];
+       foreach($analise_etapas as &$analise_etapa){
+            $analise_etapa['classificacao'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'C');
+            $analise_etapa['diretriz'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'D');
+       }
 
-        dd($results, $analise_etapas, $matrizes, $indice_risco);
-
+        $this->generateDocument($campanha, $analise_etapas, $matrizes);
+        dd($results, $analise_etapas, $matrizes);
 
 
         return view('painel.gestao.campanha_empresa.analisar', compact('user', 'campanha', 'pivoted','respostaIds'));
-
-
-
-
-
-        dd($campanha->campanha_funcionarios->whereNotNull('data_realizado'));
-
-        dd($campanha->formulario->formulario_etapas()->orderBy('ordem')->pluck('titulo','id')->toArray());
-        dd($campanha->formulario->resposta->resposta_indicadors()->orderBy('ordem')->pluck('titulo','id')->toArray());
-
-        dd($campanha->campanha_funcionarios->whereNotNull('data_realizado'));
-
-        dd('aqui');
-
-        if(!$this->valida_consultor($campanha->empresa)){
-            abort('403', 'Página não disponível');
-        }
-
-        return view('painel.gestao.campanha_empresa.list', compact('user', 'campanha'));
-
     }
 
     public function destroy_funcionario(Campanha $campanha, CampanhaFuncionario $campanha_funcionario, Request $request)
@@ -394,4 +377,393 @@ class CampanhaEmpresaController extends Controller
 
         return true;
     }
+
+    private function generateDocument($campanha, $analise_etapas, $matrizes)
+    {
+        // Caminho do template Word
+        $templatePath = storage_path('app/templates/template_hse.docx');
+
+        // Verificar se o template existe
+        if (!file_exists($templatePath)) {
+            return response()->json(['error' => 'Template não encontrado'], 404);
+        }
+
+        // Recuperar dados do banco (exemplo com model User)
+        // $user = User::find(1); // Substitua pelo ID ou lógica desejada
+        // if (!$user) {
+        //     return response()->json(['error' => 'Usuário não encontrado'], 404);
+        // }
+
+        // Dados para substituir no template
+        $data = [
+            'DATA' => now()->format('d/m/Y'),
+            'NOME_EMPRESA' => $campanha->empresa->nome,
+            'CNPJ_EMPRESA' => $this->formatCnpj($campanha->empresa->cnpj),
+            'RUA_EMPRESA' => $campanha->empresa->end_logradouro . ' ' . $campanha->empresa->end_numero,
+            'CEP_EMPRESA' => $campanha->empresa->end_cep,
+            'ATIVIDADE_EMPRESA' => $campanha->empresa->atividade_principal,
+            'QTD_FUNC_EMPRESA' => $campanha->empresa->qtd_funcionario,
+            'ANALISE_ETAPA_1' => '',
+            'ANALISE_ETAPA_2' => '',
+            'ANALISE_ETAPA_3' => '',
+            'ANALISE_ETAPA_4' => '',
+            'ANALISE_ETAPA_5' => '',
+            'ANALISE_ETAPA_6' => '',
+            'ANALISE_ETAPA_7' => '',
+            'ANALISE_ETAPA_8' => '',
+            'ANALISE_ETAPA_9' => '',
+            'ANALISE_ETAPA_10' => '',
+            'ANALISE_ETAPA_11' => '',
+            'ANALISE_ETAPA_12' => '',
+            'ANALISE_ETAPA_13' => '',
+            'ANALISE_ETAPA_14' => '',
+            'ANALISE_ETAPA_15' => '',
+            'ANALISE_ETAPA_16' => '',
+            'ANALISE_ETAPA_17' => '',
+            'ANALISE_ETAPA_18' => '',
+            'ANALISE_ETAPA_19' => '',
+            'ANALISE_ETAPA_20' => '',
+            'ANALISE_ETAPA_21' => '',
+            'ANALISE_ETAPA_22' => '',
+            'ANALISE_ETAPA_23' => '',
+            'ANALISE_ETAPA_24' => '',
+            'ANALISE_ETAPA_25' => '',
+            'ANALISE_ETAPA_26' => '',
+            'ANALISE_ETAPA_27' => '',
+            'ANALISE_ETAPA_28' => '',
+            'ANALISE_ETAPA_29' => '',
+            'ANALISE_ETAPA_30' => '',
+            'ANALISE_ETAPA_31' => '',
+            'ANALISE_ETAPA_32' => '',
+            'ANALISE_ETAPA_33' => '',
+            'ANALISE_ETAPA_34' => '',
+            'ANALISE_ETAPA_35' => '',
+            'etapa_1'          => '',
+         	'etapa_ind_1'      => '',
+            'etapa_clas_1'     => '',
+            'etapa_diretriz_1' => '',
+            'etapa_2'          => '',
+         	'etapa_ind_2'      => '',
+            'etapa_clas_2'     => '',
+            'etapa_diretriz_2' => '',
+            'etapa_3'          => '',
+         	'etapa_ind_3'      => '',
+            'etapa_clas_3'     => '',
+            'etapa_diretriz_3' => '',
+            'etapa_4'          => '',
+         	'etapa_ind_4'      => '',
+            'etapa_clas_4'     => '',
+            'etapa_diretriz_4' => '',
+            'etapa_5'          => '',
+         	'etapa_ind_5'      => '',
+            'etapa_clas_5'     => '',
+            'etapa_diretriz_5' => '',
+            'etapa_6'          => '',
+         	'etapa_ind_6'      => '',
+            'etapa_clas_6'     => '',
+            'etapa_diretriz_6' => '',
+            'etapa_7'          => '',
+         	'etapa_ind_7'      => '',
+            'etapa_clas_7'     => '',
+            'etapa_diretriz_7' => '',
+        ];
+
+        foreach($analise_etapas as $analise_etapa){
+
+            switch($analise_etapa['etapa']){
+                case '22' : {
+                    $data['etapa_1']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_1']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_1']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_1'] = $analise_etapa['diretriz'];
+                    break;
+                }
+                case '23' : {
+                    $data['etapa_2']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_2']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_2']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_2'] = $analise_etapa['diretriz'];
+                    break;
+                }
+                case '24' : {
+                    $data['etapa_3']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_3']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_3']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_3'] = $analise_etapa['diretriz'];
+                    break;
+                }
+                case '25' : {
+                    $data['etapa_4']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_4']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_4']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_4'] = $analise_etapa['diretriz'];
+                    break;
+                }
+                case '26' : {
+                    $data['etapa_5']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_5']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_5']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_5'] = $analise_etapa['diretriz'];
+                    break;
+                }
+                case '27' : {
+                    $data['etapa_6']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_6']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_6']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_6'] = $analise_etapa['diretriz'];
+                    break;
+                }
+                case '28' : {
+                    $data['etapa_7']          = $analise_etapa['etapa'];
+                    $data['etapa_ind_7']      = $analise_etapa['indice_risco_round'];
+                    $data['etapa_clas_7']     = $analise_etapa['classificacao'];
+                    $data['etapa_diretriz_7'] = $analise_etapa['diretriz'];
+                    break;
+                }
+            }
+        }
+
+        try {
+            $templateProcessor = new TemplateProcessor($templatePath);
+            $cont = 0; $images_list = [];
+            $indice_imagem = now()->format('YmdHis');
+            // Carregar o template
+            foreach($matrizes as $matriz){
+                $imagePath = $this->generateImageWithBarChart($matriz, $indice_imagem);
+                array_push($images_list, $imagePath);
+
+                $chart = 'CHART_' . ++$cont;
+                $templateProcessor->setImageValue($chart, [
+                        'path' => $imagePath,
+                        'width' => 400,
+                        'height' => 250,
+                    ], 1);
+
+                $data['ANALISE_ETAPA_'.$cont] = $matriz['desc_etapa'];
+            }
+
+            //Substituir os placeholders
+            foreach($data as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+
+
+            // Caminho para salvar o arquivo gerado
+            $outputPath = storage_path('app/public/documents/output_' . time() . '.docx');
+            // Salvar o documento
+            $templateProcessor->saveAs($outputPath);
+
+
+        // Limpar arquivo temporário
+        //unlink($tempFile);
+
+            foreach($images_list as $image){
+                if (file_exists($image)) {
+                    // Remover o arquivo temporário da imagem do gráfico após o uso
+                    unlink($image);
+                }
+            }
+
+            // Retornar o arquivo para download
+            //return response()->download($outputPath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro ao gerar o documento: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function generateImageWithBarChart($matriz, $indice_imagem)
+    {
+        // --- 1. Gerar o Gráfico de Barras com PHPlot ---
+        // https://phplot.sourceforge.net/phplotdocs/
+        try{
+            $data = array(
+                array('Sempre', $matriz['resposta_12']),
+                array('Frequentemente', $matriz['resposta_13']),
+                array('Às vezes', $matriz['resposta_14']),
+                array('Raramente',$matriz['resposta_15']),
+                array('Nunca', $matriz['resposta_16']),
+                );
+
+            $plot = new PhplotPhplot(500, 300);
+
+            $plot->SetFontTTF('title', storage_path('app/public/fonts/calibri-bold.ttf'));
+            $plot->SetFontTTF('y_label', storage_path('app/public/fonts/calibri-regular.ttf'));
+
+            $plot->SetImageBorderType('plain'); // Improves presentation in the manual
+            // $plot->SetTitle("Average Annual Precipitation (inches)\n"
+            //                 . "Selected U.S. Cities");
+
+            $titulo = $this->breakStringIntoLines($matriz['desc_pergunta']);
+            $plot->SetTitle($titulo);
+
+            $plot->SetBackgroundColor('white');
+            #  Set a tiled background image:
+            $plot->SetPlotAreaBgImage('images/graygradient.png', 'centeredtile');
+            #  Force the X axis range to start at 0:
+            $plot->SetPlotAreaWorld(0);
+            #  No ticks along Y axis, just bar labels:
+            $plot->SetYTickPos('none');
+            #  No ticks along X axis:
+            $plot->SetXTickPos('none');
+            #  No X axis labels. The data values labels are sufficient.
+            //$plot->SetXTickLabelPos('none');
+
+            #  Turn on the data value labels:
+            $plot->SetXDataLabelPos('plotin');
+            #  No grid lines are needed:
+            $plot->SetDrawXGrid(FALSE);
+            #  Set the bar fill color:
+            $plot->SetDataColors('#1B6487');
+            #  Use less 3D shading on the bars:
+            $plot->SetShading(2);
+            $plot->SetDataValues($data);
+            $plot->SetDataType('text-data-yx');
+            $plot->SetPlotType('bars');
+
+            $tempImagePath = 'temp_charts/chart_' . $indice_imagem . '_' . $matriz['etapa']  . '_' . $matriz['pergunta'] .  '.png';
+            $fullTempImagePath = Storage::disk('public')->path($tempImagePath);
+
+            Storage::disk('public')->makeDirectory('temp_charts');
+
+            // PHPlot pode renderizar diretamente para um arquivo
+            $plot->SetIsInline(true);
+            $plot->SetOutputFile($fullTempImagePath);
+
+            $plot->DrawGraph();
+
+        return $fullTempImagePath;
+
+    }catch(Exception $ex){dd($ex->getMessage());}
+        // --- 3. Processar o Documento Word ---
+        // try {
+        //     $templatePath = resource_path('docs/template.docx');
+
+        //     if (!file_exists($templatePath)) {
+        //         return response()->json(['error' => 'Template Word não encontrado!'], 404);
+        //     }
+
+        //     $templateProcessor = new TemplateProcessor($templatePath);
+
+        //     // Substituir o placeholder pela imagem do gráfico
+        //     $templateProcessor->setImageValue('myBarChartPlaceholder', [
+        //         'path' => $fullTempImagePath,
+        //         'width' => $imageWidth * 0.8,  // Ajusta a largura para o Word
+        //         'height' => $imageHeight * 0.8, // Ajusta a altura para o Word
+        //         'ratio' => true        // Mantém proporção
+        //     ]);
+
+        //     // --- 4. Salvar o novo documento Word ---
+        //     $fileName = 'documento_com_grafico_phplot_barras_' . time() . '.docx';
+        //     $outputFilePath = Storage::disk('local')->path('generated_docs/' . $fileName);
+
+        //     Storage::disk('local')->makeDirectory('generated_docs');
+
+        //     $templateProcessor->saveAs($outputFilePath);
+
+        //     // --- 5. Enviar o documento como download ---
+        //     if (file_exists($outputFilePath)) {
+        //         // Remover o arquivo temporário da imagem do gráfico após o uso
+        //         Storage::disk('local')->delete($tempImagePath);
+
+        //         return Response::download($outputFilePath, $fileName)->deleteFileAfterSend(true);
+        //     } else {
+        //         return response()->json(['error' => 'Erro ao gerar o documento Word.'], 500);
+        //     }
+
+        // } catch (\Exception $e) {
+        //     // Limpar a imagem temporária em caso de erro
+        //     if (Storage::disk('local')->exists($tempImagePath)) {
+        //         Storage::disk('local')->delete($tempImagePath);
+        //     }
+        //     return response()->json(['error' => 'Ocorreu um erro: ' . $e->getMessage()], 500);
+        // }
+    }
+
+    private function breakStringIntoLines($inputString) {
+        // Divide a string em tokens usando espaço como delimitador
+        $tokens = explode(' ', trim($inputString));
+
+        // Agrupa os tokens em blocos de 8 palavras
+        $lines = [];
+        for ($i = 0; $i < count($tokens); $i += 8) {
+            // Pega o próximo grupo de até 8 palavras
+            $line = array_slice($tokens, $i, 8);
+            // Junta as palavras do grupo com espaço e adiciona à lista de linhas
+            $lines[] = implode(' ', $line);
+        }
+
+        // Concatena as linhas com quebra de linha
+        return implode("\n", $lines);
+    }
+
+    private function formatCnpj($cnpj)
+    {
+        // Remove qualquer caractere que não seja número
+        $cnpj = preg_replace('/[^0-9]/', '', $cnpj);
+
+        // Verifica se tem 14 dígitos
+        if (strlen($cnpj) === 14) {
+            // Aplica a máscara 12.345.678/0001-95
+        return sprintf('%s.%s.%s/%s-%s',
+                substr($cnpj, 0, 2), // 12
+                substr($cnpj, 2, 3), // 345
+                substr($cnpj, 5, 3), // 678
+                substr($cnpj, 8, 4), // 0001
+                substr($cnpj, 12, 2) // 95
+            );
+        }
+        return $cnpj; // Retorna sem formatação se inválido
+    }
+
+    private function textoDiretrizClassificacao($indice, $tipo)
+    {
+
+       $indice_risco = [
+            ['indice' => 1,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
+            ['indice' => 2,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
+            ['indice' => 3,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
+            ['indice' => 4,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 5,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 6,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 7,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 8,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 9,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 10, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 11, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 12, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 13, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 14, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 15, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 16, 'classificacao' => 'Risco Muito Alto',  'diretriz' => 'Ação imediata. Pode demandar afastamentos, mudanças organizacionais ou suporte clínico.'],
+        ];
+
+        // Buscar o item correspondente ao índice
+        foreach($indice_risco as $item) {
+            if ($item['indice'] === (int)$indice) {
+                return $tipo === 'C' ? $item['classificacao'] : $item['diretriz'];
+            }
+        }
+
+        // Retornar valor padrão se o índice não for encontrado
+        return $tipo === 'C' ? 'Risco Não Classificado' : 'Diretriz Não Definida';
+    }
+
+    private function getCorFundo($indice)
+    {
+        // Definir cores com base no intervalo de índices (ajustado conforme a imagem)
+        if ($indice <= 3) {
+            return 'C6EFCE'; // Verde claro (Risco Irrelevante)
+        } elseif ($indice <= 7) {
+            return 'FFEB9C'; // Amarelo claro (Risco Baixo)
+        } elseif ($indice <= 11) {
+            return 'F9CB9C'; // Laranja claro (Risco Moderado)
+        } elseif ($indice <= 15) {
+            return 'FF9999'; // Vermelho claro (Risco Alto)
+        } else {
+            return 'FF6666'; // Vermelho escuro (Risco Muito Alto)
+        }
+    }
+
 }
