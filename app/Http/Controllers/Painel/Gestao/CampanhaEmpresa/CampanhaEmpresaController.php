@@ -526,9 +526,18 @@ class CampanhaEmpresaController extends Controller
 
         try {
             $templateProcessor = new TemplateProcessor($templatePath);
+
+            //Substituir LOGO Empresa
+            $imageLogoPath = base_path() . '/public/images/empresa/'.$campanha->empresa->id.'/'.$campanha->empresa->path_imagem;
+            $templateProcessor->setImageValue('LOGO_EMPRESA', [
+                        'path' => $imageLogoPath,
+                        'width' => 250,
+                        'height' => 125,
+                    ],100);
+
             $cont = 0; $images_list = [];
             $indice_imagem = now()->format('YmdHis');
-            // Carregar o template
+            // Carregar o template e substituir as imagens das perguntas
             foreach($matrizes as $matriz){
                 $imagePath = $this->generateImageWithBarChart($matriz, $indice_imagem);
                 array_push($images_list, $imagePath);
@@ -548,13 +557,24 @@ class CampanhaEmpresaController extends Controller
                 $templateProcessor->setValue($key, $value);
             }
 
-            //Substituir LOGO Empresa
-            $imageLogoPath = base_path() . '/public/images/empresa/'.$campanha->empresa->id.'/'.$campanha->empresa->path_imagem;
-            $templateProcessor->setImageValue('LOGO_EMPRESA', [
-                        'path' => $imageLogoPath,
-                        'width' => 250,
-                        'height' => 125,
-                    ],100);
+            $observacaos = CampanhaFuncionario::where('campanha_id', $campanha->id)
+                                               ->whereNotNull('observacao')
+                                                ->get();
+            if($observacaos->count() > 1){
+                $templateProcessor->cloneRow('TEXTO_N', $observacaos->count());
+                //Substituir os placeholders
+                $indexObservacao = 0;
+                foreach($observacaos as $observacao) {
+                    $indexObservacao++;
+                    $rowIndex = $indexObservacao; // Índice da linha (começa em 1)
+                    $templateProcessor->setValue("TEXTO_N#{$rowIndex}", $observacao->observacao);
+                }
+            } elseif($observacaos->count() == 1) {
+                $templateProcessor->setValue("TEXTO_N", $observacaos->first()->observacao);
+            } elseif (empty($observacoes)) {
+                // Remove a linha da tabela se não houver observações
+                $templateProcessor->deleteRow('TEXTO_N', 1);
+            }
 
             // Caminho para salvar o arquivo gerado
             $outputPath = storage_path('app/public/documents/output_' . time() . '.docx');
@@ -575,6 +595,7 @@ class CampanhaEmpresaController extends Controller
             // Retornar o arquivo para download
             //return response()->download($outputPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return response()->json(['error' => 'Erro ao gerar o documento: ' . $e->getMessage()], 500);
         }
     }
