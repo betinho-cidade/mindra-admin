@@ -26,6 +26,7 @@ use Illuminate\Support\HtmlString;
 use League\CommonMark\Extension\CommonMark\Node\Block\HtmlBlock;
 use Phplot\Phplot;
 use Phplot\Phplot\phplot as PhplotPhplot;
+use PhpOffice\PhpSpreadsheet\Calculation\Statistical\Maximum;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Php;
 
 use PhpOffice\PhpWord\PhpWord;
@@ -547,8 +548,13 @@ class CampanhaEmpresaController extends Controller
                 $templateProcessor->setValue($key, $value);
             }
 
-
-
+            //Substituir LOGO Empresa
+            $imageLogoPath = base_path() . '/public/images/empresa/'.$campanha->empresa->id.'/'.$campanha->empresa->path_imagem;
+            $templateProcessor->setImageValue('LOGO_EMPRESA', [
+                        'path' => $imageLogoPath,
+                        'width' => 250,
+                        'height' => 125,
+                    ],100);
 
             // Caminho para salvar o arquivo gerado
             $outputPath = storage_path('app/public/documents/output_' . time() . '.docx');
@@ -744,6 +750,10 @@ class CampanhaEmpresaController extends Controller
             if ($item['indice'] === (int)$indice) {
                 return $tipo === 'C' ? $item['classificacao'] : $item['diretriz'];
             }
+        }
+
+        if((int)$indice > 16){
+            return $tipo === 'C' ? 'Risco Muito Alto' : 'Ação imediata. Pode demandar afastamentos, mudanças organizacionais ou suporte clínico.';
         }
 
         // Retornar valor padrão se o índice não for encontrado
