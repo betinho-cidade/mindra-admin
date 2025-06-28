@@ -178,12 +178,29 @@
                         </div>
                     </div>
                     <p></p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="path_imagem">Imagem</label>
+                                <div class="form-group custom-file">
+                                <input type="file" class="custom-file-input" id="path_imagem" name="path_imagem"
+                                    accept="image/*">
+                                <label class="custom-file-label" for="path_imagem">Selecionar Imagem</label>
+                                <br><br>
+                                <a class="image-popup-no-margins imagem-edicao-interna" href="{{$empresa->imagem}}">
+                                    <img class="avatar-sm mr-3" alt="200x200" width="200" src="{{$empresa->imagem}}" data-holder-rendered="true">
+                                </a>
+                                <br><br>
+                                <div class="valid-feedback">ok!</div>
+                                <div class="invalid-feedback">Inválido!</div>
+                            </div>
+                        </div>
+                    </div>
                 <!-- Dados Endereço - FIM -->
 
                 <button class="btn btn-primary" type="submit">Salvar Cadastro</button>
             </form>
 
-            <div class="bg-soft-primary p-3 rounded" style="margin-top:60px;margin-bottom:10px;">
+            <div class="bg-soft-primary p-3 rounded" style="margin-top:30px;margin-bottom:10px;">
                 <h5 class="text-primary font-size-14" style="margin-bottom: 0px;">Consultores e Funcionários vinculados à Empresa</h5>
             </div>
 
@@ -317,6 +334,9 @@
 
 @endsection
 
+@section('head-css')
+    <link href="{{asset('nazox/assets/libs/magnific-popup/magnific-popup.css')}}" rel="stylesheet" type="text/css" />
+@endsection
 
 @section('script-js')
     <script src="{{asset('nazox/assets/js/pages/form-validation.init.js')}}"></script>
@@ -324,6 +344,9 @@
     <script src="{{asset('nazox/assets/js/pages/form-element.init.js')}}"></script>
     <!-- form mask -->
     <script src="{{asset('nazox/assets/libs/inputmask/jquery.inputmask.min.js')}}"></script>
+
+    <script src="{{asset('nazox/assets/libs/magnific-popup/jquery.magnific-popup.min.js')}}"></script>
+    <script src="{{asset('nazox/assets/js/pages/lightbox.init.js')}}"></script>
 
     <script>
 		$(document).ready(function(){

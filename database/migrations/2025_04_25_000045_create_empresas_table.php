@@ -31,6 +31,7 @@ class CreateEmpresasTable extends Migration
             $table->string('end_bairro', 60)->nullable();
             $table->string('end_complemento', 100)->nullable();
             $table->enum('status', ['A', 'I'])->default('A');  //A->Ativo  I->Inativo
+            $table->string('path_imagem', 300)->nullable();
             $table->unsignedBigInteger('empresa_created');
             $table->unsignedBigInteger('empresa_updated');
             $table->timestamps();

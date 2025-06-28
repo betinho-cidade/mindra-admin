@@ -54,4 +54,10 @@ class Empresa extends Model
     public function campanhas(){
         return $this->hasMany('App\Models\Campanha');
     }
+
+    public function getImagemAttribute()
+    {
+        return ($this->path_imagem !== '') ? asset('images/empresa/'.$this->id.'/'.$this->path_imagem) : asset('images/not-found.jpg');
+    }
+
 }

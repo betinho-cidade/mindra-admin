@@ -128,6 +128,21 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="path_imagem">Imagem</label>
+                            <div class="form-group custom-file">
+                                <input type="file" class="custom-file-input" id="path_imagem" name="path_imagem"
+                                    accept="image/*" required>
+                                <label class="custom-file-label" for="path_imagem">Selecionar Imagem</label>
+                                <div class="valid-feedback">ok!</div>
+                                <div class="invalid-feedback">Inválido!</div>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <p></p>
                 <!-- Dados Pessoais - FIM -->
 

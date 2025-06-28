@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Cadastro\Home\Empresa\CreateRequest;
 use App\Http\Requests\Cadastro\Home\Empresa\UpdateRequest;
 use App\Http\Requests\Cadastro\Home\Empresa\SearchRequest;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Carbon\Carbon;
+
 
 
 
@@ -96,6 +99,29 @@ class EmpresaController extends Controller
             $empresa->status = $request->situacao;
 
             $empresa->save();
+
+            if ($request->path_imagem) {
+                $img_empresa = 'empresa_' . time() . '.' . $request->path_imagem->extension();
+                $path_imagem = 'images/empresa/' . $empresa->id;
+
+                $empresa->path_imagem = $img_empresa;
+
+                if (!\File::isDirectory(public_path('images/empresa'))) {
+                    \File::makeDirectory('images/empresa');
+                }
+
+                if (!\File::isDirectory(public_path($path_imagem))) {
+                    \File::makeDirectory($path_imagem);
+                }
+
+                $manager = new ImageManager(new Driver());
+
+                $img = $manager->read($request->path_imagem);
+
+                $img->save($path_imagem.'/'.$img_empresa, 50);
+
+                $empresa->save();
+            }
 
             DB::commit();
 
@@ -177,6 +203,26 @@ class EmpresaController extends Controller
 
             $empresa->save();
 
+            if ($request->path_imagem) {
+                $img_empresa = 'empresa_' . time() . '.' . $request->path_imagem->extension();
+                $path_imagem = 'images/empresa/' . $empresa->id;
+
+                $empresa_path_old = $empresa->path_imagem;
+                $empresa->path_imagem = $img_empresa;
+
+                $manager = new ImageManager(new Driver());
+
+                $img = $manager->read($request->path_imagem);
+
+                $img->save($path_imagem.'/'.$img_empresa, 50);
+
+                if (\File::exists(public_path($path_imagem . '/' . $empresa_path_old))) {
+                    \File::delete(public_path($path_imagem . '/' . $empresa_path_old));
+                }
+
+                $empresa->save();
+            }
+
             DB::commit();
 
         } catch (Exception $ex){
@@ -184,6 +230,7 @@ class EmpresaController extends Controller
             DB::rollBack();
 
             $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. " . $ex->getMessage();
+
         }
 
         if ($message && $message !='') {
@@ -208,10 +255,18 @@ class EmpresaController extends Controller
         $message = '';
         $empresa_nome = $empresa->nome;
 
+        $path_imagem = 'images/emprsa/' . $empresa->id;
+        $imagem = $empresa->path_imagem;
+
         try {
             DB::beginTransaction();
 
             $empresa->delete();
+
+            if (\File::exists(public_path($path_imagem . '/' . $imagem))) {
+                \File::delete(public_path($path_imagem . '/' . $imagem));
+                \File::deleteDirectory($path_imagem);
+            }
 
             DB::commit();
 

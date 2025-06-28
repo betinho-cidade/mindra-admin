@@ -45,6 +45,7 @@ class UpdateRequest extends FormRequest
             'end_numero' => 'max:20',
             'end_bairro' => 'max:60',
             'end_complemento' => 'max:100',
+            'path_imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
         ];
     }
 
@@ -75,6 +76,9 @@ class UpdateRequest extends FormRequest
             'end_numero.max' => 'O tamanho permitido para o número é de 20 caracteres',
             'end_bairro.max' => 'O tamanho permitido para o bairro é de 60 caracteres',
             'end_complemento.max' => 'O tamanho permitido para o complemento é de 100 caracteres',
+            'path_imagem.image' => 'Somente arquivo do tipo imagens pode ser anexada para a imagem da empresa',
+            'path_imagem.mimes' => 'Somente imagens do tipo JPEG|JPG|PNG|GIF|SVG são permitidas para a imagem da empresa',
+            'path_imagem.max' => 'O tamanho máximo permitido para a imagem da emrpesa é de 1Mb.',
        ];
     }
 }
