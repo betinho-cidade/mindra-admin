@@ -307,11 +307,7 @@ class CampanhaEmpresaController extends Controller
             $analise_etapa['diretriz'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'D');
        }
 
-        $this->generateDocument($campanha, $analise_etapas, $matrizes);
-        dd($results, $analise_etapas, $matrizes);
-
-
-        return view('painel.gestao.campanha_empresa.analisar', compact('user', 'campanha', 'pivoted','respostaIds'));
+       return $this->generateDocument($campanha, $analise_etapas, $matrizes);
     }
 
     public function destroy_funcionario(Campanha $campanha, CampanhaFuncionario $campanha_funcionario, Request $request)
@@ -388,12 +384,6 @@ class CampanhaEmpresaController extends Controller
         if (!file_exists($templatePath)) {
             return response()->json(['error' => 'Template não encontrado'], 404);
         }
-
-        // Recuperar dados do banco (exemplo com model User)
-        // $user = User::find(1); // Substitua pelo ID ou lógica desejada
-        // if (!$user) {
-        //     return response()->json(['error' => 'Usuário não encontrado'], 404);
-        // }
 
         // Dados para substituir no template
         $data = [
@@ -576,10 +566,13 @@ class CampanhaEmpresaController extends Controller
                 $templateProcessor->deleteRow('TEXTO_N', 1);
             }
 
-            // Caminho para salvar o arquivo gerado
-            $outputPath = storage_path('app/public/documents/output_' . time() . '.docx');
+
+            $fileName = 'output_' . time() . '.docx';
+            $tempPath = storage_path('app/public/documents/' . $fileName);
+
             // Salvar o documento
-            $templateProcessor->saveAs($outputPath);
+            //$templateProcessor->saveAs($outputPath);
+            $templateProcessor->saveAs($tempPath);
 
 
         // Limpar arquivo temporário
@@ -594,8 +587,19 @@ class CampanhaEmpresaController extends Controller
 
             // Retornar o arquivo para download
             //return response()->download($outputPath)->deleteFileAfterSend(true);
+            // Configurar os cabeçalhos para download
+            $headers = [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ];
+            return response()->file($tempPath, $headers)->deleteFileAfterSend(true);
+
+            //return response()->download($outputPath)->deleteFileAfterSend(true);
+
         } catch (\Exception $e) {
-            dd($e->getMessage());
             return response()->json(['error' => 'Erro ao gerar o documento: ' . $e->getMessage()], 500);
         }
     }
@@ -660,52 +664,11 @@ class CampanhaEmpresaController extends Controller
 
             $plot->DrawGraph();
 
-        return $fullTempImagePath;
+            return $fullTempImagePath;
 
-    }catch(Exception $ex){dd($ex->getMessage());}
-        // --- 3. Processar o Documento Word ---
-        // try {
-        //     $templatePath = resource_path('docs/template.docx');
-
-        //     if (!file_exists($templatePath)) {
-        //         return response()->json(['error' => 'Template Word não encontrado!'], 404);
-        //     }
-
-        //     $templateProcessor = new TemplateProcessor($templatePath);
-
-        //     // Substituir o placeholder pela imagem do gráfico
-        //     $templateProcessor->setImageValue('myBarChartPlaceholder', [
-        //         'path' => $fullTempImagePath,
-        //         'width' => $imageWidth * 0.8,  // Ajusta a largura para o Word
-        //         'height' => $imageHeight * 0.8, // Ajusta a altura para o Word
-        //         'ratio' => true        // Mantém proporção
-        //     ]);
-
-        //     // --- 4. Salvar o novo documento Word ---
-        //     $fileName = 'documento_com_grafico_phplot_barras_' . time() . '.docx';
-        //     $outputFilePath = Storage::disk('local')->path('generated_docs/' . $fileName);
-
-        //     Storage::disk('local')->makeDirectory('generated_docs');
-
-        //     $templateProcessor->saveAs($outputFilePath);
-
-        //     // --- 5. Enviar o documento como download ---
-        //     if (file_exists($outputFilePath)) {
-        //         // Remover o arquivo temporário da imagem do gráfico após o uso
-        //         Storage::disk('local')->delete($tempImagePath);
-
-        //         return Response::download($outputFilePath, $fileName)->deleteFileAfterSend(true);
-        //     } else {
-        //         return response()->json(['error' => 'Erro ao gerar o documento Word.'], 500);
-        //     }
-
-        // } catch (\Exception $e) {
-        //     // Limpar a imagem temporária em caso de erro
-        //     if (Storage::disk('local')->exists($tempImagePath)) {
-        //         Storage::disk('local')->delete($tempImagePath);
-        //     }
-        //     return response()->json(['error' => 'Ocorreu um erro: ' . $e->getMessage()], 500);
-        // }
+        }catch(Exception $ex){
+            dd($ex->getMessage());
+        }
     }
 
     private function breakStringIntoLines($inputString) {
