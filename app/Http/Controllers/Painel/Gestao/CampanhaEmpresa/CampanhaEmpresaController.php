@@ -201,8 +201,8 @@ class CampanhaEmpresaController extends Controller
                             ->join('formulario_perguntas', 'campanha_respostas.formulario_pergunta_id', '=', 'formulario_perguntas.id')
                             ->join('formulario_etapas', 'formulario_perguntas.formulario_etapa_id', '=', 'formulario_etapas.id')
                             ->join('formularios', 'formulario_etapas.formulario_id', '=', 'formularios.id')
-                            ->select('formulario_etapas.descricao as desc_etapa', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo as desc_pergunta', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
-                            ->groupBy('formulario_etapas.descricao', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo', 'campanha_respostas.resposta_indicador_id')
+                            ->select('formulario_etapas.titulo as titulo_etapa', 'formulario_etapas.descricao as desc_etapa', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo as desc_pergunta', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
+                            ->groupBy('formulario_etapas.titulo', 'formulario_etapas.descricao', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo', 'campanha_respostas.resposta_indicador_id')
                             ->orderBy('formulario_etapas.ordem')
                             ->orderBy('formulario_perguntas.ordem')
                             ->get();
@@ -220,6 +220,7 @@ class CampanhaEmpresaController extends Controller
                 $pergunta = $formulario_pergunta->id;
                 $matriz = [
                     'etapa' => $etapa,
+                    'titulo_etapa' => $result->titulo_etapa,
                     'desc_etapa' => $result->desc_etapa,
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
@@ -235,6 +236,7 @@ class CampanhaEmpresaController extends Controller
                 $pergunta = $formulario_pergunta->id;
                 $matriz = [
                     'etapa' => $etapa,
+                    'titulo_etapa' => $result->titulo_etapa,
                     'desc_etapa' => $result->desc_etapa,
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
@@ -281,6 +283,8 @@ class CampanhaEmpresaController extends Controller
                 $total_perguntas = 0;
                 $newEtapa = [
                     'etapa' => $array['etapa'],
+                    'titulo_etapa' => $array['titulo_etapa'],
+                    'desc_etapa' => $array['desc_etapa'],
                     'soma_valores' => 0,
                     'total_perguntas' => 0,
                     'indice_risco_medio' => 0,
@@ -429,93 +433,112 @@ class CampanhaEmpresaController extends Controller
             'ANALISE_ETAPA_33' => '',
             'ANALISE_ETAPA_34' => '',
             'ANALISE_ETAPA_35' => '',
-            'etapa_1'          => '',
-         	'etapa_ind_1'      => '',
-            'etapa_clas_1'     => '',
-            'etapa_diretriz_1' => '',
-            'etapa_2'          => '',
-         	'etapa_ind_2'      => '',
-            'etapa_clas_2'     => '',
-            'etapa_diretriz_2' => '',
-            'etapa_3'          => '',
-         	'etapa_ind_3'      => '',
-            'etapa_clas_3'     => '',
-            'etapa_diretriz_3' => '',
-            'etapa_4'          => '',
-         	'etapa_ind_4'      => '',
-            'etapa_clas_4'     => '',
-            'etapa_diretriz_4' => '',
-            'etapa_5'          => '',
-         	'etapa_ind_5'      => '',
-            'etapa_clas_5'     => '',
-            'etapa_diretriz_5' => '',
-            'etapa_6'          => '',
-         	'etapa_ind_6'      => '',
-            'etapa_clas_6'     => '',
-            'etapa_diretriz_6' => '',
-            'etapa_7'          => '',
-         	'etapa_ind_7'      => '',
-            'etapa_clas_7'     => '',
-            'etapa_diretriz_7' => '',
         ];
-
-        foreach($analise_etapas as $analise_etapa){
-
-            switch($analise_etapa['etapa']){
-                case '22' : {
-                    $data['etapa_1']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_1']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_1']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_1'] = $analise_etapa['diretriz'];
-                    break;
-                }
-                case '23' : {
-                    $data['etapa_2']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_2']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_2']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_2'] = $analise_etapa['diretriz'];
-                    break;
-                }
-                case '24' : {
-                    $data['etapa_3']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_3']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_3']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_3'] = $analise_etapa['diretriz'];
-                    break;
-                }
-                case '25' : {
-                    $data['etapa_4']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_4']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_4']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_4'] = $analise_etapa['diretriz'];
-                    break;
-                }
-                case '26' : {
-                    $data['etapa_5']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_5']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_5']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_5'] = $analise_etapa['diretriz'];
-                    break;
-                }
-                case '27' : {
-                    $data['etapa_6']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_6']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_6']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_6'] = $analise_etapa['diretriz'];
-                    break;
-                }
-                case '28' : {
-                    $data['etapa_7']          = $analise_etapa['etapa'];
-                    $data['etapa_ind_7']      = $analise_etapa['indice_risco_round'];
-                    $data['etapa_clas_7']     = $analise_etapa['classificacao'];
-                    $data['etapa_diretriz_7'] = $analise_etapa['diretriz'];
-                    break;
-                }
-            }
-        }
 
         try {
             $templateProcessor = new TemplateProcessor($templatePath);
+
+            $cnt_irrelevante = 0;
+            $cnt_baixo = 0;
+            $cnt_moderado = 0;
+            $cnt_alto = 0;
+            $cnt_malto = 0;
+            foreach($analise_etapas as $analise_etapa){
+
+                $valor = $analise_etapa['indice_risco_round'];
+
+                switch (true) {
+                    case ($valor >= 0 && $valor <= 3):
+                        $cnt_irrelevante++;
+                        if($cnt_irrelevante == 1){$templateProcessor->cloneRow('ET_IRRELEVANTE_DIM',7);}
+                        $templateProcessor->cloneRow('ET_IRRELEVANTE_DIM',1);
+                        $templateProcessor->setValue('ET_IRRELEVANTE_DIM#'.$cnt_irrelevante, $analise_etapa['titulo_etapa']);
+                        $templateProcessor->setValue('ET_IRRELEVANTE_IND#'.$cnt_irrelevante, $analise_etapa['indice_risco_round']);
+                        $templateProcessor->setValue('ET_IRRELEVANTE_CLAS#'.$cnt_irrelevante, $analise_etapa['classificacao']);
+                        $templateProcessor->setValue('ET_IRRELEVANTE_DIR#'.$cnt_irrelevante, $analise_etapa['diretriz']);
+                        break;
+                    case ($valor > 3 && $valor <= 7):
+                        $cnt_baixo++;
+                        if($cnt_baixo == 1){$templateProcessor->cloneRow('ET_BAIXO_DIM',7);}
+                        $templateProcessor->setValue('ET_BAIXO_DIM#'.$cnt_baixo, $analise_etapa['titulo_etapa']);
+                        $templateProcessor->setValue('ET_BAIXO_IND#'.$cnt_baixo, $analise_etapa['indice_risco_round']);
+                        $templateProcessor->setValue('ET_BAIXO_CLAS#'.$cnt_baixo, $analise_etapa['classificacao']);
+                        $templateProcessor->setValue('ET_BAIXO_DIR#'.$cnt_baixo, $analise_etapa['diretriz']);
+                        break;
+                    case ($valor > 7 && $valor <= 11):
+                        $cnt_moderado++;
+                        if($cnt_moderado == 1){$templateProcessor->cloneRow('ET_MODERADO_DIM',7);}
+                        $templateProcessor->setValue('ET_MODERADO_DIM#'.$cnt_moderado, $analise_etapa['titulo_etapa']);
+                        $templateProcessor->setValue('ET_MODERADO_IND#'.$cnt_moderado, $analise_etapa['indice_risco_round']);
+                        $templateProcessor->setValue('ET_MODERADO_CLAS#'.$cnt_moderado, $analise_etapa['classificacao']);
+                        $templateProcessor->setValue('ET_MODERADO_DIR#'.$cnt_moderado, $analise_etapa['diretriz']);
+                        break;
+                    case ($valor > 11 && $valor <= 15):
+                        $cnt_alto++;
+                        if($cnt_alto == 1){$templateProcessor->cloneRow('ET_ALTO_DIM',7);}
+                        $templateProcessor->setValue('ET_ALTO_DIM#'.$cnt_alto, $analise_etapa['titulo_etapa']);
+                        $templateProcessor->setValue('ET_ALTO_IND#'.$cnt_alto, $analise_etapa['indice_risco_round']);
+                        $templateProcessor->setValue('ET_ALTO_CLAS#'.$cnt_alto, $analise_etapa['classificacao']);
+                        $templateProcessor->setValue('ET_ALTO_DIR#'.$cnt_alto, $analise_etapa['diretriz']);
+                        break;
+                    case ($valor > 15):
+                        $cnt_malto++;
+                        if($cnt_malto == 1){$templateProcessor->cloneRow('ET_MALTO_DIM',7);}
+                        $templateProcessor->setValue('ET_MALTO_DIM#'.$cnt_malto, $analise_etapa['titulo_etapa']);
+                        $templateProcessor->setValue('ET_MALTO_IND#'.$cnt_malto, $analise_etapa['indice_risco_round']);
+                        $templateProcessor->setValue('ET_MALTO_CLAS#'.$cnt_malto, $analise_etapa['classificacao']);
+                        $templateProcessor->setValue('ET_MALTO_DIR#'.$cnt_malto, $analise_etapa['diretriz']);
+                        break;
+                    default:
+                        $resultado = 'Fora do intervalo';
+                }
+            }
+
+            if ($cnt_irrelevante >= 0 && $cnt_irrelevante < 7){
+                if($cnt_irrelevante == 0){
+                    $templateProcessor->deleteRow('ET_IRRELEVANTE_DIM', 1);
+                } else {
+                    for($i=7; $i>$cnt_irrelevante; $i--){
+                        $templateProcessor->deleteRow('ET_IRRELEVANTE_DIM#'.$i, 1);
+                    }
+                }
+            }
+            if ($cnt_baixo >= 0 && $cnt_baixo < 7){
+                if($cnt_baixo == 0){
+                    $templateProcessor->deleteRow('ET_BAIXO_DIM', 1);
+                } else {
+                    for($i=7; $i>$cnt_baixo; $i--){
+                        $templateProcessor->deleteRow('ET_BAIXO_DIM#'.$i, 1);
+                    }
+                }
+            }
+            if ($cnt_moderado >= 0 && $cnt_moderado < 7){
+                if($cnt_moderado == 0){
+                    $templateProcessor->deleteRow('ET_MODERADO_DIM', 1);
+                } else {
+                    for($i=7; $i>$cnt_moderado; $i--){
+                        $templateProcessor->deleteRow('ET_MODERADO_DIM#'.$i, 1);
+                    }
+                }
+            }
+            if ($cnt_alto >= 0 && $cnt_alto < 7){
+                if($cnt_alto == 0){
+                    $templateProcessor->deleteRow('ET_ALTO_DIM', 1);
+                } else {
+                    for($i=7; $i>$cnt_alto; $i--){
+                        $templateProcessor->deleteRow('ET_ALTO_DIM#'.$i, 1);
+                    }
+                }
+            }
+            if ($cnt_malto >= 0 && $cnt_malto < 7){
+                if($cnt_malto == 0){
+                    $templateProcessor->deleteRow('ET_MALTO_DIM', 1);
+                } else {
+                    for($i=7; $i>$cnt_malto; $i--){
+                        $templateProcessor->deleteRow('ET_MALTO_DIM#'.$i, 1);
+                    }
+                }
+            }
 
             //Substituir LOGO Empresa
             $imageLogoPath = base_path() . '/public/images/empresa/'.$campanha->empresa->id.'/'.$campanha->empresa->path_imagem;
