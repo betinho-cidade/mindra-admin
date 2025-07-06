@@ -105,23 +105,24 @@
             const uniqueGroups = [...new Set(Array.from(radioGroups).map(input => input.name))]; // Lista de nomes únicos (q1, q2, ...)
             const submitButton = document.getElementById('submitButton');
 
-            console.log(uniqueGroups);
-
             // Verifica se cada grupo de radio buttons tem uma opção selecionada
             const allAnswered = uniqueGroups.every(name => {
                 return form.querySelector(`input[name="${name}"]:checked`);
             });
 
-            console.log(allAnswered);
             // Habilita ou desabilita o botão de submit
             if (allAnswered) {
                 submitButton.removeAttribute('disabled');
                 submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 submitButton.classList.add('hover:bg-blue-600');
+                submitButton.innerHTML = 'Enviar Avaliação';
+                submitButton.innerText = 'Enviar Avaliação';
             } else {
                 submitButton.setAttribute('disabled', 'true');
                 submitButton.classList.add('opacity-50', 'cursor-not-allowed');
                 submitButton.classList.remove('hover:bg-blue-600');
+                submitButton.innerHTML = 'Necessário marcar todas as respostas para habilitar envio!';
+                submitButton.innerText = 'Necessário marcar todas as respostas para habilitar envio!';
             }
         }
 
