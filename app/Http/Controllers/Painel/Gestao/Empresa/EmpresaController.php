@@ -54,6 +54,7 @@ class EmpresaController extends Controller
                                 ->join('consultor_empresas', 'consultor_empresas.empresa_id', '=', 'empresas.id')
                                 ->where('consultor_empresas.consultor_id', $user->consultor->id)
                                 ->where('consultor_empresas.status','A')
+                                ->select('empresas.*')
                                 ->orderBy('empresas.nome')->get();
         } else{
             abort('403', 'Página não disponível');
@@ -488,6 +489,28 @@ class EmpresaController extends Controller
 
         if (!Storage::exists($filePath)) {
             abort(404, 'Arquivo de log não encontrado.');
+        }
+
+        return Storage::download($filePath, $filename, [
+            'Content-Type' => 'text/plain',
+        ]);
+    }
+
+    public function templateImport(Empresa $empresa, Request $request)
+    {
+
+        if(Gate::denies('import_empresa_funcionario')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        $filename = 'funcionarios_modelo.csv';
+
+        $filePath = 'templates/' . $filename;
+
+        if (!Storage::exists($filePath)) {
+            abort(404, 'Arquivo modelo não encontrado.');
         }
 
         return Storage::download($filePath, $filename, [

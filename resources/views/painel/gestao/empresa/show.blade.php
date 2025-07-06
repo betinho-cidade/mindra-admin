@@ -292,7 +292,7 @@
                             <li><strong>Exemplo de linha</strong>: <code>João Silva,joao@example.com,221.286.790-52,1234567,1990-01-01,11987654321,M,12345678,São Paulo,SP,Rua Exemplo,123,Centro,Apt 101,MAT123,Desenvolvedor,Tecnologia,2023-06-01</code></li>
                             <li>Campos opcionais podem ser deixados em branco (ex.: <code>,,</code>).</li>
                             <li>Tamanho máximo do arquivo: <strong>1MB</strong>.</li>
-                            <li>Baixe o <a style="border: 1px solid #484848; padding: 0 7px; border-radius: 5px;" href="{{ asset('nazox/assets/files/funcionarios_modelo.csv') }}">modelo de arquivo CSV</a> para usar como referência.</li>
+                            <li>Baixe o <a style="border: 1px solid #484848; padding: 0 7px; border-radius: 5px;" href="{{ route('empresa_funcionario.templateImport', compact('empresa')) }}">modelo de arquivo CSV</a> para usar como referência.</li>
                         </ul>
                     </div>
                     <span class="float-left">

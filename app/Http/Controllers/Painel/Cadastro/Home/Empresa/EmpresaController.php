@@ -40,9 +40,31 @@ class EmpresaController extends Controller
         }
 
         $user = Auth()->User();
+        $empresas_AT = [];
+        $empresas_IN = [];
 
-        $empresas_AT = Empresa::where('status','A')->orderBy('nome')->get();
-        $empresas_IN = Empresa::where('status','I')->orderBy('nome')->get();
+        if($user->roles->first()->name == 'Gestor'){
+            $empresas_AT = Empresa::whereIn('status',['A'])->orderBy('nome')->get();
+            $empresas_IN = Empresa::whereIn('status',['I'])->orderBy('nome')->get();
+        } else {
+            $empresas_AT = Empresa::whereIn('empresas.status',['A'])
+                                    ->join('consultor_empresas', 'consultor_empresas.empresa_id', '=', 'empresas.id')
+                                    ->whereIn('consultor_empresas.status', ['A'])
+                                    ->join('consultors', 'consultor_empresas.consultor_id', '=', 'consultors.id')
+                                    ->join('users', 'consultors.user_id', '=', 'users.id')
+                                    ->where('users.id', $user->id)
+                                    ->select('empresas.*')
+                                    ->orderBy('empresas.nome')->get();
+
+            $empresas_IN = Empresa::whereIn('empresas.status',['I'])
+                                    ->join('consultor_empresas', 'consultor_empresas.empresa_id', '=', 'empresas.id')
+                                    ->whereIn('consultor_empresas.status', ['A'])
+                                    ->join('consultors', 'consultor_empresas.consultor_id', '=', 'consultors.id')
+                                    ->join('users', 'consultors.user_id', '=', 'users.id')
+                                    ->where('users.id', $user->id)
+                                    ->select('empresas.*')
+                                    ->orderBy('empresas.nome')->get();
+        }
 
         return view('painel.cadastro.home.empresa.index', compact('user', 'empresas_AT', 'empresas_IN'));
     }
@@ -123,6 +145,15 @@ class EmpresaController extends Controller
                 $empresa->save();
             }
 
+
+            if($user->roles->first()->name == 'Consultor'){
+                $newConsultorEmpresa = new ConsultorEmpresa();
+                $newConsultorEmpresa->empresa_id = $empresa->id;
+                $newConsultorEmpresa->consultor_id = $user->consultor->id;
+                $newConsultorEmpresa->save();
+            }
+
+
             DB::commit();
 
         } catch (Exception $ex){
@@ -153,9 +184,22 @@ class EmpresaController extends Controller
 
         $user = Auth()->User();
 
-        $roles = $user->roles;
+        if(!$this->valida_consultor($empresa)){
+            abort('403', 'Página não disponível');
+        }
 
-        $consultor_empresas = ConsultorEmpresa::where('empresa_id', $empresa->id)->get();
+        $consultor_empresas = [];
+
+        if($user->roles->first()->name == 'Gestor'){
+            $consultor_empresas = ConsultorEmpresa::where('empresa_id', $empresa->id)->get();
+        } else {
+            $consultor_empresas = ConsultorEmpresa::where('consultor_empresas.empresa_id', $empresa->id)
+                                                    ->join('consultors', 'consultor_empresas.consultor_id', '=', 'consultors.id')
+                                                    ->join('users', 'consultors.user_id', '=', 'users.id')
+                                                    ->where('users.id', $user->id)
+                                                    ->select('consultor_empresas.*')
+                                                    ->get();
+        }
 
         $empresa_funcionarios = EmpresaFuncionario::where('empresa_id', $empresa->id)->get();
 
@@ -170,7 +214,9 @@ class EmpresaController extends Controller
 
         $user = Auth()->User();
 
-        $roles = $user->roles;
+        if(!$this->valida_consultor($empresa)){
+            abort('403', 'Página não disponível');
+        }
 
         $message = '';
 
@@ -252,10 +298,14 @@ class EmpresaController extends Controller
 
         $user = Auth()->User();
 
+        if(!$this->valida_consultor($empresa)){
+            abort('403', 'Página não disponível');
+        }
+
         $message = '';
         $empresa_nome = $empresa->nome;
 
-        $path_imagem = 'images/emprsa/' . $empresa->id;
+        $path_imagem = 'images/empresa/' . $empresa->id;
         $imagem = $empresa->path_imagem;
 
         try {
@@ -276,6 +326,7 @@ class EmpresaController extends Controller
 
             if(strpos($ex->getMessage(), 'Integrity constraint violation') !== false){
                 $message = "Não foi possível excluir o registro, pois existem referências ao mesmo em outros processos.";
+                dd($ex->getMessage());
             } else{
                 $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
             }
@@ -458,6 +509,25 @@ class EmpresaController extends Controller
 
         return redirect()->route('empresa.show', compact('empresa'));
     }
+
+    private function valida_consultor(Empresa $empresa){
+
+        $user = Auth()->User();
+
+        $roles = $user->roles;
+        if(!$roles->contains('name', 'Gestor') && !$roles->contains('name', 'Consultor')) {
+            return false;
+        }
+        else if($roles->contains('name', 'Consultor')) {
+
+            if(!in_array($empresa->id, $user->consultor->consultor_empresas->pluck('empresa_id')->toArray(), TRUE)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
 
 }

@@ -52,6 +52,7 @@
                                     <span>Home</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{route('empresa.index')}}">Empresas</a></li>
                                     <li><a href="{{route('campanha.index')}}">Campanhas</a></li>
                                 </ul>
                             </li>

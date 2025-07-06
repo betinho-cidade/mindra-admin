@@ -88,6 +88,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                     Route::put('/gestao/empresa/{empresa}/invite', 'EmpresaController@invite')->name('empresa_funcionario.invite');
                     Route::get('/gestao/empresa/{empresa}/logImport', 'EmpresaController@logImport')->name('empresa_funcionario.logImport');
                     Route::get('/gestao/empresa/{empresa}/logInvite', 'EmpresaController@logInvite')->name('empresa_funcionario.logInvite');
+                    Route::get('/gestao/empresa/{empresa}/templateImport', 'EmpresaController@templateImport')->name('empresa_funcionario.templateImport');
                     Route::get('/gestao/empresa/empresa_funcionario/{empresa_funcionario}', 'EmpresaController@show_funcionario')->name('empresa_funcionario.show_funcionario');
                     Route::put('/gestao/empresa/empresa_funcionario/{empresa_funcionario}/update', 'EmpresaController@update_funcionario')->name('empresa_funcionario.update_funcionario');
                     Route::delete('/gestao/empresa/empresa_funcionario/{empresa_funcionario}/destroy', 'EmpresaController@destroy_funcionario')->name('empresa_funcionario.destroy_funcionario');

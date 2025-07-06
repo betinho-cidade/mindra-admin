@@ -56,12 +56,12 @@
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item" title="Lista de Empresas Ativas">
                                                 <a class="nav-link active" data-toggle="tab" href="#ativas" role="tab">
-                                                    <span class="d-sm-block">Empresas Ativas( <code class="highlighter-rouge">{{$empresas_AT->count()}}</code> )</span>
+                                                    <span class="d-sm-block">Empresas Ativas( <code class="highlighter-rouge">{{count($empresas_AT)}}</code> )</span>
                                                 </a>
                                             </li>
                                             <li class="nav-item" title="Lista de Empresas Inativas">
                                                 <a class="nav-link" data-toggle="tab" href="#inativas" role="tab">
-                                                    <span class="d-sm-block">Empresas Inativas( <code class="highlighter-rouge">{{$empresas_IN->count()}}</code> )</span>
+                                                    <span class="d-sm-block">Empresas Inativas( <code class="highlighter-rouge">{{count($empresas_IN)}}</code> )</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -231,7 +231,7 @@
        }
     </script>
 
-    @if($empresas_AT->count() > 0)
+    @if(count($empresas_AT) > 0)
         <script>
             var table_AT = $('#dt_ativas').DataTable({
                 language: {
@@ -242,7 +242,7 @@
     </script>
     @endif
 
-    @if($empresas_IN->count() > 0)
+    @if(count($empresas_IN) > 0)
         <script>
             var table_IN = $('#dt_inativas').DataTable({
                 language: {

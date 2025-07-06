@@ -239,7 +239,9 @@
                                 <th>ID</th>
                                 <th>Consultor</th>
                                 <th>E-mail</th>
+                                @can('view_empresa_consultor')
                                 <th style="text-align:center;">Ações</th>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -249,6 +251,7 @@
                                     <td>{{ $consultor_empresa->id }}</td>
                                     <td>{{ $consultor_empresa->consultor->user->nome }}</td>
                                     <td>{{ $consultor_empresa->consultor->user->email }}</td>
+                                    @can('create_empresa_consultor')
                                     <td style="text-align:center;">
                                         @can('delete_empresa_consultor')
                                             <a href="javascript:;" data-toggle="modal"
@@ -268,12 +271,12 @@
                                                 @endif
                                             </a>
                                         @endcan
-
                                     </td>
+                                    @endcan
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5">Nenhum registro encontrado</td>
+                                    <td colspan="4">Nenhum registro encontrado</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -286,6 +289,8 @@
                     <div>Quantidade de funcionários inativos: {{ $empresa_funcionarios->where('status', 'I')->count() }}</div>
             </div>
             <!-- FORMULÁRIO - FIM -->
+
+            @can('create_empresa_consultor')
 
             @section('modal_target')"formSubmit();"@endsection
             @section('modal_type')@endsection
@@ -325,6 +330,8 @@
                 @csrf
                 @method('PUT')
             </form>
+
+            @endcan
 
             <!-- FORMULÁRIO - FIM -->
             </div>
@@ -481,6 +488,7 @@
         });
     </script>
 
+    @can('create_empresa_consultor')
     <script>
         function formSubmit() {
             $("#deleteForm").submit();
@@ -520,6 +528,7 @@
             $("#statusForm").submit();
         }
     </script>
+    @endcan
 
     @if ($consultor_empresas->count() > 0)
         <script>
