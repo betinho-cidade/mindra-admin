@@ -65,10 +65,14 @@ class Campanha extends Model
         return ($this->data_fim) ? date('d-m-Y H:i', strtotime($this->data_fim)) : '';
     }
 
-
     public function getPeriodoAttribute()
     {
         return date('d.m.Y', strtotime($this->data_inicio)) . ' à ' . date('d.m.Y', strtotime($this->data_fim));
+    }
+
+    public function getMesReportAttribute()
+    {
+        return date('M-Y', strtotime($this->data_inicio));
     }
 
 }
