@@ -564,7 +564,6 @@
 
         function drawEvolucaoEmpresa() {
             const selectedEmpresa = document.getElementById('selectEmpresaEvolucao').value;
-            console.log(selectedEmpresa);
             let dados, dataEvolucao;
 
             if (selectedEmpresa != ''){
