@@ -109,7 +109,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
 
                 Route::group(['namespace' => 'Dashboard'], function(){
                     Route::get('/relatorio/dashboard', 'DashboardController@index')->name('dashboard.index');
-                    Route::post('/relatorio/dashboard/js_evolucao_empresa/{empresa}', 'DashboardController@js_evolucao_empresa')->name('dashboard.js_evolucao_empresa');
+                    Route::post('/relatorio/dashboard/js_evolucao_empresa', 'DashboardController@js_evolucao_empresa')->name('dashboard.js_evolucao_empresa');
                 });
 
                 Route::group(['namespace' => 'Avaliacao'], function(){

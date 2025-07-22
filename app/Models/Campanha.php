@@ -55,6 +55,11 @@ class Campanha extends Model
         return ($this->data_inicio) ? date('d-m-Y H:i', strtotime($this->data_inicio)) : '';
     }
 
+    public function getDataInicioReduzidaAttribute()
+    {
+        return ($this->data_inicio) ? date('d-m-Y', strtotime($this->data_inicio)) : '';
+    }
+
     public function getDataFimAjustadaAttribute()
     {
         return ($this->data_fim) ? date('Y-m-d', strtotime($this->data_fim)): '';

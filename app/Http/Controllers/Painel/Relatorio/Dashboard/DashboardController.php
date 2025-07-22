@@ -38,12 +38,6 @@ class DashboardController extends Controller
         $roles = $user->roles;
         $role = $roles->first()->name;
 
-                // ['Empresa', 'Média de risco por empresa', '% Formulários respondidos'],
-                // ['Emp1', 800, 10], /* */
-                // ['Emp2', 700, 90], /* */
-                // ['Emp3', 700, 75], /* */
-                // ['Emp4', 700, 100] /* */
-
         $empresas = Empresa::whereIn('status', ['A'])
                             ->orderBy('nome')
                             ->get();
@@ -58,10 +52,6 @@ class DashboardController extends Controller
                 'campanha' => '<div style="padding:5px; font-size:14px;"><span style="font-size:12px">'.$analise_HSE_empresa['mes'].'</font><br><b>'.$analise_HSE_empresa['campanha'].'</b></div>',
                 'percentual_respondido' => $analise_HSE_empresa['percentual_respondido'],
             ]);
-
-            //dd(json_encode($dash_empresa));
-
-
         }
 
         return view('painel.relatorio.dashboard.index', compact('user', 'dash_empresa', 'empresas'));
@@ -208,18 +198,20 @@ class DashboardController extends Controller
         return $retorno_analise;
     }
 
-    public function js_evolucao_empresa(Empresa $empresa, Request $request){
+    public function js_evolucao_empresa(Request $request){
 
         if(Gate::denies('view_dashboard')){
             abort('403', 'Página não disponível');
             //return redirect()->back();
         }
 
+        $empresa = $request->empresa;
+
         $results = DB::table('campanha_respostas')
                             ->join('campanha_funcionarios', 'campanha_respostas.campanha_funcionario_id', '=', 'campanha_funcionarios.id')
                             ->join('campanhas', function ($join) use($empresa) {
                                 $join->on('campanha_funcionarios.campanha_id', '=', 'campanhas.id')
-                                    ->where('campanhas.empresa_id',$empresa->id)
+                                    ->where('campanhas.empresa_id',$empresa)
                                     ->where('campanhas.formulario_id', 3) // Fixo para ID do Formulário HSE (3)
                                     ->whereIn('campanhas.status', ['A']);
                             })
@@ -374,7 +366,7 @@ class DashboardController extends Controller
                 //'total_respondido' => $total_respondido,
                 'campanha' => $dados_campanha->titulo ?? '',
                 'mes' => $dados_campanha->mes_report ?? '',
-                'data_campanha' => $dados_campanha->data_inicio,
+                'data_campanha' => $dados_campanha->data_inicio_reduzida,
                 'percentual_respondido' => ($total_liberado > 0) ? round(($total_respondido/$total_liberado)*100,2) : 0,
                 'risco_medio' => round($risco_medio / FormularioEtapa::where('formulario_id', 3)->count()), // Fixo para ID do Formulário HSE (3)
                 //'analise_etapas' => $analise_etapas
@@ -396,11 +388,7 @@ class DashboardController extends Controller
             return ($timeA < $timeB) ? -1 : 1;
         });
 
-        //return $retorno_analise;
-        //$mensagem = json_decode($retorno_analise,true);
-
         echo json_encode($retorno_analise);
-
     }
 
 

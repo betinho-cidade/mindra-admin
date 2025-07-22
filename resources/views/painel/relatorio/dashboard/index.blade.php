@@ -38,12 +38,11 @@
                                 @csrf
                             <select id="selectEmpresaEvolucao" onchange="drawEvolucaoEmpresa()" class="filter-select">
                                 @foreach ($empresas as $empresa)
-                                    <option value="{{ $empresa->id }}"
-                                        {{ $empresa->id == old('empresa') ? 'selected' : '' }}>{{ $empresa->nome }}</option>
+                                    <option value="{{ $empresa->id }}">{{ $empresa->nome }}</option>
                                 @endforeach
                             </select>
-                            </form?
-                            <img src="{{asset('images/loading.gif')}}" id="img-loading-dash_evolucao_empresa" style="display:none;max-width: 17%; margin-left: 26px;">
+                            <img src="{{asset('images/loading.gif')}}" id="img-loading-evolucao" style="display:none;max-width: 3%; margin-left: 4px;">
+                            </form>
                         </div>
                     </div>
                     <div id="chart_evolucao_empresa_chart_area" class="chart-area"></div>
@@ -539,10 +538,10 @@
                     0: { // Eixo Y esquerdo: Média de risco
                         title: 'Média de risco', /* */
                         minValue: 0,
-                        maxValue: 10,
+                        // maxValue: 10,
                         format: '#',
                         gridlines: { count: 5 },
-                        viewWindow: { min: 0, max: 10 }
+                        viewWindow: { min: 0 } //, max: 10 }
                     },
                     1: { // Eixo Y direito: % Respondidos
                         title: '% Respondidos', /* */
@@ -569,22 +568,27 @@
             let dados, dataEvolucao;
 
             if (selectedEmpresa != ''){
-                //document.getElementById("img-loading-dash_evolucao_empresa").style.display = '';
+                const chartArea = document.getElementById('chart_evolucao_empresa_chart_area');
+                chartArea.innerHTML = "";
+
+                document.getElementById("img-loading-evolucao").style.display = ''
                 var empresa = selectedEmpresa;
                 var _token = $('input[name="_token"]').val();
 
                 $.ajax({
-                    url: "{{route('dashboard.js_evolucao_empresa', compact('empresa'))}}",
+                    url: "{{route('dashboard.js_evolucao_empresa')}}",
                     method: "POST",
                     data: {_token:_token, empresa:empresa},
                     success:function(result){
                         dados = JSON.parse(result);
-                        if(dados==null || dados['error'] == 'true'){
+
+                        if(dados == '' || dados==null || dados['error'] == 'true'){
                             const chartArea = document.getElementById('chart_evolucao_empresa_chart_area');
                             chartArea.innerHTML = "<p style='text-align:center; padding-top:50px;'>Dados não disponíveis para esta empresa.</p>";
+                            document.getElementById("img-loading-evolucao").style.display = 'none';
                             return;
                         } else {
-                            dataEvolucao = [['Empresa', 'Média de risco por empresa', { role: 'tooltip', type: 'string', p: { html: true } }, '% Formulários respondidos']];
+                            dataEvolucao = [['Empresa', 'Média de risco por mês', { role: 'tooltip', type: 'string', p: { html: true } }, '% Formulários respondidos']];
                             dados.forEach(item => {
                                 // Cria o conteúdo HTML personalizado para o tooltip
                                 const tooltipHtml = `<div style='padding:5px; font-size:14px;'><span style='font-size:12px'>${item.mes}</font><br><b>${item.campanha}</b></div>`;
@@ -596,8 +600,6 @@
                                     item.percentual_respondido // Percentual de formulários respondidos
                                 ]);
                             });
-
-                            console.log(dataEvolucao);
 
                             var data1 = google.visualization.arrayToDataTable(dataEvolucao);
 
@@ -665,10 +667,10 @@
                                     0: { // Eixo Y esquerdo: Média de risco
                                         title: 'Média de risco', /* */
                                         minValue: 0,
-                                        maxValue: 10,
+                                        // maxValue: 10,
                                         format: '#',
                                         gridlines: { count: 5 },
-                                        viewWindow: { min: 0, max: 10 }
+                                        viewWindow: { min: 0 } //, max: 10 }
                                     },
                                     1: { // Eixo Y direito: % Respondidos
                                         title: '% Respondidos', /* */
@@ -688,10 +690,10 @@
                             var chart1 = new google.visualization.ComboChart(document.getElementById('chart_evolucao_empresa_chart_area'));
                             chart1.draw(view1, options1);
                         }
-                        //document.getElementById("img-loading-cep").style.display = 'none';
+                        document.getElementById("img-loading-evolucao").style.display = 'none';
                     },
                     error:function(erro){
-                        //document.getElementById("img-loading-cep").style.display = 'none';
+                        document.getElementById("img-loading-evolucao").style.display = 'none';
                     }
                 })
             }
