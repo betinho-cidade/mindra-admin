@@ -169,7 +169,7 @@
             padding: 3px 6px;
             border-radius: 4px;
             border: 1px solid #ccc;
-            font-size: 0.9em; /* Reduz a fonte dos selects */
+            font-size: 0.7em; /* Reduz a fonte dos selects */
             max-width: 150px; /* Limita a largura do select para caber mais na linha */
         }
         .loading-spinner {
@@ -462,6 +462,14 @@
 
 
         function drawResultadoEmpresa() {
+
+            @if(!$dash_empresa)
+                const chartArea = document.getElementById('chart_resultado_empresa_chart_area');
+                chartArea.innerHTML = "<p style='text-align:center; padding-top:50px;'>Dados não disponíveis</p>";
+                document.getElementById("img-loading-evolucao").style.display = 'none';
+                return;
+            @endif
+
             var data = google.visualization.arrayToDataTable([
                         ['Empresa', 'Média de risco por empresa', { role: 'tooltip', type: 'string', p: { html: true } }, '% Formulários respondidos'],
 
