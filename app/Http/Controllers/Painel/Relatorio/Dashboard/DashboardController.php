@@ -745,8 +745,8 @@ class DashboardController extends Controller
         $indicador_resposta = Formulario::where('id', 3)->first()->resposta->resposta_indicadors()->orderBy('ordem')->pluck('indicador','id')->toArray(); // Fixo para ID do Formulário HSE (3)
         foreach($dimensaos as $dimensao){
 
-            $total_liberado = CampanhaFuncionario::where('campanha_id', $campanha)->count();
-            $total_respondido = CampanhaFuncionario::where('campanha_id', $campanha)->whereNotNull('data_realizado')->count();
+            // $total_liberado = CampanhaFuncionario::where('campanha_id', $campanha)->count();
+            // $total_respondido = CampanhaFuncionario::where('campanha_id', $campanha)->whereNotNull('data_realizado')->count();
 
             $total_liberado = CampanhaFuncionario::where('campanha_funcionarios.campanha_id', $campanha)
                                                     ->join('empresa_funcionarios', function ($join) use($empresa, $departamento) {
@@ -833,7 +833,7 @@ class DashboardController extends Controller
                 'titulo_etapa' => $dimensao['dimensao'],
                 'mes' => $dados_campanha->mes_report ?? '',
                 'data_campanha' => $dados_campanha->data_inicio_reduzida,
-                'percentual_respondido' => ($total_respondido > 0 && $total_liberado > 0) ? round(($total_respondido/$total_liberado)*100,2) : 0,
+                //'percentual_respondido' => ($total_respondido > 0 && $total_liberado > 0) ? round(($total_respondido/$total_liberado)*100,2) : 0,
                 'risco_medio' => round($risco_medio / FormularioEtapa::where('formulario_id', 3)->count()), // Fixo para ID do Formulário HSE (3)
                 //'analise_etapas' => $analise_etapas
             ];
