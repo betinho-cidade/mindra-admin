@@ -109,7 +109,12 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
 
                 Route::group(['namespace' => 'Dashboard'], function(){
                     Route::get('/relatorio/dashboard', 'DashboardController@index')->name('dashboard.index');
+                    Route::get('/relatorio/dashboard/js_busca_campanhas', 'DashboardController@js_busca_campanhas')->name('dashboard.js_busca_campanhas');
+                    Route::get('/relatorio/dashboard/js_busca_departamentos', 'DashboardController@js_busca_departamentos')->name('dashboard.js_busca_departamentos');                    
                     Route::post('/relatorio/dashboard/js_evolucao_empresa', 'DashboardController@js_evolucao_empresa')->name('dashboard.js_evolucao_empresa');
+                    Route::get('/relatorio/dashboard/js_departamento', 'DashboardController@js_departamento')->name('dashboard.js_departamento');
+                    Route::get('/relatorio/dashboard/js_risco', 'DashboardController@js_risco')->name('dashboard.js_risco');
+                   
                 });
 
                 Route::group(['namespace' => 'Avaliacao'], function(){
