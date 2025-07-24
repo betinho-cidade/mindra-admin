@@ -25,8 +25,13 @@ class PainelController extends Controller
         }
 
         $user = Auth()->User();
+        $roles = $user->roles;
 
-        return redirect()->route('dashboard.index');
+        if($roles->contains('name', 'Funcionario')){
+            return redirect()->route('avaliacao.index');
+        } else {
+            return redirect()->route('dashboard.index');
+        }        
     }
 
     public function preview_formulario(Formulario $formulario, Request $request)

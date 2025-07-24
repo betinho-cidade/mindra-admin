@@ -27,7 +27,6 @@ class DashboardController extends Controller
         $this->middleware('auth');
     }
 
-
     public function index(Request $request)
     {
         if(Gate::denies('view_dashboard')){
