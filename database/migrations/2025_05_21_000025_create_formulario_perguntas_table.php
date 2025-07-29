@@ -15,6 +15,7 @@ class CreateFormularioPerguntasTable extends Migration
             $table->string('titulo', 255);
             $table->integer('ordem')->default(1);
             $table->float('ind_consequencia')->default(1);
+            $table->integer('prob_invertida')->default(0);
             $table->timestamps();
             $table->foreign('formulario_etapa_id')->references('id')->on('formulario_etapas');
         });

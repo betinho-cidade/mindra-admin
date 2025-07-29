@@ -329,19 +329,21 @@
                 },
                 vAxes: {
                     0: { // Eixo Y esquerdo: Média de risco
-                        title: 'Média de risco', /* */
+                        // title: 'Média de risco', /* */
+                        textPosition: 'none',
                         minValue: 0,
                         // maxValue: 10,
                         format: '#',
-                        gridlines: { count: 5 },
+                        gridlines: { count: 5, color: 'none' },
                         viewWindow: { min: 0 } //, max: 10 }
                     },
                     1: { // Eixo Y direito: % Respondidos
-                        title: '% Respondidos', /* */
+                        // title: '% Respondidos', /* */
+                        textPosition: 'none',
                         minValue: 0,
                         maxValue: 100,
                         format: '#\'%\'',
-                        gridlines: { count: 5 }, /* Linhas de grade também para o eixo secundário */
+                        gridlines: { count: 5, color: 'none' }, /* Linhas de grade também para o eixo secundário */
                         viewWindow: { min: 0, max: 100 }
                     }
                 },
@@ -387,7 +389,7 @@
                             dataEvolucao = [['Empresa', 'Média de risco por mês', { role: 'tooltip', type: 'string', p: { html: true } }, '% Formulários respondidos']];
                             dados.forEach(item => {
                                 // Cria o conteúdo HTML personalizado para o tooltip
-                                const tooltipHtml = `<div style='padding:5px; font-size:14px;'><span style='font-size:12px'>${item.mes}</font><br><b>${item.campanha}</b></div>`;
+                                const tooltipHtml = `<div style='padding:5px; font-size:14px;'><span style='font-size:14px'>${item.mes}</font><br><b>${item.campanha}</b></div>`;
                                 // Adiciona a linha formatada ao dataArray
                                 dataEvolucao.push([
                                     item.data_campanha, // Nome da empresa/campanha
@@ -461,19 +463,21 @@
                                 },
                                 vAxes: {
                                     0: { // Eixo Y esquerdo: Média de risco
-                                        title: 'Média de risco', /* */
+                                        //title: 'Média de risco', /* */
+                                        textPosition: 'none',
                                         minValue: 0,
                                         // maxValue: 10,
                                         format: '#',
-                                        gridlines: { count: 5 },
+                                        gridlines: { count: 5, color: 'none' },
                                         viewWindow: { min: 0 } //, max: 10 }
                                     },
                                     1: { // Eixo Y direito: % Respondidos
-                                        title: '% Respondidos', /* */
+                                        //title: '% Respondidos', /* */
+                                        textPosition: 'none',
                                         minValue: 0,
                                         maxValue: 100,
                                         format: '#\'%\'',
-                                        gridlines: { count: 5 }, /* Linhas de grade também para o eixo secundário */
+                                        gridlines: { count: 5, color: 'none' }, /* Linhas de grade também para o eixo secundário */
                                         viewWindow: { min: 0, max: 100 }
                                     }
                                 },
@@ -596,7 +600,7 @@
                     dataDepartamento = [['Empresa', 'Média de risco por departamento', { role: 'tooltip', type: 'string', p: { html: true } }, '% Formulários respondidos']];
                     dataArray.forEach(item => {
                         // Cria o conteúdo HTML personalizado para o tooltip
-                        const tooltipHtml = `<div style='padding:5px; font-size:14px;'><span style='font-size:12px'>${item.mes}</font><br><b>${item.campanha}</b></div>`;
+                        const tooltipHtml = `<div style='padding:5px; font-size:14px;'><span style='font-size:14px'>${item.mes}</font><br><b>${item.campanha}</b></div>`;
                         // Adiciona a linha formatada ao dataArray
                         dataDepartamento.push([
                             item.departamento, // Nome da empresa/campanha
@@ -670,19 +674,21 @@
                         },
                         vAxes: {
                             0: { // Eixo Y esquerdo: Média de risco
-                                title: 'Média de risco', /* */
+                                //title: 'Média de risco', /* */
+                                textPosition: 'none',
                                 minValue: 0,
                                 // maxValue: 10,
                                 format: '#',
-                                gridlines: { count: 5 },
+                                gridlines: { count: 5, color: 'none' },
                                 viewWindow: { min: 0 } //, max: 10 }
                             },
                             1: { // Eixo Y direito: % Respondidos
-                                title: '% Respondidos', /* */
+                                //title: '% Respondidos', /* */
+                                textPosition: 'none',
                                 minValue: 0,
                                 maxValue: 100,
                                 format: '#\'%\'',
-                                gridlines: { count: 5 }, /* Linhas de grade também para o eixo secundário */
+                                gridlines: { count: 5, color: 'none' }, /* Linhas de grade também para o eixo secundário */
                                 viewWindow: { min: 0, max: 100 }
                             }
                         },
@@ -887,6 +893,8 @@
                             //title: 'Média de risco por dimensão',
                             hAxis: {
                                 minValue: 0,
+                                textPosition: 'none',
+                                gridlines: { color: 'none' },
                                 textStyle: {
                                     color: '#333'
                                 }

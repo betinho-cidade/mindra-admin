@@ -61,7 +61,7 @@ class DashboardController extends Controller
             array_push($dash_empresa, [
                 'Empresa' => $empresa->nome,
                 'risco_medio' => $analise_HSE_empresa['risco_medio'],
-                'campanha' => '<div style="padding:5px; font-size:14px;"><span style="font-size:12px">'.$analise_HSE_empresa['mes'].'</font><br><b>'.$analise_HSE_empresa['campanha'].'</b></div>',
+                'campanha' => '<div style="padding:5px; font-size:14px;"><span style="font-size:14px">'.$analise_HSE_empresa['mes'].'</font><br><b>'.$analise_HSE_empresa['campanha'].'</b></div>',
                 'percentual_respondido' => $analise_HSE_empresa['percentual_respondido'],
             ]);
         }
@@ -107,6 +107,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -123,6 +124,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -158,7 +160,13 @@ class DashboardController extends Controller
             $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
             $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
             $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
-            $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;            
+            
+            if($array['prob_inv'] == 0){
+                $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;            
+            } else {
+                $array['prob_invertida'] = ($total_respondido > 0) ? $array['prob_inv'] - (($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido) : 0;            
+            }
+            
             $array['indice_risco'] = $array['prob_invertida'] * $array['consequencia'];
 
             if($array['etapa'] != $etapa){
@@ -188,7 +196,6 @@ class DashboardController extends Controller
                 }
             }
         }
-
 
         $risco_medio = 0;
         foreach($analise_etapas as $analise_etapa) {
@@ -276,6 +283,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,                    
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -292,6 +300,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -338,7 +347,13 @@ class DashboardController extends Controller
                 $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
                 $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
                 $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
-                $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;                
+
+                if($array['prob_inv'] == 0){
+                    $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;            
+                } else {
+                    $array['prob_invertida'] = ($total_respondido > 0) ? $array['prob_inv'] - (($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido) : 0;            
+                }
+
                 $array['indice_risco'] = $array['prob_invertida'] * $array['consequencia'];
 
                 if($array['etapa'] != $etapa){
@@ -429,7 +444,7 @@ class DashboardController extends Controller
                                     ->whereIn('campanhas.status', ['A']);
                             })
                             ->join('empresa_funcionarios', function ($join) use($empresa) {
-                                $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.funcionario_id')
+                                $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                     ->where('empresa_funcionarios.empresa_id',$empresa);
                             })
                             ->join('formulario_perguntas', 'campanha_respostas.formulario_pergunta_id', '=', 'formulario_perguntas.id')
@@ -442,6 +457,7 @@ class DashboardController extends Controller
                             ->orderBy('formulario_etapas.ordem')
                             ->orderBy('formulario_perguntas.ordem')
                             ->get();
+
 
         $matriz = [];
         $matrizes = [];
@@ -478,6 +494,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -494,6 +511,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -528,7 +546,7 @@ class DashboardController extends Controller
 
             $total_liberado = CampanhaFuncionario::where('campanha_funcionarios.campanha_id', $campanha)
                                                     ->join('empresa_funcionarios', function ($join) use($empresa, $departamento) {
-                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.funcionario_id')
+                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                                             ->where('empresa_funcionarios.empresa_id',$empresa)
                                                             ->where('empresa_funcionarios.departamento',$departamento['departamento']);
                                                     })
@@ -537,7 +555,7 @@ class DashboardController extends Controller
             $total_respondido = CampanhaFuncionario::where('campanha_funcionarios.campanha_id', $campanha)
                                                     ->whereNotNull('campanha_funcionarios.data_realizado')            
                                                     ->join('empresa_funcionarios', function ($join) use($empresa, $departamento) {
-                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.funcionario_id')
+                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                                             ->where('empresa_funcionarios.empresa_id',$empresa)
                                                             ->where('empresa_funcionarios.departamento',$departamento['departamento']);
                                                     })
@@ -554,7 +572,11 @@ class DashboardController extends Controller
                 $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
                 $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
                 $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
-                $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;
+                if($array['prob_inv'] == 0){
+                    $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;            
+                } else {
+                    $array['prob_invertida'] = ($total_respondido > 0) ? $array['prob_inv'] - (($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido) : 0;            
+                }
                 $array['indice_risco'] = $array['prob_invertida'] * $array['consequencia'];
 
                 if($array['etapa'] != $etapa){
@@ -647,7 +669,7 @@ class DashboardController extends Controller
                                     ->whereIn('campanhas.status', ['A']);
                             })
                             ->join('empresa_funcionarios', function ($join) use($empresa, $departamento) {
-                                $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.funcionario_id')
+                                $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                     ->where('empresa_funcionarios.empresa_id',$empresa)
                                     ->where('empresa_funcionarios.departamento', $departamento);
                             })
@@ -696,6 +718,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -712,6 +735,7 @@ class DashboardController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -749,7 +773,7 @@ class DashboardController extends Controller
 
             $total_liberado = CampanhaFuncionario::where('campanha_funcionarios.campanha_id', $campanha)
                                                     ->join('empresa_funcionarios', function ($join) use($empresa, $departamento) {
-                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.funcionario_id')
+                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                                             ->where('empresa_funcionarios.empresa_id',$empresa)
                                                             ->where('empresa_funcionarios.departamento',$departamento);
                                                     })
@@ -764,7 +788,7 @@ class DashboardController extends Controller
             $total_respondido = CampanhaFuncionario::where('campanha_funcionarios.campanha_id', $campanha)
                                                     ->whereNotNull('campanha_funcionarios.data_realizado')            
                                                     ->join('empresa_funcionarios', function ($join) use($empresa, $departamento) {
-                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.funcionario_id')
+                                                        $join->on('campanha_funcionarios.empresa_funcionario_id', '=', 'empresa_funcionarios.id')
                                                             ->where('empresa_funcionarios.empresa_id',$empresa)
                                                             ->where('empresa_funcionarios.departamento',$departamento);
                                                     })
@@ -787,7 +811,11 @@ class DashboardController extends Controller
                 $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
                 $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
                 $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
-                $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;
+                if($array['prob_inv'] == 0){
+                    $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;            
+                } else {
+                    $array['prob_invertida'] = ($total_respondido > 0) ? $array['prob_inv'] - (($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido) : 0;            
+                }
                 $array['indice_risco'] = $array['prob_invertida'] * $array['consequencia'];
 
                 if($array['etapa'] != $etapa){
@@ -824,6 +852,7 @@ class DashboardController extends Controller
             }
 
             $dados_campanha = Campanha::where('id', $campanha)->first();
+
             $retorno = [
                 //'total_liberado' => $total_liberado,
                 //'total_respondido' => $total_respondido,
@@ -833,7 +862,7 @@ class DashboardController extends Controller
                 'mes' => $dados_campanha->mes_report ?? '',
                 'data_campanha' => $dados_campanha->data_inicio_reduzida,
                 //'percentual_respondido' => ($total_respondido > 0 && $total_liberado > 0) ? round(($total_respondido/$total_liberado)*100,2) : 0,
-                'risco_medio' => round($risco_medio / FormularioEtapa::where('formulario_id', 3)->count()), // Fixo para ID do Formulário HSE (3)
+                'risco_medio' => round($risco_medio / FormularioEtapa::where('formulario_id', 3)->where('id', $dimensao['matrizes'][0]['etapa'])->count()), // Fixo para ID do Formulário HSE (3)
                 //'analise_etapas' => $analise_etapas
             ];
             array_push($retorno_analise, $retorno);
