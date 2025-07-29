@@ -225,6 +225,7 @@ class CampanhaEmpresaController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,    
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -241,6 +242,7 @@ class CampanhaEmpresaController extends Controller
                     'pergunta' => $pergunta,
                     'desc_pergunta' => $result->desc_pergunta,
                     'consequencia' => $formulario_pergunta->ind_consequencia,
+                    'prob_inv' => $formulario_pergunta->prob_invertida,    
                     'resposta_12' => ($result->resposta_indicador_id == 12) ? $result->count : 0,
                     'resposta_13' => ($result->resposta_indicador_id == 13) ? $result->count : 0,
                     'resposta_14' => ($result->resposta_indicador_id == 14) ? $result->count : 0,
@@ -275,7 +277,13 @@ class CampanhaEmpresaController extends Controller
             $array['resposta_14'] = $array['resposta_14'] * $indicador_resposta['14'];
             $array['resposta_15'] = $array['resposta_15'] * $indicador_resposta['15'];
             $array['resposta_16'] = $array['resposta_16'] * $indicador_resposta['16'];
-            $array['prob_invertida'] = ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido;
+
+            if($array['prob_inv'] == 0){
+                $array['prob_invertida'] = ($total_respondido > 0) ? ($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido : 0;            
+            } else {
+                $array['prob_invertida'] = ($total_respondido > 0) ? $array['prob_inv'] - (($array['resposta_12'] + $array['resposta_13'] + $array['resposta_14'] + $array['resposta_15'] + $array['resposta_16']) / $total_respondido) : 0;            
+            }
+
             $array['indice_risco'] = $array['prob_invertida'] * $array['consequencia'];
 
             if($array['etapa'] != $etapa){
