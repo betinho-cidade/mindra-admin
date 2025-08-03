@@ -453,13 +453,12 @@ class CampanhaEmpresaController extends Controller
             $cnt_malto = 0;
             foreach($analise_etapas as $analise_etapa){
 
-                $valor = $analise_etapa['indice_risco_round'];
+                $valor = (int) $analise_etapa['indice_risco_round'];
 
                 switch (true) {
                     case ($valor >= 0 && $valor <= 3):
                         $cnt_irrelevante++;
                         if($cnt_irrelevante == 1){$templateProcessor->cloneRow('ET_IRRELEVANTE_DIM',7);}
-                        $templateProcessor->cloneRow('ET_IRRELEVANTE_DIM',1);
                         $templateProcessor->setValue('ET_IRRELEVANTE_DIM#'.$cnt_irrelevante, $analise_etapa['titulo_etapa']);
                         $templateProcessor->setValue('ET_IRRELEVANTE_IND#'.$cnt_irrelevante, $analise_etapa['indice_risco_round']);
                         $templateProcessor->setValue('ET_IRRELEVANTE_CLAS#'.$cnt_irrelevante, $analise_etapa['classificacao']);
@@ -502,6 +501,7 @@ class CampanhaEmpresaController extends Controller
                 }
             }
 
+           
             if ($cnt_irrelevante >= 0 && $cnt_irrelevante < 7){
                 if($cnt_irrelevante == 0){
                     $templateProcessor->deleteRow('ET_IRRELEVANTE_DIM', 1);
@@ -597,8 +597,9 @@ class CampanhaEmpresaController extends Controller
                 $templateProcessor->deleteRow('TEXTO_N', 1);
             }
 
+            $nomeEmpresa = Str::slug($campanha->empresa->nome);
 
-            $fileName = 'output_' . time() . '.docx';
+            $fileName = 'Relatorio-AFRPS-NR01-' . $nomeEmpresa . '.docx';
             $tempPath = storage_path('app/public/documents/' . $fileName);
 
             // Salvar o documento

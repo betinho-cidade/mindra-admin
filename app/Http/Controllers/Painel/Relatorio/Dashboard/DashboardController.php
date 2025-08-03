@@ -71,20 +71,33 @@ class DashboardController extends Controller
 
     private function analisaHSE_empresa(Empresa $empresa){
 
+                            // ->join('campanhas', function ($join) use($empresa) {
+                            //     $join->on('campanha_funcionarios.campanha_id', '=', 'campanhas.id')
+                            //         ->where('campanhas.empresa_id',$empresa->id)
+                            //         ->where('campanhas.formulario_id', 3) // Fixo para ID do Formulário HSE (3)
+                            //         ->whereIn('campanhas.status', ['A'])
+                            //         ->latest('campanhas.data_inicio');
+                            // })
+
         $results = DB::table('campanha_respostas')
                             ->join('campanha_funcionarios', 'campanha_respostas.campanha_funcionario_id', '=', 'campanha_funcionarios.id')
-                            ->join('campanhas', function ($join) use($empresa) {
-                                $join->on('campanha_funcionarios.campanha_id', '=', 'campanhas.id')
-                                    ->where('campanhas.empresa_id',$empresa->id)
-                                    ->where('campanhas.formulario_id', 3) // Fixo para ID do Formulário HSE (3)
-                                    ->whereIn('campanhas.status', ['A']);
+                            ->joinSub(function ($query) use ($empresa) {
+                                $query->from('campanhas')
+                                    ->select('campanhas.*')
+                                    ->where('campanhas.empresa_id', $empresa->id)
+                                    ->where('campanhas.formulario_id', 3)
+                                    ->whereIn('campanhas.status', ['A'])
+                                    ->orderBy('campanhas.data_inicio', 'desc')
+                                    ->limit(1);
+                            }, 'ultima_campanha', function ($join) {
+                                $join->on('campanha_funcionarios.campanha_id', '=', 'ultima_campanha.id');
                             })
                             ->join('formulario_perguntas', 'campanha_respostas.formulario_pergunta_id', '=', 'formulario_perguntas.id')
                             ->join('formulario_etapas', 'formulario_perguntas.formulario_etapa_id', '=', 'formulario_etapas.id')
                             ->join('formularios', 'formulario_etapas.formulario_id', '=', 'formularios.id')
                             ->whereIn('formularios.status', ['A'])
-                            ->select('campanhas.id as campanha_id', 'formulario_etapas.titulo as titulo_etapa', 'formulario_etapas.descricao as desc_etapa', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo as desc_pergunta', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
-                            ->groupBy('campanhas.id', 'formulario_etapas.titulo', 'formulario_etapas.descricao', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo', 'campanha_respostas.resposta_indicador_id')
+                            ->select('ultima_campanha.id as campanha_id', 'formulario_etapas.titulo as titulo_etapa', 'formulario_etapas.descricao as desc_etapa', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo as desc_pergunta', 'campanha_respostas.resposta_indicador_id', DB::raw('COUNT(campanha_respostas.resposta_indicador_id) as count'))
+                            ->groupBy('ultima_campanha.id', 'formulario_etapas.titulo', 'formulario_etapas.descricao', 'campanha_respostas.formulario_pergunta_id', 'formulario_perguntas.titulo', 'campanha_respostas.resposta_indicador_id')
                             ->orderBy('formulario_etapas.ordem')
                             ->orderBy('formulario_perguntas.ordem')
                             ->get();
@@ -902,7 +915,7 @@ class DashboardController extends Controller
                             ->where('status', 'A')
                             ->where('formulario_id', 3)
                             ->orderBy('titulo')
-                            ->select('id', 'titulo')
+                            ->select('id', 'titulo', DB::raw('DATE_FORMAT(data_inicio, "%d-%m-%Y") as data_inicio'))
                             ->get();
 
         echo json_encode($results);

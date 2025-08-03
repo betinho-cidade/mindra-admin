@@ -533,7 +533,7 @@
                 campaigns.forEach(campaign => {
                     const option = document.createElement('option');
                     option.value = campaign.id;
-                    option.textContent = campaign.titulo;
+                    option.textContent = campaign.data_inicio;
                     campaignSelect.appendChild(option);
                 });
                 campaignSelect.disabled = false;
@@ -743,7 +743,7 @@
                 campaigns.forEach(campaign => {
                     const option = document.createElement('option');
                     option.value = campaign.id;
-                    option.textContent = campaign.titulo;
+                    option.textContent = campaign.data_inicio;
                     campaignSelect.appendChild(option);
                 });
                 campaignSelect.disabled = false;
