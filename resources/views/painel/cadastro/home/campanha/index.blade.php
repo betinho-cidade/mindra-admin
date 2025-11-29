@@ -78,6 +78,7 @@
                                                             <th>Título</th>
                                                             <th>Empresa</th>
                                                             <th>Formulário</th>
+                                                            <th>Checklist</th>
                                                             <th>Início</th>
                                                             <th>Fim</th>
                                                             <th style="text-align:center;">Ações</th>
@@ -90,6 +91,7 @@
                                                                 <td>{{$campanha->titulo}}</td>
                                                                 <td>{{$campanha->empresa->nome}}</td>
                                                                 <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo}}</a></td>
+                                                                <td><a href="javascript:;" onclick="preview_checklist('{{ $campanha->checklist->id }}')">{{$campanha->checklist->titulo}}</a></td>
                                                                 <td>{{$campanha->data_inicio_formatada}}</td>
                                                                 <td>{{$campanha->data_fim_formatada}}</td>
                                                                 <td style="text-align:center;">
@@ -104,7 +106,7 @@
                                                                 </td>
                                                             </tr>
                                                         @empty
-                                                            <td colspan="6">Nenhum registro encontrado</td>
+                                                            <td colspan="7">Nenhum registro encontrado</td>
                                                         @endforelse
                                                         </tbody>
                                                     </table>
@@ -121,6 +123,7 @@
                                                             <th>Título</th>
                                                             <th>Empresa</th>
                                                             <th>Formulário</th>
+                                                            <th>Checklist</th>
                                                             <th>Início</th>
                                                             <th>Fim</th>
                                                             <th style="text-align:center;">Ações</th>
@@ -133,6 +136,7 @@
                                                                 <td>{{$campanha->titulo}}</td>
                                                                 <td>{{$campanha->empresa->nome}}</td>
                                                                 <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo}}</a></td>
+                                                                <td><a href="javascript:;" onclick="preview_checklist('{{ $campanha->checklist->id }}')">{{$campanha->checklist->titulo}}</a></td>
                                                                 <td>{{$campanha->data_inicio_formatada}}</td>
                                                                 <td>{{$campanha->data_fim_formatada}}</td>
                                                                 <td style="text-align:center;">
@@ -148,7 +152,7 @@
                                                                     </td>
                                                             </tr>
                                                         @empty
-                                                            <td colspan="6">Nenhum registro encontrado</td>
+                                                            <td colspan="7">Nenhum registro encontrado</td>
                                                         @endforelse
                                                         </tbody>
                                                     </table>
@@ -178,6 +182,10 @@
     <form action="" id="previewForm" method="post" target="_blank">
         @csrf
     </form>
+
+    <form action="" id="previewCheck" method="post" target="_blank">
+        @csrf
+    </form>    
 
     @section('modal_target')"formSubmit();"@endsection
     @section('modal_type')@endsection
@@ -227,6 +235,15 @@
                 $("#previewForm").submit();
             }
         }
+
+        function preview_checklist(checklist){
+            if(checklist){
+                var url = '{{ route('painel.preview_checklist', [':checklist']) }}';
+                url = url.replace(':checklist', checklist);
+                $("#previewCheck").attr('action', url);
+                $("#previewCheck").submit();
+            }
+        }        
 
     </script>
 

@@ -5,21 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RespostaIndicador extends Model
+class ChecklistPergunta extends Model
 {
     use HasFactory;
 
-    public function resposta()
+    public function checklist_etapa()
     {
-        return $this->belongsTo('App\Models\Resposta');
-    }
-
-    public function campanha_respostas(){
-        return $this->hasMany('App\Models\CampanhaResposta');
+        return $this->belongsTo('App\Models\ChecklistEtapa');
     }
 
     public function checklist_respostas(){
         return $this->hasMany('App\Models\ChecklistResposta');
-    }    
+    }
 
 }

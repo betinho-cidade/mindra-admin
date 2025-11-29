@@ -312,6 +312,7 @@
                                 <th>ID</th>
                                 <th>Campanha</th>
                                 <th>Formulário</th>
+                                <th>Checklist</th>
                                 <th style="text-align:center;">Período</th>
                                 <th style="text-align:center;">Qtd. Ativos</th>
                                 <th style="text-align:center;">Qtd. Liberados</th>
@@ -325,19 +326,27 @@
                                 <tr>
                                     <td>{{ $campanha->id }}</td>
                                     <td>{{ $campanha->titulo }}</td>
-                                    <td><a href="javascript:;" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo}}</a></td>
+                                    <td><a href="javascript:;" title="{{$campanha->formulario->titulo}}" onclick="preview_formulario('{{ $campanha->formulario->id }}')">{{$campanha->formulario->titulo_reduzido}}</a></td>
+                                    <td><a href="javascript:;" title="{{$campanha->checklist->titulo}}" onclick="preview_checklist('{{ $campanha->checklist->id }}')">{{$campanha->checklist->titulo_reduzido}}</a></td>
                                     <td style="text-align:center;">{{ $campanha->periodo }}</td>
                                     <td style="text-align:center;">{{$campanha->empresa->empresa_funcionarios->whereIn('status', ['A'])->count()}}</td>
                                     <td style="text-align:center;">{{$campanha->campanha_funcionarios->count()}}</td>
                                     <td style="text-align:center;">{{$campanha->campanha_funcionarios->whereNotNull('data_realizado')->count()}}</td>
                                     <td style="text-align:center;">
 
+                                        @can('release_checklist_consultor')
+                                            <a href="javascript:;" data-toggle="modal"
+                                            onclick="releaseCheck('{{$campanha->id}}');"
+                                                data-target="#modal-release-check"><i class="mdi mdi-clipboard-check-multiple"
+                                                    style="color: goldenrod" title="Liberar o checklist da Campanha"></i></a>
+                                        @endcan
+
                                         @can('release_campanha_funcionario')
                                             <a href="javascript:;" data-toggle="modal"
                                             onclick="releaseData('{{$campanha->id}}');"
                                                 data-target="#modal-release"><i class="fas fa-mail-bulk"
                                                     style="color: goldenrod" title="Liberar a avaliação da Campanha"></i></a>
-                                        @endcan
+                                        @endcan                                        
 
                                         @can('view_empresa_funcionario')
                                             <a href="{{ route('campanha_empresa.avaliacaos', compact('campanha')) }}"><i class="fas fa-users"
@@ -355,7 +364,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8">Nenhum registro encontrado</td>
+                                    <td colspan="9">Nenhum registro encontrado</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -424,6 +433,26 @@
                 </div>
             </div>
 
+            <div class="modal fade" id="modal-release-check" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog " role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Deseja liberar para os consultores ativos o Checklist da Campanha ?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>O consultor terá seu acesso liberado para a realização do checklist da campanha. </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Fechar </button>
+                            <button type="button" onclick="releaseCheckFormSubmit();" class="btn btn-primary waves-effect waves-light">Liberar Checklist </button>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+
             <div class="modal fade" id="modal-analisa" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog " role="document">
                     <div class="modal-content">
@@ -449,9 +478,18 @@
                 @method('PUT')
             </form>
 
+            <form action="" id="releaseCheckForm" method="post">
+                @csrf
+                @method('PUT')
+            </form>            
+
             <form action="" id="previewForm" method="post" target="_blank">
                 @csrf
             </form>
+
+            <form action="" id="previewCheckForm" method="post" target="_blank">
+                @csrf
+            </form>            
 
             <form action="" id="analisaForm" method="post">
                 @csrf
@@ -518,6 +556,17 @@
 
         function releaseFormSubmit() {
             $("#releaseForm").submit();
+        }        
+
+        function releaseCheck(checklist) {
+            var checklist = checklist;
+            var url = '{{ route('campanha_empresa.libera_consultor', [':checklist']) }}';
+            url = url.replace(':checklist', checklist);
+            $("#releaseCheckForm").attr('action', url);
+        }        
+
+        function releaseCheckFormSubmit() {
+            $("#releaseCheckForm").submit();
         }
 
         function preview_formulario(formulario){
@@ -528,6 +577,15 @@
                 $("#previewForm").submit();
             }
         }
+
+        function preview_checklist(checklist){
+            if(checklist){
+                var url = '{{ route('painel.preview_checklist', [':checklist']) }}';
+                url = url.replace(':checklist', checklist);
+                $("#previewCheckForm").attr('action', url);
+                $("#previewCheckForm").submit();
+            }
+        }        
 
         function analisaData(campanha) {
             var campanha = campanha;

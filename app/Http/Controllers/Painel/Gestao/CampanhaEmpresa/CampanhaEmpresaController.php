@@ -8,6 +8,8 @@ use App\Models\Role;
 use App\Models\Campanha;
 use App\Models\Empresa;
 use App\Models\ConsultorEmpresa;
+use App\Models\ChecklistConsultor;
+use App\Models\ChecklistPergunta;
 use App\Models\Formulario;
 use App\Models\FormularioEtapa;
 use App\Models\FormularioPergunta;
@@ -143,6 +145,108 @@ class CampanhaEmpresaController extends Controller
         return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba', 'resultado_invite'));
     }
 
+    public function libera_consultor(Campanha $campanha, Request $request)
+    {
+        if(Gate::denies('release_checklist_consultor')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        $message = '';
+        $aba = 'Campanhas';
+        $empresa = $campanha->empresa;
+        $resultado_invite = [];
+
+        if(!$this->valida_consultor($campanha->empresa)){
+            abort('403', 'Página não disponível');
+        }
+
+        $consultor_empresas = ConsultorEmpresa::join('empresas', 'consultor_empresas.empresa_id', '=', 'empresas.id')
+                                                    ->whereIn('consultor_empresas.status', ['A'])
+                                                    ->whereIn('empresas.status', ['A'])
+                                                    ->where('empresas.id', $campanha->empresa->id)
+                                                    ->join('campanhas', 'campanhas.empresa_id', '=', 'empresas.id')
+                                                    ->where('campanhas.id', $campanha->id)
+                                                    ->whereNotExists(function($query)
+                                                                        {
+                                                                            $query->select(DB::raw(1))
+                                                                                ->from('checklist_consultors')
+                                                                                ->whereRaw('checklist_consultors.consultor_empresa_id = consultor_empresas.id')
+                                                                                ->whereColumn('checklist_consultors.campanha_id','=','campanhas.id');
+                                                                            })
+
+                                                    ->select('consultor_empresas.*')
+                                                    ->get();
+
+            if(count($consultor_empresas) == 0){
+                $request->session()->flash('message.level', 'danger');
+                $request->session()->flash('message.content', 'Nenhum consultor disponível para liberação');
+                return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba'));
+            }
+
+            try {
+
+                DB::beginTransaction();
+
+                foreach($consultor_empresas as $consultor_empresa){
+                    $newChecklistConsultor = new ChecklistConsultor();
+                    $newChecklistConsultor->campanha_id = $campanha->id;
+                    $newChecklistConsultor->consultor_empresa_id  = $consultor_empresa->id;
+                    $newChecklistConsultor->data_liberado = Carbon::now();
+                    $newChecklistConsultor->save();
+                }
+
+                DB::commit();
+
+            } catch (Exception $ex){
+
+                DB::rollBack();
+
+                if(strpos($ex->getMessage(), 'campanha_funcionario_uk') !== false){
+                    $message = "Não é possível incluir o consultor duas vezes na mesma campanha.";
+                } else{
+                    $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
+                }
+            }
+
+
+            // try {
+            //     $service = new FuncionarioAvaliacaoService($empresa_funcionarios->toArray(), $campanha);
+            //     $results = $service->sendInvites();
+
+            //     $resultado_invite = [
+            //         'success_count' => count($results['success']),
+            //         'errors_count' => count($results['failed']),
+            //         'log_file' => ($results['log_file']) ? $service->getLogAvaliacaoDownloadLink($results['log_file']) : ''
+            //     ];
+
+            // } catch (\Exception $e) {
+
+            //     if($e->getMessage()){
+            //         $request->session()->flash('message.level', 'danger');
+            //         $request->session()->flash('message.content', $e->getMessage());
+            //     }
+
+            //     $resultado_invite = [
+            //         'success_count' => 0,
+            //         'errors_count' => 0,
+            //         'log_file' => ''
+            //     ];
+            // }
+
+
+        if ($message && $message !='') {
+            $request->session()->flash('message.level', 'danger');
+            $request->session()->flash('message.content', $message);
+        } else {
+            $request->session()->flash('message.level', 'success');
+            $request->session()->flash('message.content', 'Processo de liberação executado com sucesso. Consultores liberados ('. count($consultor_empresas) .')');
+        }
+
+        return redirect()->route('empresa_funcionario.show', compact('empresa', 'aba', 'resultado_invite'));
+    }    
+
     public function logAvaliacao(Campanha $campanha, Request $request)
     {
         if(Gate::denies('release_campanha_funcionario')){
@@ -189,6 +293,16 @@ class CampanhaEmpresaController extends Controller
         if(Gate::denies('analisa_campanha_funcionario')){
             abort('403', 'Página não disponível');
         }
+
+        $matriz_formulario = $this->analisar_hse_formulario($campanha, $request);
+        $matriz_checklist = $this->analisar_hse_checklist($campanha, $request);
+
+        return $this->generateDocument($campanha, $matriz_formulario, $matriz_checklist);        
+
+    }
+
+    private function analisar_hse_formulario(Campanha $campanha, Request $request)
+    {
 
         $user = Auth()->User();
 
@@ -315,12 +429,57 @@ class CampanhaEmpresaController extends Controller
        }
 
        foreach($analise_etapas as &$analise_etapa){
-            $analise_etapa['classificacao'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'C');
-            $analise_etapa['diretriz'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'D');
+            $analise_etapa['classificacao'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'C', $analise_etapa['etapa']);
+            $analise_etapa['diretriz'] = $this->textoDiretrizClassificacao($analise_etapa['indice_risco_round'], 'D', $analise_etapa['etapa']);
        }
 
-       return $this->generateDocument($campanha, $analise_etapas, $matrizes);
-    }
+       $matriz_formulario = [
+        'analise_etapas' => $analise_etapas,
+        'matrizes' => $matrizes,
+       ];
+
+       return $matriz_formulario;
+
+    }    
+
+    private function analisar_hse_checklist(Campanha $campanha, Request $request)
+    {
+
+        $user = Auth()->User();
+
+        $results = DB::table('checklist_respostas')
+            ->join('checklist_consultors', 'checklist_respostas.checklist_consultor_id', '=', 'checklist_consultors.id')
+            ->join('campanhas', 'checklist_consultors.campanha_id', '=', 'campanhas.id')
+            ->join('checklist_perguntas', 'checklist_respostas.checklist_pergunta_id', '=', 'checklist_perguntas.id')
+            ->join('checklist_etapas', 'checklist_perguntas.checklist_etapa_id', '=', 'checklist_etapas.id')
+            ->join('checklists', 'checklist_etapas.checklist_id', '=', 'checklists.id')
+            ->join('resposta_indicadors', 'checklist_respostas.resposta_indicador_id', '=', 'resposta_indicadors.id')
+            ->where('campanhas.id', $campanha->id)
+            ->where('checklist_consultors.consultor_empresa_id', function($query) use ($campanha) {
+                    $query->select('consultor_empresa_id')
+                        ->from('checklist_consultors')
+                        ->where('campanha_id', $campanha->id)
+                        ->orderBy('data_realizado', 'asc')
+                        ->limit(1);
+                })     
+            ->whereIn('checklists.visivel_report', ['S'])
+            ->whereIn('checklists.status', ['A'])                       
+            ->select(
+                'checklist_etapas.titulo as titulo_etapa',
+                'checklist_etapas.ordem as etapa_ordem', 
+                'checklist_perguntas.titulo as desc_pergunta',
+                'resposta_indicadors.titulo as desc_resposta'
+            )       
+            ->orderBy('checklist_etapas.ordem')
+            ->orderBy('checklist_perguntas.ordem')
+            ->get();                 
+
+        $matriz_checklist = [
+            'matrizes' => $results,
+        ];       
+
+        return $matriz_checklist;
+    }        
 
     public function destroy_funcionario(Campanha $campanha, CampanhaFuncionario $campanha_funcionario, Request $request)
     {
@@ -366,6 +525,50 @@ class CampanhaEmpresaController extends Controller
         return redirect()->route('campanha_empresa.avaliacaos', compact('campanha'));
     }
 
+    public function destroy_consultor(Campanha $campanha, ChecklistConsultor $checklist_consultor, Request $request)
+    {
+        if(Gate::denies('release_checklist_consultor')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        $message = '';
+
+        if(!$this->valida_consultor($campanha->empresa)){
+            abort('403', 'Página não disponível');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            ChecklistConsultor::where('id', $checklist_consultor->id)
+                                ->delete();
+
+            DB::commit();
+
+        } catch (Exception $ex){
+
+            DB::rollBack();
+
+            if(strpos($ex->getMessage(), 'Integrity constraint violation') !== false){
+                $message = "Não foi possível excluir o registro, pois existem referências ao mesmo em outros processos.";
+            } else{
+                $message = "Erro desconhecido, por gentileza, entre em contato com o administrador. ".$ex->getMessage();
+            }
+        }
+
+        if ($message && $message !='') {
+            $request->session()->flash('message.level', 'danger');
+            $request->session()->flash('message.content', $message);
+        } else {
+            $request->session()->flash('message.level', 'success');
+            $request->session()->flash('message.content', 'O Consultor foi desvinculado do Checklist com sucesso');
+        }
+
+        return redirect()->route('campanha_empresa.avaliacaos', compact('campanha'));
+    }
+
     private function valida_consultor(Empresa $empresa){
 
         $user = Auth()->User();
@@ -387,8 +590,10 @@ class CampanhaEmpresaController extends Controller
         return true;
     }
 
-    private function generateDocument($campanha, $analise_etapas, $matrizes)
+    //private function generateDocument($campanha, $analise_etapas, $matrizes)
+    private function generateDocument($campanha, $matriz_formulario, $matriz_checklist)
     {
+
         // Caminho do template Word
         $templatePath = storage_path('app/templates/template_hse.docx');
 
@@ -441,6 +646,12 @@ class CampanhaEmpresaController extends Controller
             'ANALISE_ETAPA_33' => '',
             'ANALISE_ETAPA_34' => '',
             'ANALISE_ETAPA_35' => '',
+            'CHECKLIST_ANALISE_ETAPA_01' => '',
+            'CHECKLIST_ANALISE_ETAPA_02' => '',
+            'CHECKLIST_ANALISE_ETAPA_03' => '',
+            'CHECKLIST_ANALISE_ETAPA_04' => '',
+            'CHECKLIST_ANALISE_ETAPA_05' => '',
+            'CHECKLIST_ANALISE_ETAPA_06' => '',
         ];
 
         try {
@@ -451,7 +662,7 @@ class CampanhaEmpresaController extends Controller
             $cnt_moderado = 0;
             $cnt_alto = 0;
             $cnt_malto = 0;
-            foreach($analise_etapas as $analise_etapa){
+            foreach($matriz_formulario['analise_etapas'] as $analise_etapa){
 
                 $valor = (int) $analise_etapa['indice_risco_round'];
 
@@ -556,12 +767,15 @@ class CampanhaEmpresaController extends Controller
                         'height' => 125,
                     ],100);
 
-            $cont = 0; $images_list = [];
+
+            // Preencher MATRIZ_FORMULÁRIO ########    
+            // ##################################                
+            $cont = 0; $images_list_formulario = [];
             $indice_imagem = now()->format('YmdHis');
             // Carregar o template e substituir as imagens das perguntas
-            foreach($matrizes as $matriz){
-                $imagePath = $this->generateImageWithBarChart($matriz, $indice_imagem);
-                array_push($images_list, $imagePath);
+            foreach($matriz_formulario['matrizes'] as $matriz){
+                $imagePath = $this->generateImageWithBarChart($matriz, $indice_imagem, 'CHART_');
+                array_push($images_list_formulario, $imagePath);
 
                 $chart = 'CHART_' . ++$cont;
                 $templateProcessor->setImageValue($chart, [
@@ -573,7 +787,159 @@ class CampanhaEmpresaController extends Controller
                 $data['ANALISE_ETAPA_'.$cont] = $matriz['desc_etapa'];
             }
 
-            //Substituir os placeholders
+            // Preencher MATRIZ_CHECKLIST ########      
+            // ##################################    
+            
+            if($matriz_checklist['matrizes'] && count($matriz_checklist['matrizes']) > 0){
+
+                $checklist_1 = 0;
+                $checklist_2 = 0;
+                $checklist_3 = 0;
+                $checklist_4 = 0;
+                $checklist_5 = 0;
+                $checklist_6 = 0;
+                foreach($matriz_checklist['matrizes'] as $analise_etapa){
+
+                    $valor = (int) $analise_etapa->etapa_ordem;
+
+                    switch (true) {
+                        case ($valor == 1):
+                            $checklist_1++;
+                            if($checklist_1 == 1){
+                                $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_1', $analise_etapa->titulo_etapa);    
+                                $templateProcessor->cloneRow('CHECKLIST_PERGUNTA_1',12);
+                            }
+                            $templateProcessor->setValue('CHECKLIST_PERGUNTA_1#'.$checklist_1, $analise_etapa->desc_pergunta);
+                            $templateProcessor->setValue('CHECKLIST_RESPOSTA_1#'.$checklist_1, $analise_etapa->desc_resposta);
+                            break;
+                        case ($valor == 2):
+                            $checklist_2++;
+                            if($checklist_2 == 1){
+                                $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_2', $analise_etapa->titulo_etapa);    
+                                $templateProcessor->cloneRow('CHECKLIST_PERGUNTA_2',7);
+                            }
+                            $templateProcessor->setValue('CHECKLIST_PERGUNTA_2#'.$checklist_2, $analise_etapa->desc_pergunta);
+                            $templateProcessor->setValue('CHECKLIST_RESPOSTA_2#'.$checklist_2, $analise_etapa->desc_resposta);
+                            break;
+                        case ($valor == 3):
+                            $checklist_3++;
+                            if($checklist_3 == 1){
+                                $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_3', $analise_etapa->titulo_etapa);    
+                                $templateProcessor->cloneRow('CHECKLIST_PERGUNTA_3',11);
+                            }
+                            $templateProcessor->setValue('CHECKLIST_PERGUNTA_3#'.$checklist_3, $analise_etapa->desc_pergunta);
+                            $templateProcessor->setValue('CHECKLIST_RESPOSTA_3#'.$checklist_3, $analise_etapa->desc_resposta);
+                            break;
+                        case ($valor == 4):
+                            $checklist_4++;
+                            if($checklist_4 == 1){
+                                $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_4', $analise_etapa->titulo_etapa);    
+                                $templateProcessor->cloneRow('CHECKLIST_PERGUNTA_4',9);
+                            }
+                            $templateProcessor->setValue('CHECKLIST_PERGUNTA_4#'.$checklist_4, $analise_etapa->desc_pergunta);
+                            $templateProcessor->setValue('CHECKLIST_RESPOSTA_4#'.$checklist_4, $analise_etapa->desc_resposta);
+                            break;
+                        case ($valor == 5):
+                            $checklist_5++;
+                            if($checklist_5 == 1){
+                                $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_5', $analise_etapa->titulo_etapa);    
+                                $templateProcessor->cloneRow('CHECKLIST_PERGUNTA_5',5);
+                            }
+                            $templateProcessor->setValue('CHECKLIST_PERGUNTA_5#'.$checklist_5, $analise_etapa->desc_pergunta);
+                            $templateProcessor->setValue('CHECKLIST_RESPOSTA_5#'.$checklist_5, $analise_etapa->desc_resposta);
+                            break;
+                        case ($valor == 6):
+                            $checklist_6++;
+                            if($checklist_6 == 1){
+                                $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_6', $analise_etapa->titulo_etapa);    
+                                $templateProcessor->cloneRow('CHECKLIST_PERGUNTA_6',6);
+                            }
+                            $templateProcessor->setValue('CHECKLIST_PERGUNTA_6#'.$checklist_6, $analise_etapa->desc_pergunta);
+                            $templateProcessor->setValue('CHECKLIST_RESPOSTA_6#'.$checklist_6, $analise_etapa->desc_resposta);
+                            break;                                                                                                                        
+                        default:
+                            $resultado = 'Fora do intervalo';
+                    }
+                }
+
+            
+                if ($checklist_1 >= 0 && $checklist_1 < 12){
+                    if($checklist_1 == 0){
+                        $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_1', 1);
+                    } else {
+                        for($i=12; $i>$checklist_1; $i--){
+                            $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_1#'.$i, 1);
+                        }
+                    }
+                }
+                if ($checklist_2 >= 0 && $checklist_2 < 7){
+                    if($checklist_2 == 0){
+                        $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_2', 1);
+                    } else {
+                        for($i=7; $i>$checklist_2; $i--){
+                            $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_2#'.$i, 1);
+                        }
+                    }
+                }
+                if ($checklist_3 >= 0 && $checklist_3 < 11){
+                    if($checklist_3 == 0){
+                        $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_3', 1);
+                    } else {
+                        for($i=11; $i>$checklist_3; $i--){
+                            $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_3#'.$i, 1);
+                        }
+                    }
+                }
+                if ($checklist_4 >= 0 && $checklist_4 < 9){
+                    if($checklist_4 == 0){
+                        $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_4', 1);
+                    } else {
+                        for($i=9; $i>$checklist_4; $i--){
+                            $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_4#'.$i, 1);
+                        }
+                    }
+                }
+                if ($checklist_5 >= 0 && $checklist_5 < 5){
+                    if($checklist_5 == 0){
+                        $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_5', 1);
+                    } else {
+                        for($i=5; $i>$checklist_5; $i--){
+                            $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_5#'.$i, 1);
+                        }
+                    }
+                }
+                if ($checklist_6 >= 0 && $checklist_6 < 6){
+                    if($checklist_6 == 0){
+                        $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_6', 1);
+                    } else {
+                        for($i=6; $i>$checklist_6; $i--){
+                            $templateProcessor->deleteRow('CHECKLIST_PERGUNTA_6#'.$i, 1);
+                        }
+                    }
+                }                                                
+            } else {
+
+                $checklist_etapas = DB::table('checklist_etapas')
+                            ->join('checklists', 'checklist_etapas.checklist_id', '=', 'checklists.id')
+                            ->join('campanhas', 'campanhas.checklist_id', '=', 'checklists.id')
+                            ->where('campanhas.id', $campanha->id)
+                            ->whereIn('checklists.visivel_report', ['S'])
+                            ->whereIn('checklists.status', ['A'])                       
+                            ->select(
+                                'checklist_etapas.titulo as titulo_etapa',
+                                'checklist_etapas.ordem as etapa_ordem', 
+                            )       
+                            ->orderBy('checklist_etapas.ordem')
+                            ->get();     
+
+                foreach($checklist_etapas as $checklist_etapa){
+                    $templateProcessor->setValue('CHECKLIST_ANALISE_ETAPA_'.$checklist_etapa->etapa_ordem, $checklist_etapa->titulo_etapa);  
+                    $templateProcessor->setValue('CHECKLIST_PERGUNTA_'.$checklist_etapa->etapa_ordem, 'Não respondido');  
+                    $templateProcessor->setValue('CHECKLIST_RESPOSTA_'.$checklist_etapa->etapa_ordem, '...');
+                }
+            }
+
+           //Substituir os placeholders
             foreach($data as $key => $value) {
                 $templateProcessor->setValue($key, $value);
             }
@@ -610,7 +976,7 @@ class CampanhaEmpresaController extends Controller
         // Limpar arquivo temporário
         //unlink($tempFile);
 
-            foreach($images_list as $image){
+            foreach($images_list_formulario as $image){
                 if (file_exists($image)) {
                     // Remover o arquivo temporário da imagem do gráfico após o uso
                     unlink($image);
@@ -636,7 +1002,7 @@ class CampanhaEmpresaController extends Controller
         }
     }
 
-    public function generateImageWithBarChart($matriz, $indice_imagem)
+    public function generateImageWithBarChart($matriz, $indice_imagem, $name_image)
     {
         // --- 1. Gerar o Gráfico de Barras com PHPlot ---
         // https://phplot.sourceforge.net/phplotdocs/
@@ -685,7 +1051,8 @@ class CampanhaEmpresaController extends Controller
             $plot->SetDataType('text-data-yx');
             $plot->SetPlotType('bars');
 
-            $tempImagePath = 'temp_charts/chart_' . $indice_imagem . '_' . $matriz['etapa']  . '_' . $matriz['pergunta'] .  '.png';
+            $tempImagePath = 'temp_charts/' . $name_image . $indice_imagem . '_' . $matriz['etapa']  . '_' . $matriz['pergunta'] .  '.png';
+
             $fullTempImagePath = Storage::disk('public')->path($tempImagePath);
 
             Storage::disk('public')->makeDirectory('temp_charts');
@@ -739,37 +1106,55 @@ class CampanhaEmpresaController extends Controller
         return $cnpj; // Retorna sem formatação se inválido
     }
 
-    private function textoDiretrizClassificacao($indice, $tipo)
+    private function textoDiretrizClassificacao($indice, $tipo, $etapa)
     {
+
+       $etapa_diretriz = [
+            ['etapa' => 22, 'diretriz' => 'Revisar distribuição de tarefas e metas. Adequar quadro de pessoal. Implementar pausas ativas e jornadas flexíveis.'],
+            ['etapa' => 23, 'diretriz' => 'Revisar microgestão excessiva. Criar espaços de participação em decisões. Delegação estruturada com clareza.'],
+            ['etapa' => 24, 'diretriz' => 'Avaliações de liderança. Políticas de desenvolvimento de líderes. Inclusão de metas de clima e bem-estar na gestão.'],
+            ['etapa' => 25, 'diretriz' => 'Incentivar grupos de apoio interno. Criar canais de comunicação horizontal. Estimular cultura de equipe e integração intersetorial.'],
+            ['etapa' => 26, 'diretriz' => 'Promover a escuta ativa e o diálogo contínuo. Reconhecer e valorizar comportamentos positivos. Desenvolver lideranças empáticas e capacitadas.'],
+            ['etapa' => 27, 'diretriz' => 'Revisão de organogramas e descrições de cargo. Comunicação clara de metas. Reuniões periódicas de alinhamento. Onboarding estruturado.'],
+            ['etapa' => 28, 'diretriz' => 'Plano de comunicação de mudanças. Inclusão dos colaboradores no processo. Monitoramento do impacto das mudanças.'],
+        ];
 
        $indice_risco = [
             ['indice' => 1,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
             ['indice' => 2,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
             ['indice' => 3,  'classificacao' => 'Risco Irrelevante', 'diretriz' => 'Monitoramento contínuo. Ações dentro da melhoria contínua.'],
-            ['indice' => 4,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 5,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 6,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 7,  'classificacao' => 'Risco Baixo',		'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
-            ['indice' => 8,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 9,  'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 10, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 11, 'classificacao' => 'Risco Moderado',	'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
-            ['indice' => 12, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 13, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 14, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
-            ['indice' => 15, 'classificacao' => 'Risco Alto',		'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 4,  'classificacao' => 'Risco Baixo',		 'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 5,  'classificacao' => 'Risco Baixo',		 'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 6,  'classificacao' => 'Risco Baixo',		 'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 7,  'classificacao' => 'Risco Baixo',		 'diretriz' => 'Incluir em planos de ação coletivos. Monitorar tendências.'],
+            ['indice' => 8,  'classificacao' => 'Risco Moderado',	 'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 9,  'classificacao' => 'Risco Moderado',	 'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 10, 'classificacao' => 'Risco Moderado',	 'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 11, 'classificacao' => 'Risco Moderado',	 'diretriz' => 'Prioridade básica. Elaborar plano de ação corretiva.'],
+            ['indice' => 12, 'classificacao' => 'Risco Alto',		 'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 13, 'classificacao' => 'Risco Alto',		 'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 14, 'classificacao' => 'Risco Alto',		 'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
+            ['indice' => 15, 'classificacao' => 'Risco Alto',		 'diretriz' => 'Ação corretiva prioritária. Incluir em indicadores gerenciais.'],
             ['indice' => 16, 'classificacao' => 'Risco Muito Alto',  'diretriz' => 'Ação imediata. Pode demandar afastamentos, mudanças organizacionais ou suporte clínico.'],
         ];
 
         // Buscar o item correspondente ao índice
-        foreach($indice_risco as $item) {
-            if ($item['indice'] === (int)$indice) {
-                return $tipo === 'C' ? $item['classificacao'] : $item['diretriz'];
+        if($tipo === 'C'){
+            foreach($indice_risco as $item) {
+                if ($item['indice'] === (int)$indice) {
+                    return $item['classificacao'];
+                }
             }
+        } else {
+            foreach($etapa_diretriz as $item) {
+                if ($item['etapa'] === (int)$etapa) {
+                    return $item['diretriz'];
+                }
+            }            
         }
 
-        if((int)$indice > 16){
-            return $tipo === 'C' ? 'Risco Muito Alto' : 'Ação imediata. Pode demandar afastamentos, mudanças organizacionais ou suporte clínico.';
+        if($tipo === 'C' && (int)$indice > 16){
+            return 'Risco Muito Alto';
         }
 
         // Retornar valor padrão se o índice não for encontrado
@@ -793,3 +1178,4 @@ class CampanhaEmpresaController extends Controller
     }
 
 }
+

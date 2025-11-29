@@ -19,6 +19,7 @@ class CreateRequest extends FormRequest
         return [
             'empresa' => 'required',
             'formulario' => 'required',
+            'checklist' => 'required',
             'titulo' => 'required|max:255',
             'data_inicio' => 'required|date|before:data_fim',
             'data_fim' => 'required|date|after:data_inicio',
@@ -31,6 +32,7 @@ class CreateRequest extends FormRequest
         return [
             'emoresa.required' => 'A empresa é requerida',
             'formulario.required' => 'O formulário é requerido',
+            'checklist.required' => 'O checklist é requerido',
             'titulo.required' => 'O título é requerido',
             'titulo.max' => 'O tamanho permitido para o título é de 255 caracteres',
             'data_inicio.required' => 'A data de início é requerida',

@@ -76,16 +76,6 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="descricao">Descrição</label>
-                                <textarea rows="2" class="form-control" id="descricao" name="descricao" placeholder="Descrição">{{old('descricao')}}</textarea>
-                                <div class="valid-feedback">ok!</div>
-                                <div class="invalid-feedback">Inválido!</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
                                 <label for="formulario">Formulário
                                     <a href="javascript:;" onclick="preview_formulario()">
                                         <i class="mdi mdi-view-grid-plus" style="color: goldenrod" title="Preview Formulário"></i>
@@ -96,6 +86,27 @@
                                     @foreach ($formularios as $formulario)
                                         <option value="{{ $formulario->id }}"
                                             {{ $formulario->id == old('formulario') ? 'selected' : '' }}>{{ $formulario->titulo }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="valid-feedback">ok!</div>
+                                <div class="invalid-feedback">Inválido!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="checklist">Checklist Consultor
+                                    <a href="javascript:;" onclick="preview_checklist()">
+                                        <i class="mdi mdi-view-grid-plus" style="color: goldenrod" title="Preview Checklist Consultor"></i>
+                                    </a>
+                                </label>
+                                <select id="checklist" name="checklist" class="form-control" required>
+                                    <option value="">---</option>
+                                    @foreach ($checklists as $checklist)
+                                        <option value="{{ $checklist->id }}"
+                                            {{ $checklist->id == old('checklist') ? 'selected' : '' }}>{{ $checklist->titulo }}</option>
                                     @endforeach
                                 </select>
                                 <div class="valid-feedback">ok!</div>
@@ -123,6 +134,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="descricao">Descrição</label>
+                                <textarea rows="2" class="form-control" id="descricao" name="descricao" placeholder="Descrição">{{old('descricao')}}</textarea>
+                                <div class="valid-feedback">ok!</div>
+                                <div class="invalid-feedback">Inválido!</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <p></p>
                 <!-- Dados Pessoais - FIM -->
                 <button class="btn btn-primary" type="submit">Salvar Cadastro</button>
@@ -135,6 +158,10 @@
 </div>
 
 <form action="" id="previewForm" method="post" target="_blank">
+    @csrf
+</form>
+
+<form action="" id="previewCheck" method="post" target="_blank">
     @csrf
 </form>
 
@@ -157,6 +184,16 @@
                 $("#previewForm").submit();
             }
         }
+
+        function preview_checklist(){
+            checklist = $('#checklist').val();
+            if(checklist){
+                var url = '{{ route('painel.preview_checklist', [':checklist']) }}';
+                url = url.replace(':checklist', checklist);
+                $("#previewCheck").attr('action', url);
+                $("#previewCheck").submit();
+            }
+        }        
 
     </script>
 

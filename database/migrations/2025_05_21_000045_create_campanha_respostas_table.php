@@ -19,6 +19,7 @@ class CreateCampanhaRespostasTable extends Migration
             $table->foreign('campanha_funcionario_id')->references('id')->on('campanha_funcionarios');
             $table->foreign('formulario_pergunta_id')->references('id')->on('formulario_perguntas');
             $table->foreign('resposta_indicador_id')->references('id')->on('resposta_indicadors');
+            $table->index(['campanha_funcionario_id'], 'idx_campanha_respostas_01');		
         });
     }
 

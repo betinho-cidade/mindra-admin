@@ -45,6 +45,8 @@ class UpdateRequest extends FormRequest
             'departamento' => 'max:50',
             'data_admissao' => 'nullable|date',
             'situacao' => 'required',
+            'password' => 'nullable|min:8',
+            'password_confirm' => 'nullable|required_with:password|min:8|same:password',            
         ];
     }
 
@@ -81,6 +83,10 @@ class UpdateRequest extends FormRequest
             'departamento.max' => 'O tamanho permitido para o Departamento é de 50 caracteres',
             'data_admissao.date' => 'A data de admissão está inválida',
             'situacao.required' => 'A situação é requerida',
+            'password.min' => 'A Nova Senha deve conter no mínimo 8 caracteres',
+            'password_confirm.min' => 'A Senha de Confirmação deve ter no mínimo 8 caracteres',
+            'password_confirm.same' => 'A Senha de Confirmação deve ser igual a Nova Senha',
+            'password_confirm.required_with' => 'A Senha de Confirmação deve ser igual a Nova Senha',            
         ];
     }
 }

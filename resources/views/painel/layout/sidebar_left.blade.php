@@ -64,6 +64,12 @@
                                     <span>Empresas</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('checklist.index') }}" class="waves-effect">
+                                    <i class="ri-file-user-line"></i>
+                                    <span>Checklists</span>
+                                </a>
+                            </li>                            
 
                             <!-- Menus Relacioandos a administração - Acesso somente para CONSULTOR - FIM-->
                             @endif

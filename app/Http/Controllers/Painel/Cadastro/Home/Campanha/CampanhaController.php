@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Campanha;
 use App\Models\Empresa;
 use App\Models\Formulario;
+use App\Models\Checklist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Exception;
@@ -69,6 +70,8 @@ class CampanhaController extends Controller
 
         $formularios = Formulario::whereIn('status', ['A'])->get();
 
+        $checklists = Checklist::whereIn('status', ['A'])->get();
+
         $empresas = Empresa::whereIn('status', ['A'])
                                     ->where(function($query) use ($user)
                                     {
@@ -78,7 +81,7 @@ class CampanhaController extends Controller
                                     })
                                     ->get();
 
-        return view('painel.cadastro.home.campanha.create', compact('user', 'formularios', 'empresas'));
+        return view('painel.cadastro.home.campanha.create', compact('user', 'formularios', 'checklists', 'empresas'));
     }
 
     public function store(CreateRequest $request)
@@ -108,6 +111,7 @@ class CampanhaController extends Controller
 
             $campanha->empresa_id = $request->empresa;
             $campanha->formulario_id = $request->formulario;
+            $campanha->checklist_id = $request->checklist;
             $campanha->titulo = $request->titulo;
             $campanha->descricao = $request->descricao;
             $campanha->data_inicio = $request->data_inicio . ' 00:00:01';

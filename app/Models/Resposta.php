@@ -13,6 +13,10 @@ class Resposta extends Model
         return $this->hasMany('App\Models\Formulario');
     }
 
+    public function checklists(){
+        return $this->hasMany('App\Models\Checklist');
+    }    
+
     public function resposta_indicadors(){
         return $this->hasMany('App\Models\RespostaIndicador');
     }

@@ -19,6 +19,13 @@ class LoginRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'cpf' => Str::of($this->cpf)->replaceMatches('/[^z0-9]++/', '')->__toString(),
+        ]);
+    }    
+
     /**
      * Get the validation rules that apply to the request.
      *

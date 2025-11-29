@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use App\Models\Formulario;
-
+use App\Models\Checklist;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -43,6 +43,17 @@ class PainelController extends Controller
         $user = Auth()->User();
 
         return view('painel.preview_formulario', compact('user', 'formulario'));
+    }
+
+    public function preview_checklist(Checklist $checklist, Request $request)
+    {
+        if(Gate::denies('view_preview_checklist')){
+            abort('403', 'Página não disponível');
+        }
+
+        $user = Auth()->User();
+
+        return view('painel.preview_checklist', compact('user', 'checklist'));
     }
 
     public function js_viacep(Request $request)

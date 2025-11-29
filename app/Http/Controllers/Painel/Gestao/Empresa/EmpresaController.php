@@ -271,7 +271,12 @@ class EmpresaController extends Controller
             $empresa_funcionario->funcionario->user->end_numero = $request->end_numero;
             $empresa_funcionario->funcionario->user->end_bairro = $request->end_bairro;
             $empresa_funcionario->funcionario->user->end_complemento = $request->end_complemento;
+           
+            if($request->password){
+                $empresa_funcionario->funcionario->user->password = bcrypt($request->password);
+            }
             $empresa_funcionario->funcionario->user->save();
+          
 
             $empresa_funcionario->matricula = $request->matricula;
             $empresa_funcionario->cargo = $request->cargo;

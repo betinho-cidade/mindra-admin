@@ -223,6 +223,35 @@ class PermissionSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'id' => 31,
+                    'name' => 'view_preview_checklist',
+                    'description' => 'Visualizar o preview do Checklist',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],        
+                [
+                    'id' => 32,
+                    'name' => 'release_checklist_consultor',
+                    'description' => 'Liberar consultores para realizar o checklist da campanha',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],                       
+                [
+                    'id' => 33,
+                    'name' => 'view_checklist',
+                    'description' => 'Visualizar os checklists',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'id' => 34,
+                    'name' => 'populate_checklist',
+                    'description' => 'Realizar o checklist',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+
             ]);
 
         } else { echo "\e[31mTabela Permissions não está vazia. "; }

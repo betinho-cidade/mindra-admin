@@ -27,40 +27,40 @@
         </div>
     @endif
 
-    @php $formulario = $campanha_funcionario->campanha->formulario;  @endphp
+    @php $checklist = $checklist_consultor->campanha->checklist;  @endphp
 
     <div class="max-w-4xl mx-auto pb-10">
 
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-800 mb-2">{{ $formulario->titulo }}</h1>
-            <p class="text-gray-600 px-4"> {{ $formulario->descricao ?? 'Questões para serem respondidas!' }}</p>
+            <h1 class="text-3xl font-bold text-blue-800 mb-2">{{ $checklist->titulo }}</h1>
+            <p class="text-gray-600 px-4"> {{ $checklist->descricao ?? 'Questões para serem respondidas!' }}</p>
         </div>
 
-        <form id="assessmentForm" name="assessmentForm" method="POST" action="{{route('avaliacao.store', compact('campanha_funcionario'))}}"  class="needs-validation"  accept-charset="utf-8" enctype="multipart/form-data" novalidate>
+        <form id="assessmentForm" name="assessmentForm" method="POST" action="{{route('checklist.store', compact('checklist_consultor'))}}"  class="needs-validation"  accept-charset="utf-8" enctype="multipart/form-data" novalidate>
             @csrf
 
             @php $cont = 0 @endphp
-            @foreach($formulario->formulario_etapas->sortBy('ordem') as $formulario_etapa)
+            @foreach($checklist->checklist_etapas->sortBy('ordem') as $checklist_etapa)
                 @php $cont++; @endphp
                
                 <div class="mb-10">
                     <div class="flex items-center mb-6 border-b-2 border-blue-800 pb-2">
                         <div class="bg-blue-800 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 font-bold">{{$cont}}</div>
-                        <h2 class="text-2xl font-bold text-gray-800">{{ ($formulario->visivel_formulario == 'S' ) ? $formulario_etapa->titulo : 'Responda as questões abaixo' }}</h2>
+                        <h2 class="text-2xl font-bold text-gray-800">{{ ($checklist->visivel_formulario == 'S' ) ? $checklist_etapa->titulo : 'Responda as questões abaixo' }}</h2>
                     </div>
 
-                    @foreach($formulario_etapa->formulario_perguntas->sortBy('ordem') as $formulario_pergunta)
+                    @foreach($checklist_etapa->checklist_perguntas->sortBy('ordem') as $checklist_pergunta)
                     <div class="bg-white p-5 rounded-lg shadow-md mb-6 border border-gray-100">
                         <p class="text-lg font-medium text-gray-800 mb-4">
-                            {{ $formulario_pergunta->titulo }}
+                            {{ $checklist_pergunta->titulo }}
                         </p>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-{{$formulario->resposta->resposta_indicadors->count()}} gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-{{$checklist->resposta->resposta_indicadors->count()}} gap-3">
                              
-                            @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
+                            @foreach($checklist->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
                             <label class="relative w-full">
 
-                                <input type="radio" id="pergunta_{{ $formulario_pergunta->id }}:{{ $resposta_indicador->id }}" name="pergunta_{{ $formulario_pergunta->id }}" value="{{ $resposta_indicador->id }}" class="option-input" required>
+                                <input type="radio" id="pergunta_{{ $checklist_pergunta->id }}:{{ $resposta_indicador->id }}" name="pergunta_{{ $checklist_pergunta->id }}" value="{{ $resposta_indicador->id }}" class="option-input" required>
 
                                 <div class="option-label">
                                     <div class="check-indicator"></div>
@@ -101,7 +101,7 @@
                         placeholder="Escreva aqui suas observações..."
                     >{{ old('observacao') }}</textarea>
                 </div>
-            </div>              
+            </div>            
 
             <div class="mt-8 text-center">
                 <button type="submit" id="submitButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-lg shadow-lg transform transition hover:scale-105 text-lg w-full sm:w-auto" disabled>
@@ -111,6 +111,7 @@
 
         </form>
     </div>
+
 
 @endsection
 
@@ -135,8 +136,8 @@
                 submitButton.removeAttribute('disabled');
                 submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 submitButton.classList.add('hover:bg-blue-600');
-                submitButton.innerHTML = 'Enviar Avaliação';
-                submitButton.innerText = 'Enviar Avaliação';
+                submitButton.innerHTML = 'Enviar Checklist';
+                submitButton.innerText = 'Enviar Checklist';
             } else {
                 submitButton.setAttribute('disabled', 'true');
                 submitButton.classList.add('opacity-50', 'cursor-not-allowed');
@@ -230,3 +231,4 @@
         }
     </style>
 @endsection
+

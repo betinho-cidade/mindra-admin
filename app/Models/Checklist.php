@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Formulario extends Model
+class Checklist extends Model
 {
     use HasFactory;
 
@@ -19,8 +19,8 @@ class Formulario extends Model
         return $this->hasMany('App\Models\Campanha');
     }
 
-    public function formulario_etapas(){
-        return $this->hasMany('App\Models\FormularioEtapa');
+    public function checklist_etapas(){
+        return $this->hasMany('App\Models\ChecklistEtapa');
     }
 
     public function getTituloReduzidoAttribute()
@@ -28,7 +28,6 @@ class Formulario extends Model
         $titulo_reduzido =  Str::limit($this->titulo, ENV('TITULO_REDUZIDO'), '...');
 
         return $titulo_reduzido;
-    }
-
+    }    
 
 }

@@ -6,30 +6,30 @@
     <div class="max-w-4xl mx-auto pb-10">
 
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-800 mb-2">{{ $formulario->titulo }}</h1>
-            <p class="text-gray-600 px-4"> {{ $formulario->descricao ?? 'Prévia das questões que serão exibidas para os funcionários no prenchimento do formulário!' }}</p>
+            <h1 class="text-3xl font-bold text-blue-800 mb-2">{{ $checklist->titulo }}</h1>
+            <p class="text-gray-600 px-4"> {{ $checklist->descricao ?? 'Prévia das questões que serão exibidas para os consutlores no prenchimento do checklist!' }}</p>
         </div>
 
         <form id="assessmentForm">
             @php $cont = -1 @endphp
-            @foreach($formulario->formulario_etapas->sortBy('ordem') as $formulario_etapa)
+            @foreach($checklist->checklist_etapas->sortBy('ordem') as $checklist_etapa)
                 @php $cont++; @endphp
                
                 <div class="mb-10">
                     <div class="flex items-center mb-6 border-b-2 border-blue-800 pb-2">
                         <div class="bg-blue-800 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 font-bold">1</div>
-                        <h2 class="text-2xl font-bold text-gray-800">{{ ($formulario->visivel_formulario == 'S' ) ? $formulario_etapa->titulo : 'Responda as questões abaixo' }}</h2>
+                        <h2 class="text-2xl font-bold text-gray-800">{{ ($checklist->visivel_formulario == 'S' ) ? $checklist_etapa->titulo : 'Responda as questões abaixo' }}</h2>
                     </div>
 
-                    @foreach($formulario_etapa->formulario_perguntas->sortBy('ordem') as $formulario_pergunta)
+                    @foreach($checklist_etapa->checklist_perguntas->sortBy('ordem') as $checklist_pergunta)
                     <div class="bg-white p-5 rounded-lg shadow-md mb-6 border border-gray-100">
                         <p class="text-lg font-medium text-gray-800 mb-4">
-                            {{ $formulario_pergunta->titulo }}
+                           {{ $checklist_pergunta->titulo }}
                         </p>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-{{$formulario->resposta->resposta_indicadors->count()}} gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-{{$checklist->resposta->resposta_indicadors->count()}} gap-3">
                              
-                            @foreach($formulario->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
+                            @foreach($checklist->resposta->resposta_indicadors->sortBy('ordem') as $resposta_indicador)
                             <label class="relative w-full">
                                 <input type="radio" name="pergunta_181" value="12" class="option-input" required>
                                 <div class="option-label">

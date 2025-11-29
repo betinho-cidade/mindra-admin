@@ -12,6 +12,7 @@ class CreateCampanhasTable extends Migration
         Schema::create('campanhas', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('formulario_id');
+			$table->unsignedBigInteger('checklist_id');
             $table->unsignedBigInteger('empresa_id');
             $table->string('titulo', 255);
             $table->longtext('descricao')->nullable();
@@ -24,7 +25,9 @@ class CreateCampanhasTable extends Migration
             $table->foreign('campanha_created')->references('id')->on('users');
             $table->foreign('campanha_updated')->references('id')->on('users');
             $table->foreign('formulario_id')->references('id')->on('formularios');
+			$table->foreign('checklist_id')->references('id')->on('checklists');
             $table->foreign('empresa_id')->references('id')->on('empresas');
+            $table->index(['empresa_id', 'formulario_id', 'status'], 'idx_campanhas_01');
         });
     }
 

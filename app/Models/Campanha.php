@@ -36,6 +36,11 @@ class Campanha extends Model
         return $this->belongsTo('App\Models\Formulario');
     }
 
+    public function checklist()
+    {
+        return $this->belongsTo('App\Models\Checklist');
+    }    
+
     public function empresa()
     {
         return $this->belongsTo('App\Models\Empresa');
@@ -44,6 +49,10 @@ class Campanha extends Model
     public function campanha_funcionarios(){
         return $this->hasMany('App\Models\CampanhaFuncionario');
     }
+
+    public function checklist_consultors(){
+        return $this->hasMany('App\Models\ChecklistConsultor');
+    }    
 
     public function getDataInicioAjustadaAttribute()
     {

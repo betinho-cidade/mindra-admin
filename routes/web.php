@@ -29,6 +29,7 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
 
             Route::get('/', 'PainelController@index')->name('painel');
             Route::post('/preview_formulario/{formulario}', 'PainelController@preview_formulario')->name('painel.preview_formulario');
+            Route::post('/preview_checklist/{checklist}', 'PainelController@preview_checklist')->name('painel.preview_checklist');            
             Route::post('/js_viacep', 'PainelController@js_viacep')->name('painel.js_viacep');
             Route::post('/js_cnpj', 'PainelController@js_cnpj')->name('painel.js_cnpj');
             Route::post('/js_menu_aberto', 'PainelController@js_menu_aberto')->name('painel.js_menu_aberto');
@@ -99,7 +100,9 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                     Route::get('/campanha_empresa/{campanha}/avaliacaos', 'CampanhaEmpresaController@avaliacaos')->name('campanha_empresa.avaliacaos');
                     Route::put('/campanha_empresa/{campanha}/analisar_hse', 'CampanhaEmpresaController@analisar_hse')->name('campanha_empresa.analisar_hse');
                     Route::put('/campanha_empresa/{campanha}/libera_funcionario', 'CampanhaEmpresaController@libera_funcionario')->name('campanha_empresa.libera_funcionario');
+                    Route::put('/campanha_empresa/{campanha}/libera_consultor', 'CampanhaEmpresaController@libera_consultor')->name('campanha_empresa.libera_consultor');
                     Route::delete('/campanha_empresa/{campanha}/campanha_funcionario/{campanha_funcionario}/destroy_funcionario', 'CampanhaEmpresaController@destroy_funcionario')->name('campanha_empresa.destroy_funcionario');
+                    Route::delete('/campanha_empresa/{campanha}/checklist_consultor/{checklist_consultor}/destroy_consultor', 'CampanhaEmpresaController@destroy_consultor')->name('campanha_empresa.destroy_consultor');
                 });
 
             });
@@ -122,6 +125,12 @@ Route::group(['namespace' => 'App\Http\Controllers'], function(){
                     Route::post('/relatorio/avaliacao/{campanha_funcionario}/start', 'AvaliacaoController@start')->name('avaliacao.start');
                     Route::post('/relatorio/avaliacao/{campanha_funcionario}/store', 'AvaliacaoController@store')->name('avaliacao.store');
                 });
+
+                Route::group(['namespace' => 'Checklist'], function(){
+                    Route::get('/relatorio/checklist', 'ChecklistController@index')->name('checklist.index');
+                    Route::post('/relatorio/checklist/{checklist_consultor}/start', 'ChecklistController@start')->name('checklist.start');
+                    Route::post('/relatorio/checklist/{checklist_consultor}/store', 'ChecklistController@store')->name('checklist.store');
+                });                
 
             });
 

@@ -146,13 +146,13 @@ class PermissionRoleSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
-                                [
+                [
                     'permission_id' => 23,
                     'role_id' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
-                                [
+                [
                     'permission_id' => 24,
                     'role_id' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
@@ -182,6 +182,18 @@ class PermissionRoleSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'permission_id' => 31,
+                    'role_id' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],      
+                [
+                    'permission_id' => 32,
+                    'role_id' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],                          
 
                 //CONSULTOR
 
@@ -311,6 +323,30 @@ class PermissionRoleSeeder extends Seeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'permission_id' => 31,
+                    'role_id' => 2,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],                
+                [
+                    'permission_id' => 32,
+                    'role_id' => 2,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'permission_id' => 33,
+                    'role_id' => 2,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'permission_id' => 34,
+                    'role_id' => 2,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],                
 
                 //FUNCIONARIO
 

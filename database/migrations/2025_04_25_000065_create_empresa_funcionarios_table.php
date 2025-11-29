@@ -26,6 +26,9 @@ class CreateEmpresaFuncionariosTable extends Migration
             $table->unique(['empresa_id', 'funcionario_id'], 'empresa_funcionario_uk');
             $table->foreign('empresa_funcionario_created')->references('id')->on('users');
             $table->foreign('empresa_funcionario_updated')->references('id')->on('users');
+            $table->index(['empresa_id'], 'idx_empresa_funcionarios_01');	
+            $table->index(['empresa_id', 'funcionario_id'], 'idx_empresa_funcionarios_02');	
+            $table->index(['empresa_id', 'departamento'], 'idx_empresa_funcionarios_03');	
         });
     }
 

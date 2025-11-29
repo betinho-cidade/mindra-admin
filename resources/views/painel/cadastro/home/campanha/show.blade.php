@@ -71,19 +71,19 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="descricao">Descrição</label>
-                                <textarea rows="2" class="form-control" id="descricao" name="descricao" placeholder="Descrição">{{$campanha->descricao}}</textarea>
-                                <div class="valid-feedback">ok!</div>
-                                <div class="invalid-feedback">Inválido!</div>
+                                <label for="formulario">Formulário</label>
+                                <select class="form-control">
+                                    <option>{{ $campanha->formulario->titulo }}</option>
+                                </select>
                             </div>
-                        </div>
+                        </div>                        
                     </div>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="formulario">Formulário</label>
+                                <label for="checklist">Checklist Consultor</label>
                                 <select class="form-control">
-                                    <option>{{ $campanha->formulario->titulo }}</option>
+                                    <option>{{ $campanha->checklist->titulo }}</option>
                                 </select>
                             </div>
                         </div>
@@ -107,6 +107,16 @@
                                 <div class="invalid-feedback">Inválido!</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="descricao">Descrição</label>
+                                <textarea rows="2" class="form-control" id="descricao" name="descricao" placeholder="Descrição">{{$campanha->descricao}}</textarea>
+                                <div class="valid-feedback">ok!</div>
+                                <div class="invalid-feedback">Inválido!</div>
+                            </div>
+                        </div>                        
                     </div>
                     <p></p>
                 <!-- Dados Pessoais - FIM -->

@@ -73,7 +73,7 @@
 
                 <div id="chart_risco_dimensao" class="chart-div">
                     <div class="chart-header-and-filters">
-                        <h2>Médio do Risco por Dimensão <span id="title-media-risco"></span></h2>
+                        <h2>Média do Risco por Dimensão <span id="title-media-risco"></span></h2>
                     </div>
                     <div class="filter-row">
                         <form id="form_departamento">
