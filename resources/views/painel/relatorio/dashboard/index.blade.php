@@ -364,6 +364,7 @@
 
             if (selectedEmpresa != ''){
                 const chartArea = document.getElementById('chart_evolucao_empresa_chart_area');
+                chartArea.innerHTML = '';
                 const spinner = document.getElementById('spinner_evolucao');
 
                 spinner.style.display = 'block';
@@ -508,6 +509,8 @@
             const selectedCompanyId = companySelect.value;
             const spinner = document.getElementById('spinner_departamento');
 
+            document.getElementById('chart_departamento_chart_area').innerHTML = '';
+
             campaignSelect.innerHTML = '<option value="">Carregando Campanhas...</option>';
             campaignSelect.disabled = true;
             spinner.style.display = 'block';
@@ -558,6 +561,7 @@
             const selectedCampaignId = campaignSelect.value;
 
             const chartAreaDiv = document.getElementById('chart_departamento_chart_area');
+            chartAreaDiv.innerHTML = '';
             const spinner = document.getElementById('spinner_departamento');
 
             spinner.style.display = 'block';
@@ -714,6 +718,9 @@
             const selectedCompanyId = companySelect.value;
             const spinner = document.getElementById('spinner_risco_dimensao');
 
+            document.getElementById('chart_risco_dimensao_chart_area').innerHTML = '';
+            document.getElementById('title-media-risco').innerHTML = '';            
+
             campaignSelect.innerHTML = '<option value="">Carregando Campanhas...</option>';
             campaignSelect.disabled = true;
             departmentSelect.innerHTML = '<option value="">Selecione a Campanha</option>';
@@ -771,6 +778,9 @@
             const selectedCampaignId = campaignSelect.value;
             const spinner = document.getElementById('spinner_risco_dimensao');
 
+            document.getElementById('chart_risco_dimensao_chart_area').innerHTML = ''; 
+            document.getElementById('title-media-risco').innerHTML = '';            
+
             departmentSelect.innerHTML = '<option value="">Carregando Departamentos...</option>';
             departmentSelect.disabled = true;
             spinner.style.display = 'block';
@@ -823,6 +833,7 @@
             const selectedDepartmentText = departmentSelect.value;
 
             const chartAreaDiv = document.getElementById('chart_risco_dimensao_chart_area');
+            chartAreaDiv.innerHTML = '';
             const spinner = document.getElementById('spinner_risco_dimensao');
 
             spinner.style.display = 'block';
